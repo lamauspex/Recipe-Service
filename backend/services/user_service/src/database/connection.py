@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from typing import Generator
 import os
 
-from backend.services.user_service.src.database.connection import Base
+from backend.services.user_service.src.models import Base
 
 # Получение настроек из окружения
 DATABASE_URL = os.getenv(
@@ -34,7 +34,9 @@ SessionLocal = sessionmaker(
 
 @contextmanager
 def get_db() -> Generator[Session, None, None]:
-    """Контекстный менеджер для работы с сессией базы данных"""
+    """
+    Контекстный менеджер для работы с сессией базы данных
+    """
     db = SessionLocal()
     try:
         yield db
@@ -47,16 +49,22 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    """Инициализация базы данных - создание всех таблиц"""
+    """
+    Инициализация базы данных - создание всех таблиц
+    """
     Base.metadata.create_all(bind=engine)
 
 
 def get_db_session() -> Session:
-    """Получение сессии базы данных
-    (для использования вне контекстного менеджера)"""
+    """
+    Получение сессии базы данных
+    (для использования вне контекстного менеджера)
+    """
     return SessionLocal()
 
 
 def close_db_connection(db: Session) -> None:
-    """Закрытие соединения с базой данных"""
+    """
+    Закрытие соединения с базой данных
+    """
     db.close()

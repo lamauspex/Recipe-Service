@@ -6,13 +6,16 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from backend.services.user_service.src.database.connection import get_db
+from backend.services.user_service.src.models import RefreshToken, User
 from backend.services.user_service.src.schemas import (
     UserCreate, UserResponse, UserLogin, Token,
     UserUpdate, RefreshTokenRequest
 )
-from backend.services.user_service.src.services.auth_service import (
-    AuthService,
-    UserService
+from backend.services.user_service.src.services.user_service import UserService
+from backend.services.user_service.src.services.auth_service import AuthService
+from backend.services.user_service.src.middleware.jwt_middleware import (
+    get_current_active_user,
+    get_current_admin_user
 )
 
 router = APIRouter()
@@ -82,34 +85,30 @@ async def login_user(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user(
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user)
 ):
-    """Получение текущего пользователя
-    (заглушка - нужно реализовать JWT валидацию)
-    """
-    # TODO: Реализовать JWT валидацию и получение текущего пользователя
-    # Пока возвращаем тестового пользователя
-    user_service = UserService(db)
-    test_user = user_service.get_user_by_username("test_user")
-    if not test_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден"
-        )
-    return test_user
+    """Получение текущего пользователя"""
+    return current_user
 
 
 @router.put("/me", response_model=UserResponse)
 async def update_current_user(
     user_data: UserUpdate,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Обновление данных текущего пользователя"""
-    # TODO: Реализовать JWT валидацию и обновление текущего пользователя
     user_service = UserService(db)
 
-    # Заглушка - обновляем пользователя с ID=1
-    user = user_service.update_user(1, user_data)
+    # Обновление только разрешенных полей
+    update_data = user_data.model_dump(exclude_unset=True)
+    if "password" in update_data:
+        # Если пароль меняется, нужно его захешировать
+        auth_service = AuthService(db)
+        update_data["hashed_password"] = auth_service.get_password_hash(
+            update_data.pop("password"))
+
+    user = user_service.update_user(current_user.id, user_data)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -124,23 +123,79 @@ async def refresh_token(
     db: Session = Depends(get_db)
 ):
     """Обновление access token через refresh token"""
-    # TODO: Реализовать валидацию refresh token и генерацию новых токенов
     auth_service = AuthService(db)
 
-    # Заглушка - возвращаем новые токены
-    access_token, refresh_token = auth_service.create_test_tokens()
+    # Верификация refresh token
+    payload = auth_service.verify_token(refresh_data.refresh_token)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверный или просроченный refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Проверка, что это refresh token
+    if payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверный тип токена",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Проверка, не отозван ли токен
+    refresh_token_model = db.query(RefreshToken).filter(
+        RefreshToken.token == refresh_data.refresh_token,
+        not RefreshToken.is_revoked
+    ).first()
+    if not refresh_token_model:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token отозван",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Получение пользователя из refresh token
+    user = auth_service.get_user_from_token(refresh_data.refresh_token)
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Пользователь не найден или неактивен",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Генерация новых токенов
+    access_token, new_refresh_token = auth_service.create_tokens(user)
 
     return {
         "access_token": access_token,
-        "refresh_token": refresh_token,
+        "refresh_token": new_refresh_token,
         "token_type": "bearer"
     }
+
+
+@router.post("/logout")
+async def logout_user(
+    refresh_data: RefreshTokenRequest,
+    db: Session = Depends(get_db)
+):
+    """Выход из системы (отзыв refresh token)"""
+    auth_service = AuthService(db)
+    success = auth_service.revoke_refresh_token(refresh_data.refresh_token)
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token не найден или уже отозван"
+        )
+
+    return {"message": "Успешный выход из системы"}
 
 
 @router.get("/", response_model=List[UserResponse])
 async def get_users(
     skip: int = 0,
     limit: int = 100,
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
     """Получение списка пользователей (для админов)"""
@@ -152,9 +207,10 @@ async def get_users(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: int,
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
-    """Получение пользователя по ID"""
+    """Получение пользователя по ID (для админов)"""
     user_service = UserService(db)
     user = user_service.get_user(user_id)
     if not user:

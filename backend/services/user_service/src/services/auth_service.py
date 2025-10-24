@@ -4,13 +4,15 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from passlib import CryptContext
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+import os
 
 from backend.services.user_service.src.models import User, RefreshToken
 
 # Настройки JWT
-SECRET_KEY = "your-secret-key-here-change-in-production"
+SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY", "your-secret-key-here-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -156,3 +158,15 @@ class AuthService:
         refresh_token = self.create_refresh_token(
             {"sub": "test_user", "user_id": 1})
         return access_token, refresh_token
+
+    def get_user_from_token(self, token: str) -> Optional[User]:
+        """Получение пользователя из токена"""
+        payload = self.verify_token(token)
+        if payload is None:
+            return None
+
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+
+        return self.db.query(User).filter(User.username == username).first()

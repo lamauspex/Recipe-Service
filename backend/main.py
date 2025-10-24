@@ -1,18 +1,28 @@
 """
-User Service - FastAPI микросервис для управления пользователями
+Запуск всех серверов
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.services.user_service.src.api.routes import router
 from backend.services.user_service.src.middleware.exception_handler import (
-    setup_exception_handlers)
+    setup_exception_handlers
+)
+from backend.services.user_service.src.database.connection import init_db
 
 app = FastAPI(
     title="User Service",
     description="API для управления пользователями платформы рецептов",
     version="1.0.0"
 )
+
+
+# Инициализация базы данных при старте
+@app.on_event("startup")
+async def startup_event():
+    """Инициализация базы данных при запуске сервиса"""
+    init_db()
+
 
 # Настройка CORS
 app.add_middleware(
