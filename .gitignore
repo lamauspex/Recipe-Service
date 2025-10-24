@@ -1,0 +1,6 @@
+mark_3/
+project_structure
+.pytest_cache/
+__pycache__/
+.env
+.env.example
