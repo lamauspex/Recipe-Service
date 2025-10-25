@@ -2,7 +2,7 @@
 Модели данных для user-service
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
 
@@ -60,7 +60,13 @@ class User(Base):
     )
 
     def __repr__(self):
-        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+        return (
+            f"<User("
+            f"id={self.id}, "
+            f"username='{self.username}', "
+            f"email='{self.email}'"
+            f")>"
+        )
 
 
 class RefreshToken(Base):

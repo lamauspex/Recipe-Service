@@ -15,20 +15,27 @@
 ```
 user-service/
 ├── src/
+│   │
 │   ├── main.py                 # Основной файл приложения
 │   ├── models.py              # SQLAlchemy модели
 │   ├── schemas.py             # Pydantic схемы
+│   │
 │   ├── api/
 │   │   └── routes.py          # API роуты
+│   │
 │   ├── services/
 │   │   ├── auth_service.py    # Сервис аутентификации
 │   │   └── user_service.py    # Сервис пользователей
+│   │
 │   ├── database/
 │   │   └── connection.py      # Подключение к БД
+│   │
 │   └── middleware/
 │       └── exception_handler.py # Обработчики исключений
+│   
 ├── tests/
 │   └── test_main.py           # Тесты
+│   
 ├── requirements.txt           # Зависимости
 ├── Dockerfile                 # Docker конфигурация
 ├── run.py                     # Скрипт для запуска
@@ -53,7 +60,7 @@ export DATABASE_URL="postgresql://user:password@localhost:5432/user_service_db"
 python run.py
 ```
 
-Сервис будет доступен на http://localhost:8001
+Сервис будет доступен на http://localhost:8000
 
 ### 2. Запуск через Docker
 

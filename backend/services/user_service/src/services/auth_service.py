@@ -6,16 +6,19 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-import os
 
-from backend.services.user_service.src.models import User, RefreshToken
+from backend.settings import settings_auth
+from backend.services.user_service.src.models import User
+from backend.services.user_service.src.repository.repo import (
+    RefreshTokenRepository
+)
+
 
 # Настройки JWT
-SECRET_KEY = os.getenv(
-    "JWT_SECRET_KEY", "your-secret-key-here-change-in-production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+SECRET_KEY = settings_auth.SECRET_KEY
+ALGORITHM = settings_auth.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings_auth.ACCESS_TOKEN_EXPIRE_MINUTES
+REFRESH_TOKEN_EXPIRE_DAYS = settings_auth.REFRESH_TOKEN_EXPIRE_DAYS
 
 # Контекст для хеширования паролей - используем Argon2
 pwd_context = CryptContext(
@@ -33,6 +36,7 @@ class AuthService:
 
     def __init__(self, db: Session):
         self.db = db
+        self.refresh_token_repo = RefreshTokenRepository(db)
 
     def verify_password(self,
                         plain_password: str,
@@ -53,7 +57,10 @@ class AuthService:
                           password: str
                           ) -> Optional[User]:
         """Аутентификация пользователя"""
-        user = self.db.query(User).filter(User.username == username).first()
+        from .user_service import UserService
+        user_service = UserService(self.db)
+        user = user_service.get_user_by_username(username)
+
         if not user:
             return None
         if not self.verify_password(password, user.hashed_password):
@@ -105,36 +112,14 @@ class AuthService:
             expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         )
 
-        # Сохранение refresh token в базу данных
-        self._save_refresh_token(user.id, refresh_token)
-
-        return access_token, refresh_token
-
-    def _save_refresh_token(self, user_id: int, token: str) -> None:
-        """Сохранение refresh token в базу данных"""
+        # Сохранение refresh token в базу данных через репозиторий
         expires_at = datetime.now(timezone.utc) + \
             timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        self.refresh_token_repo.create_refresh_token(
+            user.id, refresh_token, expires_at
+        )
 
-        # Проверяем, есть ли уже токен для этого пользователя
-        existing_token = self.db.query(RefreshToken).filter(
-            RefreshToken.user_id == user_id
-        ).first()
-
-        if existing_token:
-            # Обновляем существующий токен
-            existing_token.token = token
-            existing_token.expires_at = expires_at
-            existing_token.is_revoked = False
-        else:
-            # Создаем новый токен
-            refresh_token = RefreshToken(
-                user_id=user_id,
-                token=token,
-                expires_at=expires_at
-            )
-            self.db.add(refresh_token)
-
-        self.db.commit()
+        return access_token, refresh_token
 
     def verify_token(self, token: str) -> Optional[dict]:
         """Верификация JWT токена"""
@@ -152,16 +137,7 @@ class AuthService:
 
     def revoke_refresh_token(self, token: str) -> bool:
         """Отзыв refresh token"""
-        refresh_token = self.db.query(RefreshToken).filter(
-            RefreshToken.token == token
-        ).first()
-
-        if refresh_token:
-            refresh_token.is_revoked = True
-            self.db.commit()
-            return True
-
-        return False
+        return self.refresh_token_repo.revoke_token(token)
 
     def create_test_tokens(self) -> tuple[str, str]:
         """Метод для тестирования - создает тестовые токены"""
@@ -181,4 +157,6 @@ class AuthService:
         if username is None:
             return None
 
-        return self.db.query(User).filter(User.username == username).first()
+        from .user_service import UserService
+        user_service = UserService(self.db)
+        return user_service.get_user_by_username(username)

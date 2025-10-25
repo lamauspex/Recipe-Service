@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend.services.user_service.src.models import User
 from backend.services.user_service.src.schemas import UserCreate, UserUpdate
+from backend.services.user_service.src.repository.repo import UserRepository
 
 
 class UserService:
@@ -13,6 +14,7 @@ class UserService:
 
     def __init__(self, db: Session):
         self.db = db
+        self.repository = UserRepository(db)
 
     def create_user(self, user_data: UserCreate) -> User:
         """Создание нового пользователя"""
@@ -21,98 +23,72 @@ class UserService:
         auth_service = AuthService(self.db)
         hashed_password = auth_service.get_password_hash(user_data.password)
 
-        db_user = User(
-            username=user_data.username,
-            email=user_data.email,
-            hashed_password=hashed_password,
-            full_name=user_data.full_name,
-            bio=user_data.bio
-        )
+        user_dict = {
+            "username": user_data.username,
+            "email": user_data.email,
+            "hashed_password": hashed_password,
+            "full_name": user_data.full_name,
+            "bio": user_data.bio
+        }
 
-        self.db.add(db_user)
-        self.db.commit()
-        self.db.refresh(db_user)
-
-        return db_user
+        return self.repository.create_user(user_dict)
 
     def get_user(self, user_id: int) -> Optional[User]:
         """Получение пользователя по ID"""
-        return self.db.query(User).filter(User.id == user_id).first()
+        return self.repository.get_user_by_id(user_id)
 
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Получение пользователя по username"""
-        return self.db.query(User).filter(User.username == username).first()
+        return self.repository.get_user_by_username(username)
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Получение пользователя по email"""
-        return self.db.query(User).filter(User.email == email).first()
+        return self.repository.get_user_by_email(email)
 
     def update_user(self,
                     user_id: int,
                     user_data: UserUpdate
                     ) -> Optional[User]:
         """Обновление данных пользователя"""
-        user = self.get_user(user_id)
-        if not user:
-            return None
+        # Если user_data это уже dict, используем его напрямую
+        if isinstance(user_data, dict):
+            update_data = user_data
+        else:
+            # Используем правильный метод для Pydantic v2
+            if hasattr(user_data, 'model_dump'):
+                update_data = user_data.model_dump(exclude_unset=True)
+            else:
+                # Fallback для старых версий
+                update_data = user_data.dict(exclude_unset=True)
 
-        update_data = user_data.model_dump(exclude_unset=True)
+        # Валидация email при обновлении
+        if "email" in update_data:
+            existing_user = self.get_user_by_email(update_data["email"])
+            if existing_user and existing_user.id != user_id:
+                raise ValueError("Пользователь с таким email уже существует")
 
-        for field, value in update_data.items():
-            setattr(user, field, value)
-
-        self.db.commit()
-        self.db.refresh(user)
-
-        return user
+        return self.repository.update_user(user_id, update_data)
 
     def delete_user(self, user_id: int) -> bool:
         """Удаление пользователя"""
-        user = self.get_user(user_id)
-        if not user:
-            return False
-
-        self.db.delete(user)
-        self.db.commit()
-
-        return True
+        return self.repository.delete_user(user_id)
 
     def get_users(self, skip: int = 0, limit: int = 100) -> List[User]:
         """Получение списка пользователей"""
-        return self.db.query(User).offset(skip).limit(limit).all()
+        return self.repository.get_users(skip=skip, limit=limit)
+
+    def get_active_users(self, skip: int = 0, limit: int = 100) -> List[User]:
+        """Получение списка активных пользователей"""
+        return self.repository.get_active_users(skip=skip, limit=limit)
 
     def activate_user(self, user_id: int) -> Optional[User]:
         """Активация пользователя"""
-        user = self.get_user(user_id)
-        if not user:
-            return None
-
-        user.is_active = True
-        self.db.commit()
-        self.db.refresh(user)
-
-        return user
+        return self.repository.update_user(user_id, {"is_active": True})
 
     def deactivate_user(self, user_id: int) -> Optional[User]:
         """Деактивация пользователя"""
-        user = self.get_user(user_id)
-        if not user:
-            return None
-
-        user.is_active = False
-        self.db.commit()
-        self.db.refresh(user)
-
-        return user
+        return self.repository.update_user(user_id, {"is_active": False})
 
     def set_admin(self, user_id: int, is_admin: bool = True) -> Optional[User]:
         """Установка прав администратора"""
-        user = self.get_user(user_id)
-        if not user:
-            return None
-
-        user.is_admin = is_admin
-        self.db.commit()
-        self.db.refresh(user)
-
-        return user
+        return self.repository.update_user(user_id, {"is_admin": is_admin})
