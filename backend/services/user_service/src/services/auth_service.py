@@ -7,6 +7,7 @@ import secrets
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from backend.settings import settings_auth
 from backend.services.user_service.src.models import User
@@ -113,7 +114,7 @@ class AuthService:
     def create_tokens(self, user: User) -> tuple[str, str]:
         """Создание access и refresh токенов для пользователя"""
         access_token_data = {"sub": user.username}
-        refresh_token_data = {"sub": user.username, "user_id": user.id}
+        refresh_token_data = {"sub": user.username, "user_id": str(user.id)}
 
         access_token = self.create_access_token(
             data=access_token_data,
@@ -154,10 +155,11 @@ class AuthService:
 
     def create_test_tokens(self) -> tuple[str, str]:
         """Метод для тестирования - создает тестовые токены"""
-        # Для тестирования создаем токены для тестового пользователя
+        # Для тестирования создаем токены для тестового пользователя с UUID
+        test_uuid = UUID('12345678-1234-5678-1234-567812345678')
         access_token = self.create_access_token({"sub": "test_user"})
         refresh_token = self.create_refresh_token(
-            {"sub": "test_user", "user_id": 1})
+            {"sub": "test_user", "user_id": str(test_uuid)})
         return access_token, refresh_token
 
     def get_user_from_token(self, token: str) -> Optional[User]:

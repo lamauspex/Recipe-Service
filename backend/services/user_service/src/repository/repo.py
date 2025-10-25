@@ -2,8 +2,9 @@
 Repository слой для работы с пользователями
 """
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from typing import List, Optional
+from uuid import UUID
 from backend.services.user_service.src.models import User, RefreshToken
 
 
@@ -13,7 +14,7 @@ class UserRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    def get_user_by_id(self, user_id: UUID) -> Optional[User]:
         """Получение пользователя по ID"""
         return self.db.query(User).filter(User.id == user_id).first()
 
@@ -33,7 +34,7 @@ class UserRepository:
         self.db.refresh(user)
         return user
 
-    def update_user(self, user_id: int, update_data: dict) -> Optional[User]:
+    def update_user(self, user_id: UUID, update_data: dict) -> Optional[User]:
         """Обновление пользователя"""
         user = self.get_user_by_id(user_id)
         if not user:
@@ -46,7 +47,7 @@ class UserRepository:
         self.db.refresh(user)
         return user
 
-    def delete_user(self, user_id: int) -> bool:
+    def delete_user(self, user_id: UUID) -> bool:
         """Удаление пользователя"""
         user = self.get_user_by_id(user_id)
         if not user:
@@ -63,7 +64,7 @@ class UserRepository:
     def get_active_users(self, skip: int = 0, limit: int = 100) -> List[User]:
         """Получение списка активных пользователей"""
         return self.db.query(User).filter(
-            User.is_active is True
+            User.is_active.is_(True)
         ).offset(skip).limit(limit).all()
 
 
@@ -73,7 +74,7 @@ class RefreshTokenRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_refresh_token(self, user_id: int, token: str, expires_at):
+    def create_refresh_token(self, user_id: UUID, token: str, expires_at) -> RefreshToken:
         """Создание refresh токена"""
         # Отзываем старые токены пользователя
         self.revoke_user_tokens(user_id)
@@ -93,7 +94,7 @@ class RefreshTokenRepository:
         return self.db.query(RefreshToken).filter(
             and_(
                 RefreshToken.token == token,
-                RefreshToken.is_revoked == False
+                RefreshToken.is_revoked.is_(False)
             )
         ).first()
 
@@ -109,7 +110,7 @@ class RefreshTokenRepository:
             return True
         return False
 
-    def revoke_user_tokens(self, user_id: int) -> None:
+    def revoke_user_tokens(self, user_id: UUID) -> None:
         """Отзыв всех токенов пользователя"""
         self.db.query(RefreshToken).filter(
             RefreshToken.user_id == user_id
