@@ -19,17 +19,17 @@ async def lifespan(app: FastAPI):
     # Код при остановке приложения (если нужен)
     print("Application shutting down.")
 
-app = FastAPI(lifespan=lifespan)
 
+app = FastAPI(
+    title="User Service API",
+    description="Сервис управления пользователями",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
-@app.on_event("startup")
-async def startup_event():
-    # Инициализация базы данных
-    init_db()
-    print("Application started.")
 
 setup_exception_handlers(app)
-app.include_router(router, prefix="/api/v1")
+app.include_router(router)
 
 if __name__ == "__main__":
     uvi_run(app, host="0.0.0.0", port=int(settings.SERVICE_PORT))
