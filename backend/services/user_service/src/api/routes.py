@@ -7,6 +7,7 @@ from sqlalchemy import text
 from typing import List
 from datetime import datetime, timezone
 import logging
+from uuid import UUID
 
 from backend.services.user_service.src.database.connection import get_db
 from backend.services.user_service.src.models import User
@@ -336,7 +337,7 @@ async def get_users(
             summary="Получение пользователя по ID (для админов)"
             )
 async def get_user(
-    user_id: int,
+    user_id: UUID,
     current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):

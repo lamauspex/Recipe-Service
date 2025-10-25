@@ -3,6 +3,7 @@
 """
 from typing import Optional, List
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from backend.services.user_service.src.models import User
 from backend.services.user_service.src.schemas import UserCreate, UserUpdate
@@ -33,7 +34,7 @@ class UserService:
 
         return self.repository.create_user(user_dict)
 
-    def get_user(self, user_id: int) -> Optional[User]:
+    def get_user(self, user_id: UUID) -> Optional[User]:
         """Получение пользователя по ID"""
         return self.repository.get_user_by_id(user_id)
 
@@ -46,7 +47,7 @@ class UserService:
         return self.repository.get_user_by_email(email)
 
     def update_user(self,
-                    user_id: int,
+                    user_id: UUID,
                     user_data: UserUpdate
                     ) -> Optional[User]:
         """Обновление данных пользователя"""
@@ -69,7 +70,7 @@ class UserService:
 
         return self.repository.update_user(user_id, update_data)
 
-    def delete_user(self, user_id: int) -> bool:
+    def delete_user(self, user_id: UUID) -> bool:
         """Удаление пользователя"""
         return self.repository.delete_user(user_id)
 
@@ -81,14 +82,14 @@ class UserService:
         """Получение списка активных пользователей"""
         return self.repository.get_active_users(skip=skip, limit=limit)
 
-    def activate_user(self, user_id: int) -> Optional[User]:
+    def activate_user(self, user_id: UUID) -> Optional[User]:
         """Активация пользователя"""
         return self.repository.update_user(user_id, {"is_active": True})
 
-    def deactivate_user(self, user_id: int) -> Optional[User]:
+    def deactivate_user(self, user_id: UUID) -> Optional[User]:
         """Деактивация пользователя"""
         return self.repository.update_user(user_id, {"is_active": False})
 
-    def set_admin(self, user_id: int, is_admin: bool = True) -> Optional[User]:
+    def set_admin(self, user_id: UUID, is_admin: bool = True) -> Optional[User]:
         """Установка прав администратора"""
         return self.repository.update_user(user_id, {"is_admin": is_admin})

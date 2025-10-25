@@ -4,6 +4,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, field_validator
+from uuid import UUID
 
 
 class UserBase(BaseModel):
@@ -35,7 +36,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     """Схема ответа с данными пользователя"""
-    id: int
+    id: UUID
     is_active: bool
     is_admin: bool
     created_at: datetime
