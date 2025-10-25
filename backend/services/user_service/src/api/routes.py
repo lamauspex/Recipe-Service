@@ -3,7 +3,9 @@
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import List
+from datetime import datetime
 
 from backend.services.user_service.src.database.connection import get_db
 from backend.services.user_service.src.models import RefreshToken, User
@@ -18,12 +20,35 @@ from backend.services.user_service.src.middleware.jwt_middleware import (
     get_current_admin_user
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/users", tags=["Users"])
+
+
+@router.get("/health",
+            summary="Проверка состояния сервиса",
+            tags=["health"]
+            )
+async def health_check(db: Session = Depends(get_db)):
+    """Проверка состояния сервиса и базы данных"""
+    try:
+        # Проверка подключения к базе данных
+        db.execute(text("SELECT 1"))
+        db_status = "healthy"
+    except Exception:
+        db_status = "unhealthy"
+
+    return {
+        "status": "healthy" if db_status == "healthy" else "unhealthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "service": "user-service",
+        "database": db_status,
+        "version": "1.0.0"
+    }
 
 
 @router.post("/register",
              response_model=UserResponse,
-             status_code=status.HTTP_201_CREATED
+             status_code=status.HTTP_201_CREATED,
+             summary="Регистрация нового пользователя"
              )
 async def register_user(
     user_data: UserCreate,
@@ -50,7 +75,10 @@ async def register_user(
     return user
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login",
+             response_model=Token,
+             summary="Аутентификация пользователя"
+             )
 async def login_user(
     login_data: UserLogin,
     db: Session = Depends(get_db)
@@ -83,7 +111,10 @@ async def login_user(
     }
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me",
+            response_model=UserResponse,
+            summary="Получение текущего пользователя"
+            )
 async def get_current_user(
     current_user: User = Depends(get_current_active_user)
 ):
@@ -91,7 +122,10 @@ async def get_current_user(
     return current_user
 
 
-@router.put("/me", response_model=UserResponse)
+@router.put("/me-update",
+            response_model=UserResponse,
+            summary="Обновление данных текущего пользователя"
+            )
 async def update_current_user(
     user_data: UserUpdate,
     current_user: User = Depends(get_current_active_user),
@@ -118,7 +152,10 @@ async def update_current_user(
     return user
 
 
-@router.post("/refresh", response_model=Token)
+@router.post("/refresh",
+             response_model=Token,
+             summary="Обновление access token через refresh token"
+             )
 async def refresh_token(
     refresh_data: RefreshTokenRequest,
     db: Session = Depends(get_db)
@@ -174,7 +211,9 @@ async def refresh_token(
     }
 
 
-@router.post("/logout")
+@router.post("/logout",
+             summary="Выход из системы (отзыв refresh token)"
+             )
 async def logout_user(
     refresh_data: RefreshTokenRequest,
     db: Session = Depends(get_db)
@@ -192,7 +231,10 @@ async def logout_user(
     return {"message": "Успешный выход из системы"}
 
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("/",
+            response_model=List[UserResponse],
+            summary="Получение списка пользователей (для админов)"
+            )
 async def get_users(
     skip: int = 0,
     limit: int = 100,
@@ -205,7 +247,10 @@ async def get_users(
     return users
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}",
+            response_model=UserResponse,
+            summary="Получение пользователя по ID (для админов)"
+            )
 async def get_user(
     user_id: int,
     current_user: User = Depends(get_current_admin_user),

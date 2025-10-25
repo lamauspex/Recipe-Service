@@ -36,13 +36,30 @@ def setup_exception_handlers(app: FastAPI) -> None:
     ):
         """Обработчик исключений валидации запросов"""
         logger.warning(f"Validation Error: {exc.errors()}")
+
+        # Конвертируем ошибки в JSON-сериализуемый формат
+        serializable_errors = []
+        for error in exc.errors():
+            serializable_error = {
+                "type": error.get("type"),
+                "loc": error.get("loc"),
+                "msg": error.get("msg"),
+                "input": error.get("input"),
+                "ctx": error.get("ctx")
+            }
+            # Удаляем не-сериализуемые объекты из ctx
+            if serializable_error["ctx"] and "error" in serializable_error["ctx"]:
+                serializable_error["ctx"]["error"] = str(
+                    serializable_error["ctx"]["error"])
+            serializable_errors.append(serializable_error)
+
         return JSONResponse(
             status_code=422,
             content={
                 "error": {
                     "status_code": 422,
                     "message": "Ошибка валидации данных",
-                    "details": exc.errors(),
+                    "details": serializable_errors,
                     "type": "VALIDATION_ERROR"
                 }
             }

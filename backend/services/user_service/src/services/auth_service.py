@@ -1,7 +1,7 @@
 """
 Сервис аутентификации для user-service
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -17,8 +17,15 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
-# Контекст для хеширования паролей
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Контекст для хеширования паролей - используем Argon2
+pwd_context = CryptContext(
+    schemes=["argon2"],
+    deprecated="auto",
+    argon2__time_cost=3,      # Количество итераций
+    argon2__memory_cost=65536,  # Используемая память в KB
+    argon2__parallelism=4,    # Количество потоков
+    argon2__hash_len=32       # Длина хеша
+)
 
 
 class AuthService:
@@ -36,6 +43,9 @@ class AuthService:
 
     def get_password_hash(self, password: str) -> str:
         """Хеширование пароля"""
+        # Argon2 не имеет ограничения на длину пароля, но ограничим
+        if len(password.encode('utf-8')) > 1024:
+            raise ValueError("Пароль слишком длинный (максимум 1024 байта)")
         return pwd_context.hash(password)
 
     def authenticate_user(self,
@@ -58,9 +68,9 @@ class AuthService:
         """Создание access token"""
         to_encode = data.copy()
         if expires_delta:
-            expire = datetime.utcnow() + expires_delta
+            expire = datetime.now(timezone.utc) + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(minutes=15)
+            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
         to_encode.update({"exp": expire, "type": "access"})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
@@ -72,9 +82,10 @@ class AuthService:
         """Создание refresh token"""
         to_encode = data.copy()
         if expires_delta:
-            expire = datetime.utcnow() + expires_delta
+            expire = datetime.now(timezone.utc) + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+            expire = datetime.now(timezone.utc) + \
+                timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode.update({"exp": expire, "type": "refresh"})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
@@ -101,7 +112,8 @@ class AuthService:
 
     def _save_refresh_token(self, user_id: int, token: str) -> None:
         """Сохранение refresh token в базу данных"""
-        expires_at = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at = datetime.now(timezone.utc) + \
+            timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
 
         # Проверяем, есть ли уже токен для этого пользователя
         existing_token = self.db.query(RefreshToken).filter(

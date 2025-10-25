@@ -4,20 +4,30 @@ JWT Middleware для аутентификации пользователей
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+from typing import Optional
 
 from backend.services.user_service.src.database.connection import get_db
 from backend.services.user_service.src.services.auth_service import AuthService
 from backend.services.user_service.src.models import User
 
-security = HTTPBearer()
+# Используем auto_error=False для обработки случаев, когда токен отсутствует
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """Получение текущего пользователя из JWT токена"""
     auth_service = AuthService(db)
+
+    # Проверяем, есть ли токен
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Требуется аутентификация",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     # Верификация токена
     payload = auth_service.verify_token(credentials.credentials)
