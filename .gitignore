@@ -4,3 +4,4 @@ project_structure
 __pycache__/
 .env
 .env.example
+certs/

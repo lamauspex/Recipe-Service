@@ -1,19 +1,16 @@
 """
 Подключение к базе данных для user-service
 """
+from unittest.mock import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
 from typing import Generator
-import os
 
-from backend.services.user_service.src.models import Base
+from backend.settings import settings
 
-# Получение настроек из окружения
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://user:password@localhost:5432/user_service_db"
-)
+# Создание движка SQLAlchemy
+DATABASE_URL = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
 # Создание движка SQLAlchemy
 engine = create_engine(

@@ -108,7 +108,8 @@ async def update_current_user(
         update_data["hashed_password"] = auth_service.get_password_hash(
             update_data.pop("password"))
 
-    user = user_service.update_user(current_user.id, user_data)
+    # ИСПРАВЛЕНО: передаем update_data вместо user_data
+    user = user_service.update_user(current_user.id, update_data)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
