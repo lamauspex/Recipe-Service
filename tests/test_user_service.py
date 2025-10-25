@@ -222,7 +222,17 @@ class TestUserAPI:
 
         # Небольшая задержка для создания токена
         import time
-        time.sleep(0.1)
+        time.sleep(0.2)  # Увеличим задержку
+
+        # Проверяем, что токен создан в базе
+        with TestingSessionLocal() as db:
+            token_record = db.query(RefreshToken).filter(
+                RefreshToken.token == refresh_token
+            ).first()
+            print(f"Token exists in DB: {token_record is not None}")
+            if token_record:
+                print(f"Token revoked: {token_record.is_revoked}")
+                print(f"Token expires: {token_record.expires_at}")
 
         # Обновление токена
         refresh_data = {"refresh_token": refresh_token}

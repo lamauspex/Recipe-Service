@@ -223,7 +223,7 @@ async def refresh_token(
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Проверка, что это refresh token
+        # Проверяем, что это refresh token
         if payload.get("type") != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -231,18 +231,21 @@ async def refresh_token(
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Проверка, что этоозозиторий, не отозван ли токен
+        # Проверяем, существует ли и не отозван ли токен
         refresh_token_model = auth_service.refresh_token_repo.get_valid_token(
             refresh_data.refresh_token
         )
         if not refresh_token_model:
+            # Дополнительная отладочная информация
+            logger.warning(
+                f"Refresh token not found or revoked: {refresh_data.refresh_token[:20]}...")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Refresh token отозван или недействителен",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Получение пользователя из refresh token
+        # Получаем пользователя из refresh token
         user = auth_service.get_user_from_token(refresh_data.refresh_token)
         if not user or not user.is_active:
             raise HTTPException(
@@ -250,6 +253,9 @@ async def refresh_token(
                 detail="Пользователь не найден или неактивен",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+        # Отзываем старый refresh token перед созданием нового
+        auth_service.revoke_refresh_token(refresh_data.refresh_token)
 
         # Генерация новых токенов
         access_token, new_refresh_token = auth_service.create_tokens(user)

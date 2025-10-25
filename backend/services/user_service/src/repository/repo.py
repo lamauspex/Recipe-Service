@@ -93,7 +93,7 @@ class RefreshTokenRepository:
         return self.db.query(RefreshToken).filter(
             and_(
                 RefreshToken.token == token,
-                not RefreshToken.is_revoked
+                RefreshToken.is_revoked == False
             )
         ).first()
 
