@@ -1,23 +1,35 @@
 """
 Подключение к базе данных для user-service
+Обертка над общим подключением из backend.database
 """
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from contextlib import contextmanager
-from typing import Generator
-import psycopg2
 
 from backend.settings import settings
 from backend.services.user_service.src.models import Base
 
+# Используем общее подключение из базового модуля
+from backend.database.connection import (
+    SessionLocal,
+    get_db as base_get_db,
+    get_db_context as base_get_db_context,
+    get_db_session as base_get_db_session,
+    close_db_connection as base_close_db_connection,
+    test_connection as base_test_connection
+)
+
+# Простые альтернативы для обратной совместимости
+get_db = base_get_db
+get_db_context = base_get_db_context
+get_db_session = base_get_db_session
+close_db_connection = base_close_db_connection
+test_connection = base_test_connection
 
 # Создание движка SQLAlchemy с правильным драйвером
 DATABASE_URL = (
     f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}"
     f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 )
-
 
 # Создание движка SQLAlchemy с дополнительными параметрами для кодировки
 engine = create_engine(
@@ -32,91 +44,22 @@ engine = create_engine(
     }
 )
 
-# Создание фабрики сессий
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
-
-
-def get_db() -> Generator[Session, None, None]:
-    """
-    Dependency function для FastAPI - предоставляет сессию БД
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-@contextmanager
-def get_db_context() -> Generator[Session, None, None]:
-    """
-    Контекстный менеджер для работы с сессией базы данных
-    """
-    db = SessionLocal()
-    try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        db.close()
-
-
-def test_connection() -> bool:
-    """
-    Тестирование подключения к базе данных
-    """
-    try:
-        print("Testing database connection...")
-        conn = psycopg2.connect(
-            host=settings.DB_HOST,
-            port=settings.DB_PORT,
-            database=settings.DB_NAME,
-            user=settings.DB_USER,
-            password=settings.DB_PASSWORD,
-            client_encoding='utf8'
-        )
-        conn.close()
-        print("Database connection successful!")
-        return True
-    except Exception as e:
-        print(f"Database connection failed: {e}")
-        return False
-
 
 def init_db() -> None:
     """
-    Инициализация базы данных - создание всех таблиц
+    Инициализация базы данных - создание таблиц user-service
     """
     try:
-        print("Initializing database...")
+        print("Initializing user-service database tables...")
 
-        # Сначала тестируем подключение
+        # Тестируем подключение
         if not test_connection():
             raise Exception("Cannot connect to database")
 
-        Base.metadata.create_all(bind=engine)
-        print("Database tables created successfully.")
+        # Создаем таблицы только для user-service
+        Base.metadata.create_all(bind=SessionLocal.kw["bind"])
+        print("User service database tables created successfully.")
+
     except Exception as e:
-        print(f"Error creating database tables: {e}")
+        print(f"Error creating user service database tables: {e}")
         raise
-
-
-def get_db_session() -> Session:
-    """
-    Получение сессии базы данных
-    (для использования вне контекстного менеджера)
-    """
-    return SessionLocal()
-
-
-def close_db_connection(db: Session) -> None:
-    """
-    Закрытие соединения с базой данных
-    """
-    db.close()
