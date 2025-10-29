@@ -9,7 +9,8 @@ import os
 from backend.services.user_service.src.services.user_service import UserService
 from backend.services.user_service.src.schemas import UserCreate
 from backend.services.user_service.src.services.auth_service import AuthService
-from backend.services.user_service.src.models import User, RefreshToken, Base
+from backend.services.user_service.src.models import User, RefreshToken
+from backend.database.models import BaseModel
 
 
 # Единая тестовая база данных в корне проекта
@@ -21,12 +22,11 @@ test_engine = create_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
-    echo=False  # Отключаем логирование SQL для чистоты вывода тестов
+    echo=False
 )
 
+
 # Добавляем поддержку UUID для SQLite и другие настройки
-
-
 @event.listens_for(test_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
@@ -45,25 +45,26 @@ TestingSessionLocal = sessionmaker(
     bind=test_engine
 )
 
+
 # Общие функции для управления тестовой базой данных
-
-
 def create_test_tables():
     """Создание тестовых таблиц"""
     # Импортируем все модели здесь для гарантии их регистрации
-    from backend.services.user_service.src.models import User, RefreshToken
-    Base.metadata.create_all(bind=test_engine)
+    BaseModel.metadata.create_all(bind=test_engine)
     print("Таблицы созданы успешно")
 
 
 def drop_test_tables():
     """Удаление тестовых таблиц"""
-    Base.metadata.drop_all(bind=test_engine)
+    BaseModel.metadata.drop_all(bind=test_engine)
 
 
 def cleanup_test_data(db_session):
     """Очистка тестовых данных между тестами"""
     try:
+        # Сначала откатываем любые незавершенные транзакции
+        db_session.rollback()
+
         # Получаем инспектор для проверки существования таблиц
         inspector = inspect(db_session.bind)
 
@@ -91,9 +92,8 @@ def get_test_db():
     """Получение тестовой сессии базы данных"""
     return TestingSessionLocal()
 
+
 # Утилиты для тестов
-
-
 def create_test_user(
     db_session,
     username="testuser",

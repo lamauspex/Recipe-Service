@@ -105,9 +105,8 @@ def admin_client(client, test_admin_user):
     if "Authorization" in client.headers:
         del client.headers["Authorization"]
 
+
 # Параметры для pytest
-
-
 def pytest_configure(config):
     """Конфигурация pytest"""
     # Добавляем маркеры для тестов

@@ -14,6 +14,35 @@ from backend.services.user_service.src.models import User
 security = HTTPBearer(auto_error=False)
 
 
+class JWTBearer(HTTPBearer):
+    """Класс для JWT Bearer аутентификации"""
+
+    def __init__(self, auto_error: bool = False):
+        super().__init__(auto_error=auto_error)
+
+    async def __call__(self, request):
+        credentials = await super().__call__(request)
+        if credentials:
+            # Проверка формата токена может быть добавлена здесь
+            return credentials
+        return None
+
+
+class AdminBearer(HTTPBearer):
+    """Класс для администраторской JWT Bearer аутентификации"""
+
+    def __init__(self, auto_error: bool = False):
+        super().__init__(auto_error=auto_error)
+
+    async def __call__(self, request):
+        credentials = await super().__call__(request)
+        if credentials:
+            # Дополнительная проверка прав
+            # администратора может быть добавлена здесь
+            return credentials
+        return None
+
+
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
