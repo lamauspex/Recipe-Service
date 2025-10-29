@@ -6,28 +6,12 @@ from datetime import datetime, timezone, timedelta
 from uuid import UUID
 
 from backend.services.user_service.src.models import User, RefreshToken
-from tests.test_config import TestingSessionLocal
 
 
 class TestUserModels:
     """Тесты моделей данных"""
 
-    def setup_method(self):
-        """Настройка перед каждым тестом"""
-        self.db = TestingSessionLocal()
-
-    def teardown_method(self):
-        """Очистка после каждого теста"""
-        try:
-            self.db.query(RefreshToken).delete()
-            self.db.query(User).delete()
-            self.db.commit()
-        except Exception:
-            self.db.rollback()
-        finally:
-            self.db.close()
-
-    def test_user_model_creation(self):
+    def test_user_model_creation(self, db_session):
         """Тест создания модели пользователя"""
         user = User(
             username="testuser",
@@ -39,9 +23,9 @@ class TestUserModels:
             is_admin=False
         )
 
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
 
         assert user.id is not None
         assert isinstance(user.id, UUID)
@@ -55,7 +39,7 @@ class TestUserModels:
         assert user.created_at is not None
         assert isinstance(user.created_at, datetime)
 
-    def test_user_model_repr(self):
+    def test_user_model_repr(self, db_session):
         """Тест строкового представления пользователя"""
         user = User(
             username="testuser",
@@ -63,9 +47,9 @@ class TestUserModels:
             hashed_password="hashed_password123"
         )
 
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
 
         repr_str = repr(user)
         assert "User" in repr_str
@@ -73,7 +57,7 @@ class TestUserModels:
         assert "username='testuser'" in repr_str
         assert "email='test@example.com'" in repr_str
 
-    def test_user_model_unique_constraints(self):
+    def test_user_model_unique_constraints(self, db_session):
         """Тест уникальных ограничений пользователя"""
         # Первый пользователь
         user1 = User(
@@ -81,8 +65,8 @@ class TestUserModels:
             email="test@example.com",
             hashed_password="hashed_password123"
         )
-        self.db.add(user1)
-        self.db.commit()
+        db_session.add(user1)
+        db_session.commit()
 
         # Второй пользователь с таким же username
         user2 = User(
@@ -90,12 +74,12 @@ class TestUserModels:
             email="test2@example.com",
             hashed_password="hashed_password123"
         )
-        self.db.add(user2)
+        db_session.add(user2)
 
         with pytest.raises(Exception):  # Должна быть ошибка уникальности
-            self.db.commit()
+            db_session.commit()
 
-        self.db.rollback()
+        db_session.rollback()
 
         # Третий пользователь с таким же email
         user3 = User(
@@ -103,12 +87,12 @@ class TestUserModels:
             email="test@example.com",  # Дубликат
             hashed_password="hashed_password123"
         )
-        self.db.add(user3)
+        db_session.add(user3)
 
         with pytest.raises(Exception):  # Должна быть ошибка уникальности
-            self.db.commit()
+            db_session.commit()
 
-    def test_refresh_token_model_creation(self):
+    def test_refresh_token_model_creation(self, db_session):
         """Тест создания модели refresh токена"""
         # Сначала создаем пользователя
         user = User(
@@ -116,9 +100,9 @@ class TestUserModels:
             email="testtoken@example.com",
             hashed_password="hashed_password123"
         )
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
 
         # Создаем токен
         expires_at = datetime.now(timezone.utc) + timedelta(days=7)
@@ -128,9 +112,9 @@ class TestUserModels:
             expires_at=expires_at
         )
 
-        self.db.add(token)
-        self.db.commit()
-        self.db.refresh(token)
+        db_session.add(token)
+        db_session.commit()
+        db_session.refresh(token)
 
         assert token.id is not None
         assert isinstance(token.id, UUID)
@@ -142,16 +126,16 @@ class TestUserModels:
         assert token.expires_at.replace(
             tzinfo=None) == expires_at.replace(tzinfo=None)
 
-    def test_refresh_token_model_repr(self):
+    def test_refresh_token_model_repr(self, db_session):
         """Тест строкового представления refresh токена"""
         user = User(
             username="testuser_repr",
             email="testrepr@example.com",
             hashed_password="hashed_password123"
         )
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
 
         token = RefreshToken(
             user_id=user.id,
@@ -159,25 +143,25 @@ class TestUserModels:
             expires_at=datetime.now(timezone.utc) + timedelta(days=7)
         )
 
-        self.db.add(token)
-        self.db.commit()
-        self.db.refresh(token)
+        db_session.add(token)
+        db_session.commit()
+        db_session.refresh(token)
 
         repr_str = repr(token)
         assert "RefreshToken" in repr_str
         assert f"id={token.id}" in repr_str
         assert f"user_id={user.id}" in repr_str
 
-    def test_refresh_token_unique_constraint(self):
+    def test_refresh_token_unique_constraint(self, db_session):
         """Тест уникальности токена"""
         user = User(
             username="testuser_unique",
             email="testunique@example.com",
             hashed_password="hashed_password123"
         )
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
 
         # Первый токен
         token1 = RefreshToken(
@@ -185,8 +169,8 @@ class TestUserModels:
             token="same_token",
             expires_at=datetime.now(timezone.utc) + timedelta(days=7)
         )
-        self.db.add(token1)
-        self.db.commit()
+        db_session.add(token1)
+        db_session.commit()
 
         # Второй токен с таким же значением
         token2 = RefreshToken(
@@ -194,21 +178,21 @@ class TestUserModels:
             token="same_token",  # Дубликат
             expires_at=datetime.now(timezone.utc) + timedelta(days=7)
         )
-        self.db.add(token2)
+        db_session.add(token2)
 
         with pytest.raises(Exception):  # Должна быть ошибка уникальности
-            self.db.commit()
+            db_session.commit()
 
-    def test_cascade_delete_user_tokens(self):
+    def test_cascade_delete_user_tokens(self, db_session):
         """Тест каскадного удаления токенов при удалении пользователя"""
         user = User(
             username="testuser_cascade",
             email="testcascade@example.com",
             hashed_password="hashed_password123"
         )
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
 
         # Создаем несколько токенов
         for i in range(3):
@@ -217,23 +201,23 @@ class TestUserModels:
                 token=f"token_{i}",
                 expires_at=datetime.now(timezone.utc) + timedelta(days=7)
             )
-            self.db.add(token)
+            db_session.add(token)
 
-        self.db.commit()
+        db_session.commit()
 
         # Проверяем, что токены созданы
-        tokens = self.db.query(RefreshToken).filter(
+        tokens = db_session.query(RefreshToken).filter(
             RefreshToken.user_id == user.id).all()
         assert len(tokens) == 3
 
         # Удаляем пользователя и его токены вручную
-        self.db.query(RefreshToken).filter(
+        db_session.query(RefreshToken).filter(
             RefreshToken.user_id == user.id).delete()
-        self.db.delete(user)
-        self.db.commit()
+        db_session.delete(user)
+        db_session.commit()
 
         # Проверяем, что токены удалены
-        tokens = self.db.query(RefreshToken).filter(
+        tokens = db_session.query(RefreshToken).filter(
             RefreshToken.user_id == user.id).all()
         assert len(tokens) == 0
 

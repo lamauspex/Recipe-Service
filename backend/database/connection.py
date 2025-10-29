@@ -11,6 +11,7 @@ from typing import Generator
 import os
 
 from backend.shared.config import get_settings
+from backend.services.user_service.src.models import BaseModel as UserBase
 
 # Базовый класс для всех моделей
 Base = declarative_base()
@@ -55,7 +56,11 @@ def create_database_engine():
 engine = create_database_engine()
 
 # Фабрика сессий
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -93,10 +98,6 @@ def init_db() -> None:
     Должна вызываться каждым сервисом для своих моделей
     """
     try:
-        # Импортируем модели из всех сервисов
-        # Это гарантирует, что все таблицы будут созданы
-        from backend.services.user_service.src.models import Base as UserBase
-
         # Создаем таблицы
         UserBase.metadata.create_all(bind=engine)
         print("Database tables created successfully.")
@@ -144,6 +145,6 @@ def recreate_database() -> None:
         raise RuntimeError(
             "Cannot recreate database in production environment")
 
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    UserBase.metadata.drop_all(bind=engine)
+    UserBase.metadata.create_all(bind=engine)
     print("Database recreated successfully.")

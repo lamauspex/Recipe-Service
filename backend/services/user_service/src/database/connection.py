@@ -6,7 +6,7 @@
 from sqlalchemy import create_engine
 
 from backend.settings import settings
-from backend.services.user_service.src.models import Base
+from backend.database.models import BaseModel
 
 # Используем общее подключение из базового модуля
 from backend.database.connection import (
@@ -57,7 +57,7 @@ def init_db() -> None:
             raise Exception("Cannot connect to database")
 
         # Создаем таблицы только для user-service
-        Base.metadata.create_all(bind=SessionLocal.kw["bind"])
+        BaseModel.metadata.create_all(bind=SessionLocal.kw["bind"])
         print("User service database tables created successfully.")
 
     except Exception as e:
