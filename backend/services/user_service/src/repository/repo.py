@@ -2,7 +2,7 @@
 Repository слой для работы с пользователями
 """
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, func
+from sqlalchemy import and_
 from typing import List, Optional
 from uuid import UUID
 from backend.services.user_service.src.models import User, RefreshToken
