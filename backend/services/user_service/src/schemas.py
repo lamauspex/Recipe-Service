@@ -1,46 +1,47 @@
+from backend.database.schemas import (
+    UserBase,
+    UserCreate as BaseUserCreate,
+    UserUpdate as BaseUserUpdate,
+    UserResponse as BaseUserResponse,
+    Token as BaseToken,
+    TokenData as BaseTokenData
+)
+
+from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
+
 """
 Схемы Pydantic для user-service
+Наследуются от базовых схем из backend.database.schemas
 """
-from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, EmailStr, field_validator
-from uuid import UUID
 
 
-class UserBase(BaseModel):
-    """Базовая схема пользователя"""
-    username: str
-    email: EmailStr
-    full_name: Optional[str] = None
-    bio: Optional[str] = None
-
-
-class UserCreate(UserBase):
+class UserCreate(BaseUserCreate):
     """Схема для создания пользователя"""
-    password: str
+    email: EmailStr
 
     @field_validator('password')
     @classmethod
     def validate_password(cls, v):
         if len(v) < 8:
             raise ValueError('Пароль должен содержать минимум 8 символов')
+        if not any(c.isupper() for c in v):
+            raise ValueError(
+                'Пароль должен содержать хотя бы одну заглавную букву')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну цифру')
         return v
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(BaseUserUpdate):
     """Схема для обновления пользователя"""
-    full_name: Optional[str] = None
-    bio: Optional[str] = None
     email: Optional[EmailStr] = None
+    bio: Optional[str] = None
 
 
-class UserResponse(UserBase):
+class UserResponse(BaseUserResponse):
     """Схема ответа с данными пользователя"""
-    id: UUID
-    is_active: bool
-    is_admin: bool
-    created_at: datetime
-    updated_at: Optional[datetime] = None
+    bio: Optional[str] = None
 
     model_config = {'from_attributes': True}
 
@@ -51,16 +52,14 @@ class UserLogin(BaseModel):
     password: str
 
 
-class Token(BaseModel):
+class Token(BaseToken):
     """Схема токена доступа"""
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
+    pass
 
 
-class TokenData(BaseModel):
+class TokenData(BaseTokenData):
     """Схема данных из токена"""
-    username: Optional[str] = None
+    pass
 
 
 class RefreshTokenRequest(BaseModel):
@@ -83,4 +82,24 @@ class PasswordResetConfirm(BaseModel):
     def validate_password(cls, v):
         if len(v) < 8:
             raise ValueError('Пароль должен содержать минимум 8 символов')
+        if not any(c.isupper() for c in v):
+            raise ValueError(
+                'Пароль должен содержать хотя бы одну заглавную букву')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну цифру')
         return v
+
+
+# Для обратной совместимости с существующим кодом
+__all__ = [
+    'UserBase',
+    'UserCreate',
+    'UserUpdate',
+    'UserResponse',
+    'UserLogin',
+    'Token',
+    'TokenData',
+    'RefreshTokenRequest',
+    'PasswordResetRequest',
+    'PasswordResetConfirm'
+]

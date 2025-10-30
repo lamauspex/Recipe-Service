@@ -10,7 +10,6 @@ import typing as t
 from backend.database.models import BaseModel, UserMixin, SoftDeleteMixin
 
 
-# Пример модели для сервиса рецептов
 class Recipe(BaseModel, SoftDeleteMixin):
     """Модель рецепта"""
 
@@ -47,13 +46,25 @@ class Recipe(BaseModel, SoftDeleteMixin):
     )
 
     # Связи
-    author = relationship("User", backref="recipes")
+    author = relationship(
+        "User",
+        backref="recipes"
+    )
     ingredients = relationship(
-        "Ingredient", back_populates="recipe", cascade="all, delete-orphan")
-    steps = relationship("RecipeStep", back_populates="recipe",
-                         cascade="all, delete-orphan")
+        "Ingredient",
+        back_populates="recipe",
+        cascade="all, delete-orphan"
+    )
+    steps = relationship(
+        "RecipeStep",
+        back_populates="recipe",
+        cascade="all, delete-orphan"
+    )
     comments = relationship(
-        "Comment", back_populates="recipe", cascade="all, delete-orphan")
+        "Comment",
+        back_populates="recipe",
+        cascade="all, delete-orphan"
+    )
 
 
 class Ingredient(BaseModel):
@@ -75,11 +86,14 @@ class Ingredient(BaseModel):
     quantity: Mapped[t.Optional[str]] = mapped_column(
         String(50),
         nullable=True,
-        comment='Количество (например: "200 г", "1 шт"'
+        comment='Количество (например: "200 г", "1 шт")'
     )
 
     # Связь с рецептом
-    recipe = relationship("Recipe", back_populates="ingredients")
+    recipe = relationship(
+        "Recipe",
+        back_populates="ingredients"
+    )
 
 
 class RecipeStep(BaseModel):
@@ -105,42 +119,12 @@ class RecipeStep(BaseModel):
     )
 
     # Связь с рецептом
-    recipe = relationship("Recipe", back_populates="steps")
-
-
-# Пример модели для сервиса комментариев
-class Comment(BaseModel, UserMixin, SoftDeleteMixin):
-    """Модель комментария"""
-
-    recipe_id: Mapped[str] = mapped_column(
-        ForeignKey("recipes.id"),
-        nullable=False,
-        index=True,
-        comment='ID рецепта'
+    recipe = relationship(
+        "Recipe",
+        back_populates="steps"
     )
 
-    content: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
-        comment='Текст комментария'
-    )
 
-    parent_id: Mapped[t.Optional[str]] = mapped_column(
-        ForeignKey("comments.id"),
-        nullable=True,
-        comment='ID родительского комментария (для вложенных комментариев)'
-    )
-
-    # Связи
-    recipe = relationship("Recipe", back_populates="comments")
-    author = relationship("User", backref="comments")
-
-    # Для вложенных комментариев
-    parent = relationship(
-        "Comment", remote_side="Comment.id", backref="replies")
-
-
-# Пример модели для сервиса категорий
 class Category(BaseModel):
     """Модель категории рецептов"""
 
@@ -159,7 +143,10 @@ class Category(BaseModel):
 
     # Связь многие-ко-многим с рецептами
     recipes = relationship(
-        "Recipe", secondary="recipe_categories", backref="categories")
+        "Recipe",
+        secondary="recipe_categories",
+        backref="categories"
+    )
 
 
 # Таблица связи для многие-ко-многим

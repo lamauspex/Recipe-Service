@@ -59,7 +59,6 @@ class Base(DeclarativeBase):
         """
         Генерирует имя таблицы из имени класса
         """
-        # Преобразуем CamelCase в snake_case и добавляем 's'
         import re
         name = re.sub(r'(?<!^)(?=[A-Z])', '_', cls.__name__).lower()
         return f"{name}s"

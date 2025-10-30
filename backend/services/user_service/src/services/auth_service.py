@@ -9,18 +9,21 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from backend.settings import settings_auth
+from backend.shared.config import get_settings
 from backend.services.user_service.src.models import User
 from backend.services.user_service.src.repository.repo import (
     RefreshTokenRepository
 )
 
 
+# Получаем настройки
+settings = get_settings()
+
 # Настройки JWT
-SECRET_KEY = settings_auth.SECRET_KEY
-ALGORITHM = settings_auth.ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = settings_auth.ACCESS_TOKEN_EXPIRE_MINUTES
-REFRESH_TOKEN_EXPIRE_DAYS = settings_auth.REFRESH_TOKEN_EXPIRE_DAYS
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
 
 # Контекст для хеширования паролей - используем Argon2
 pwd_context = CryptContext(
