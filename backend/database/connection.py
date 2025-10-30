@@ -11,7 +11,7 @@ from typing import Generator
 import os
 
 from backend.shared.config import get_settings
-from backend.services.user_service.src.models import BaseModel as UserBase
+from backend.database.models import BaseModel
 
 # Базовый класс для всех моделей
 Base = declarative_base()
@@ -99,7 +99,7 @@ def init_db() -> None:
     """
     try:
         # Создаем таблицы
-        UserBase.metadata.create_all(bind=engine)
+        BaseModel.metadata.create_all(bind=engine)
         print("Database tables created successfully.")
 
     except Exception as e:
@@ -145,6 +145,6 @@ def recreate_database() -> None:
         raise RuntimeError(
             "Cannot recreate database in production environment")
 
-    UserBase.metadata.drop_all(bind=engine)
-    UserBase.metadata.create_all(bind=engine)
+    BaseModel.metadata.drop_all(bind=engine)
+    BaseModel.metadata.create_all(bind=engine)
     print("Database recreated successfully.")

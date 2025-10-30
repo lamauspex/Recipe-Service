@@ -45,7 +45,10 @@ class ServiceSettings(BaseSettings):
     ENVIRONMENT: str = "development"
 
     # CORS настройки
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS_ORIGINS: list = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ]
 
 
 class Settings(DatabaseSettings, AuthSettings, ServiceSettings):
