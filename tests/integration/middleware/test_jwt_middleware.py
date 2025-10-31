@@ -3,10 +3,11 @@
 """
 
 from uuid import UUID
+from datetime import timedelta
 
 from backend.services.user_service.src.services.auth_service import AuthService
-from datetime import timedelta
-from tests.conftest import (
+from tests.fixtures.client_fixtures import *
+from tests.fixtures.user_fixtures import (
     create_test_user,
     create_test_tokens
 )
@@ -16,7 +17,10 @@ def test_jwt_middleware_valid_token(client, db_session):
     """Тест JWT middleware с валидным токеном"""
     # Создаем тестового пользователя
     user = create_test_user(
-        db_session, username="testuser", email="test@example.com")
+        db_session,
+        username="testuser",
+        email="test@example.com"
+    )
     access_token, _ = create_test_tokens(db_session, user)
 
     # Запрос с валидным токеном
@@ -50,7 +54,10 @@ def test_jwt_middleware_expired_token(client, db_session):
     # Создаем просроченный токен напрямую через сервис
     auth_service = AuthService(db_session)
     user = create_test_user(
-        db_session, username="testuser", email="test@example.com")
+        db_session,
+        username="testuser",
+        email="test@example.com"
+    )
 
     # Создаем токен с коротким сроком действия
     expired_token = auth_service.create_access_token(
@@ -91,7 +98,10 @@ def test_admin_middleware_regular_user(client, db_session):
     """Тест admin middleware для обычного пользователя"""
     # Создаем обычного пользователя
     regular_user = create_test_user(
-        db_session, username="regularuser", email="regular@example.com")
+        db_session,
+        username="regularuser",
+        email="regular@example.com"
+    )
     access_token, _ = create_test_tokens(db_session, regular_user)
 
     # Попытка доступа к админскому эндпоинту
@@ -105,9 +115,9 @@ def test_exception_handler_validation_error(client):
     """Тест обработчика исключений валидации"""
     # Отправка невалидных данных
     invalid_data = {
-        "username": "",  # Пустой username
+        "username": "",            # Пустой username
         "email": "invalid-email",  # Невалидный email
-        "password": "123"  # Слишком короткий пароль
+        "password": "123"          # Слишком короткий пароль
     }
     response = client.post(
         "/api/v1/users/register", json=invalid_data)
@@ -133,7 +143,9 @@ def test_exception_handler_not_found(client, db_session):
     headers = {"Authorization": f"Bearer {access_token}"}
     fake_uuid = "12345678-1234-5678-1234-567812345678"
     response = client.get(
-        f"/api/v1/users/{fake_uuid}", headers=headers)
+        f"/api/v1/users/{fake_uuid}",
+        headers=headers
+    )
 
     assert response.status_code == 404
     data = response.json()
