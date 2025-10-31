@@ -6,42 +6,9 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 from backend.services.user_service.src.services.user_service import UserService
-from backend.services.user_service.src.services.auth_service import AuthService
 from backend.services.user_service.src.schemas import UserCreate, UserUpdate
-
-
-@pytest.fixture
-def auth_service(db_session):
-    """Фикстура для AuthService"""
-    return AuthService(db_session)
-
-
-@pytest.fixture
-def test_user_data():
-    """Тестовые данные пользователя"""
-    return {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "Testpassword123"
-    }
-
-
-@pytest.fixture
-def user_service(db_session):
-    """Фикстура для UserService"""
-    return UserService(db_session)
-
-
-@pytest.fixture
-def user_data():
-    """Тестовые данные для создания пользователя"""
-    return UserCreate(
-        username="testuser",
-        email="test@example.com",
-        password="Testpassword123",
-        full_name="Test User",
-        # bio="Test bio"
-    )
+from tests.fixtures.service_fixtures import *
+from tests.fixtures.user_fixtures import *
 
 
 def test_password_hashing(auth_service):
