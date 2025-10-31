@@ -2,34 +2,38 @@
 Сервис для работы с пользователями
 """
 from typing import Optional, List
-from sqlalchemy.orm import Session
 from uuid import UUID
 
 from backend.services.user_service.src.models import User
 from backend.services.user_service.src.schemas import UserCreate, UserUpdate
 from backend.services.user_service.src.repository.repo import UserRepository
+from backend.services.user_service.src.services.auth_service import AuthService
 
 
 class UserService:
-    """Сервис для работы с пользователями"""
+    """Сервис для управления пользователями"""
 
-    def __init__(self, db: Session):
-        self.db = db
-        self.repository = UserRepository(db)
+    def __init__(self, db_session):
+        self.repository = UserRepository(db_session)
 
     def create_user(self, user_data: UserCreate) -> User:
         """Создание нового пользователя"""
-        from .auth_service import AuthService
+        # Проверяем существование пользователя
+        if self.repository.get_user_by_username(user_data.username):
+            raise ValueError("Пользователь с таким username уже существует")
 
-        auth_service = AuthService(self.db)
+        if self.repository.get_user_by_email(user_data.email):
+            raise ValueError("Пользователь с таким email уже существует")
+
+        # Хэшируем пароль
+        auth_service = AuthService(self.repository.db)
         hashed_password = auth_service.get_password_hash(user_data.password)
 
         user_dict = {
             "username": user_data.username,
             "email": user_data.email,
             "hashed_password": hashed_password,
-            "full_name": user_data.full_name,
-            "bio": user_data.bio
+            "full_name": user_data.full_name
         }
 
         return self.repository.create_user(user_dict)
@@ -90,6 +94,9 @@ class UserService:
         """Деактивация пользователя"""
         return self.repository.update_user(user_id, {"is_active": False})
 
-    def set_admin(self, user_id: UUID, is_admin: bool = True) -> Optional[User]:
+    def set_admin(self,
+                  user_id: UUID,
+                  is_admin: bool = True
+                  ) -> Optional[User]:
         """Установка прав администратора"""
         return self.repository.update_user(user_id, {"is_admin": is_admin})

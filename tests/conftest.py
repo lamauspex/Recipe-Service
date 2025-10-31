@@ -1,24 +1,28 @@
 """
-Файл конфигурации pytest
+Конфигурация фикстур для всех тестов
 """
-import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, event, inspect
+from fastapi.testclient import TestClient
+from fastapi import FastAPI
+import pytest
+import os
 
-from backend.database.models import BaseModel
-from backend.services.user_service.src.models import User, RefreshToken
-from backend.services.user_service.src.services.user_service import UserService
-from backend.services.user_service.src.schemas import UserCreate
+from backend.services.user_service.src.database.connection import get_db
 from backend.services.user_service.src.api.routes import router
 from backend.services.user_service.src.services.auth_service import AuthService
+from backend.services.user_service.src.schemas import UserCreate
+from backend.services.user_service.src.services.user_service import UserService
+from backend.services.user_service.src.models import User, RefreshToken
+from backend.database.models import BaseModel
 
 
-# Создаем тестовую базу данных в памяти
-TEST_DATABASE_URL = "sqlite:///:memory:"
+# Настройки тестовой базы данных
+TEST_DATABASE_PATH = os.path.join(os.getcwd(), "test.db")
+TEST_DATABASE_URL = f"sqlite:///{TEST_DATABASE_PATH}"
 
+# Движок базы данных для тестов
 test_engine = create_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -26,6 +30,18 @@ test_engine = create_engine(
     echo=False
 )
 
+
+# Настройка поддержки UUID и внешних ключей для SQLite
+@event.listens_for(test_engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.execute("PRAGMA synchronous=NORMAL")
+    cursor.close()
+
+
+# Фабрика сессий для тестов
 TestingSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
@@ -51,10 +67,7 @@ def db_session(setup_test_database):
         yield session
     finally:
         # Очищаем данные между тестами
-        session.query(RefreshToken).delete()
-        session.query(User).delete()
-        session.commit()
-        session.close()
+        cleanup_test_data(session)
 
 
 @pytest.fixture(scope="function")
@@ -71,9 +84,7 @@ def client(db_session):
         finally:
             pass  # Сессия закрывается в фикстуре db_session
 
-    app.dependency_overrides[
-        backend.services.user_service.src.database.connection.get_db
-    ] = override_get_db
+    app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as test_client:
         yield test_client
@@ -82,42 +93,30 @@ def client(db_session):
 @pytest.fixture(scope="function")
 def test_user(db_session):
     """Фикстура для создания тестового пользователя"""
-    user_service = UserService(db_session)
-    user_data = UserCreate(
+    return create_test_user(
+        db_session,
         username="testuser",
         email="test@example.com",
-        password="testpassword123",
-        full_name="Test User"
+        password="Testpassword123"
     )
-
-    return user_service.create_user(user_data)
 
 
 @pytest.fixture(scope="function")
 def test_admin_user(db_session):
     """Фикстура для создания тестового администратора"""
-    user_service = UserService(db_session)
-    user_data = UserCreate(
+    return create_test_user(
+        db_session,
         username="adminuser",
         email="admin@example.com",
-        password="adminpassword123",
-        full_name="Admin User"
+        password="Adminpassword123",
+        is_admin=True
     )
-
-    user = user_service.create_user(user_data)
-    user.is_admin = True
-    db_session.commit()
-    db_session.refresh(user)
-    return user
 
 
 @pytest.fixture(scope="function")
 def authenticated_client(client, test_user):
     """Фикстура для аутентифицированного клиента"""
-    auth_service = AuthService(client.app.dependency_overrides[
-        backend.services.user_service.src.database.connection.get_db
-    ]())
-
+    auth_service = AuthService(client.app.dependency_overrides[get_db]())
     access_token, _ = auth_service.create_tokens(test_user)
     client.headers.update({"Authorization": f"Bearer {access_token}"})
     yield client
@@ -130,10 +129,7 @@ def authenticated_client(client, test_user):
 @pytest.fixture(scope="function")
 def admin_client(client, test_admin_user):
     """Фикстура для клиента с правами администратора"""
-    auth_service = AuthService(client.app.dependency_overrides[
-        backend.services.user_service.src.database.connection.get_db
-    ]())
-
+    auth_service = AuthService(client.app.dependency_overrides[get_db]())
     access_token, _ = auth_service.create_tokens(test_admin_user)
     client.headers.update({"Authorization": f"Bearer {access_token}"})
     yield client
@@ -143,19 +139,51 @@ def admin_client(client, test_admin_user):
         del client.headers["Authorization"]
 
 
-# Параметры для pytest
-def pytest_configure(config):
-    """Конфигурация pytest"""
-    # Добавляем маркеры для тестов
-    config.addinivalue_line(
-        "markers", "unit: unit tests"
+# Утилитные функции для тестов
+def cleanup_test_data(db_session):
+    """Очистка тестовых данных между тестами"""
+    try:
+        db_session.rollback()
+        inspector = inspect(db_session.bind)
+
+        # Очищаем в правильном порядке из-за внешних ключей
+        if inspector.has_table('refresh_tokens'):
+            db_session.query(RefreshToken).delete()
+        if inspector.has_table('users'):
+            db_session.query(User).delete()
+        db_session.commit()
+    except Exception as e:
+        db_session.rollback()
+        raise e
+
+
+def create_test_user(
+    db_session,
+    username="testuser",
+    email="test@example.com",
+    password="Testpassword123",
+    is_admin=False
+):
+    """Создание тестового пользователя"""
+    user_service = UserService(db_session)
+    user_data = UserCreate(
+        username=username,
+        email=email,
+        password=password,
+        full_name="Test User"
     )
-    config.addinivalue_line(
-        "markers", "integration: integration tests"
-    )
-    config.addinivalue_line(
-        "markers", "auth: authentication tests"
-    )
-    config.addinivalue_line(
-        "markers", "admin: admin tests"
-    )
+
+    user = user_service.create_user(user_data)
+    if is_admin:
+        user.is_admin = True
+        db_session.commit()
+        db_session.refresh(user)
+
+    return user
+
+
+def create_test_tokens(db_session, user):
+    """Создание тестовых токенов для пользователя"""
+    auth_service = AuthService(db_session)
+    access_token, refresh_token = auth_service.create_tokens(user)
+    return access_token, refresh_token
