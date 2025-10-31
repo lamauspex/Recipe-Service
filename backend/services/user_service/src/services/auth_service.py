@@ -1,29 +1,29 @@
 """
 Сервис аутентификации для user-service
+Автономная реализация без зависимостей от общих модулей
 """
+
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import secrets
+import os
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from backend.shared.config import get_settings
 from backend.services.user_service.src.models import User
 from backend.services.user_service.src.repository.repo import (
     RefreshTokenRepository
 )
 
 
-# Получаем настройки
-settings = get_settings()
-
-# Настройки JWT
-SECRET_KEY = settings.SECRET_KEY
-ALGORITHM = settings.ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
-REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
+# Настройки JWT из переменных окружения
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
 
 # Контекст для хеширования паролей - используем Argon2
 pwd_context = CryptContext(

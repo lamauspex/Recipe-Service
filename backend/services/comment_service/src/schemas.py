@@ -1,17 +1,45 @@
 """
 Схемы Pydantic для comment-service
-Наследуются от базовых схем из backend.database.schemas
+Автономная реализация без зависимостей от общих модулей
 """
-from typing import Optional, List
-from pydantic import BaseModel, Field
-from uuid import UUID
 
-from backend.database.schemas import (
-    BaseResponse,
-    PaginationParams,
-    PaginatedResponse,
-    SoftDeleteMixin
-)
+from typing import Optional, List, Generic, TypeVar
+from pydantic import BaseModel, Field, ConfigDict
+from uuid import UUID
+from datetime import datetime
+
+# Дженерики для пагинации
+T = TypeVar('T')
+
+
+class BaseResponse(BaseModel):
+    """Базовая схема ответа"""
+    id: UUID
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    is_active: bool = True
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SoftDeleteMixin(BaseModel):
+    """Миксин для мягкого удаления"""
+    deleted_at: Optional[datetime] = None
+    is_deleted: bool = False
+
+
+class PaginationParams(BaseModel):
+    """Параметры пагинации"""
+    skip: int = Field(default=0, ge=0, description="Пропустить записей")
+    limit: int = Field(default=100, ge=1, le=1000, description="Лимит записей")
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Пагинируемый ответ"""
+    items: List[T]
+    total: int
+    skip: int
+    limit: int
 
 
 class CommentBase(BaseModel):
@@ -87,7 +115,7 @@ class CommentSearchParams(PaginationParams):
     )
     parent_id: Optional[UUID] = Field(
         None,
-        description="Фильтр по родительскому комментарию"
+        description="Фильтр по родительскому комментария"
     )
     include_replies: bool = Field(
         default=False,
@@ -141,10 +169,9 @@ class CommentModeration(BaseModel):
     moderated_by: Optional[UUID] = Field(None, description="ID модератора")
 
 
-# Дженерик схемы для использования в других сервисах
+# Дженерики для использования в других сервисах
 CommentPaginatedResponse = PaginatedResponse[CommentResponse]
 CommentTreePaginatedResponse = PaginatedResponse[CommentTreeResponse]
-
 
 __all__ = [
     'CommentBase',

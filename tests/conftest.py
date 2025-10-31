@@ -12,8 +12,7 @@ from sqlalchemy import (
     Table, Column, String, MetaData
 )
 
-from backend.services.user_service.src.models import RefreshToken, User
-from backend.database.models import BaseModel
+from backend.services.user_service.src.models import RefreshToken, User, Base
 
 
 # Настройки тестовой базы данных
@@ -65,10 +64,10 @@ def create_mock_categories_table():
 def setup_test_database():
     """Настройка тестовой базы данных для всей сессии тестов"""
     # Создаем таблицы перед всеми тестами
-    BaseModel.metadata.create_all(bind=test_engine)
+    Base.metadata.create_all(bind=test_engine)
     yield
     # Удаляем таблицы после всех тестов
-    BaseModel.metadata.drop_all(bind=test_engine)
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
