@@ -1,33 +1,34 @@
 """
-Подключение к базе данных для user-service
+Подключение к базе данных для comment-service
 Использует общую базу данных со всеми сервисами
 """
 
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 from typing import Generator
 import os
 
-from backend.services.user_service.src.models import Base
+# Создаем базовый класс моделей для comment-service
+Base = declarative_base()
 
 
 def create_engine_for_service():
     """
-    Создание движка базы данных для user-service
+    Создание движка базы данных для comment-service
     Использует ОДНУ общую базу данных со всеми сервисами
     """
     # Получаем настройки из переменных окружения
-    db_user = os.getenv("DB_USER")
-    db_host = os.getenv("DB_HOST")
-    db_port = os.getenv("DB_PORT")
-    db_name = os.getenv("DB_NAME")
-    db_pass = os.getenv("DB_PASSWORD")
+    db_user = os.getenv("DB_USER", "postgres")
+    db_password = os.getenv("DB_PASSWORD", "password")
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME", "recipe_app")  # ОБЩАЯ БАЗА ДАННЫХ
 
     # Формируем DSN
     database_url = (
-        f"postgresql+psycopg2://{db_user}:{db_pass}"
+        f"postgresql+psycopg2://{db_user}:{db_password}"
         f"@{db_host}:{db_port}/{db_name}"
     )
 
@@ -96,22 +97,25 @@ def get_db_context() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """
-    Инициализация базы данных - создание таблиц user-service
-    Создает только таблицы, относящиеся к user-service
+    Инициализация базы данных - создание таблиц comment-service
+    Создает только таблицы, относящиеся к comment-service
     """
     try:
-        print("Initializing user-service database tables...")
+        # Импортируем модели после создания движка
+        from backend.services.comment_service.src.models import Base
+
+        print("Initializing comment-service database tables...")
 
         # Тестируем подключение
         if not test_connection():
             raise Exception("Cannot connect to database")
 
-        # Создаем таблицы только для user-service
+        # Создаем таблицы только для comment-service
         Base.metadata.create_all(bind=engine)
-        print("User service database tables created successfully.")
+        print("Comment service database tables created successfully.")
 
     except Exception as e:
-        print(f"Error creating user service database tables: {e}")
+        print(f"Error creating comment service database tables: {e}")
         raise
 
 
@@ -122,10 +126,10 @@ def test_connection() -> bool:
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        print("Database connection for user-service successful!")
+        print("Database connection for comment-service successful!")
         return True
     except Exception as e:
-        print(f"Database connection for user-service failed: {e}")
+        print(f"Database connection for comment-service failed: {e}")
         return False
 
 
@@ -153,6 +157,8 @@ def recreate_database() -> None:
         raise RuntimeError(
             "Cannot recreate database in production environment")
 
+    from backend.services.comment_service.src.models import Base
+
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    print("Database for user-service recreated successfully.")
+    print("Database for comment-service recreated successfully.")

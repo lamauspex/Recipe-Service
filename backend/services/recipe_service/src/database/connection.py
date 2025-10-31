@@ -1,6 +1,6 @@
 """
-Базовое подключение к базе данных для всех микросервисов
-Поддерживает контейнеризацию и микросервисную архитектуру
+Подключение к базе данных для recipe-service
+Использует общую базу данных со всеми сервисами
 """
 
 from sqlalchemy import create_engine, text
@@ -10,29 +10,32 @@ from contextlib import contextmanager
 from typing import Generator
 import os
 
-from backend.shared.config import get_settings
-from backend.database.models import BaseModel
-
-# Базовый класс для всех моделей
+# Создаем базовый класс моделей для recipe-service
 Base = declarative_base()
 
 
-def create_database_engine():
+def create_engine_for_service():
     """
-    Создание движка базы данных с поддержкой разных окружений
+    Создание движка базы данных для recipe-service
+    Использует ОДНУ общую базу данных со всеми сервисами
     """
-    settings = get_settings()
+    # Получаем настройки из переменных окружения
+    db_user = os.getenv("DB_USER", "postgres")
+    db_password = os.getenv("DB_PASSWORD", "password")
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME", "recipe_app")  # ОБЩАЯ БАЗА ДАННЫХ
 
-    # Формирование DSN для PostgreSQL
+    # Формируем DSN
     database_url = (
-        f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}"
-        f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        f"postgresql+psycopg2://{db_user}:{db_password}"
+        f"@{db_host}:{db_port}/{db_name}"
     )
 
     # Параметры движка
     engine_kwargs = {
-        "echo": settings.DEBUG,  # Логирование SQL в режиме отладки
-        "pool_pre_ping": True,   # Проверка соединения перед использованием
+        "echo": os.getenv("DEBUG", "False").lower() == "true",
+        "pool_pre_ping": True,
         "pool_size": 10,
         "max_overflow": 20,
         "connect_args": {
@@ -53,7 +56,7 @@ def create_database_engine():
 
 
 # Глобальный движок базы данных
-engine = create_database_engine()
+engine = create_engine_for_service()
 
 # Фабрика сессий
 SessionLocal = sessionmaker(
@@ -94,16 +97,25 @@ def get_db_context() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """
-    Инициализация базы данных - создание всех таблиц
-    Должна вызываться каждым сервисом для своих моделей
+    Инициализация базы данных - создание таблиц recipe-service
+    Создает только таблицы, относящиеся к recipe-service
     """
     try:
-        # Создаем таблицы
-        BaseModel.metadata.create_all(bind=engine)
-        print("Database tables created successfully.")
+        # Импортируем модели после создания движка
+        from backend.services.recipe_service.src.models import Base
+
+        print("Initializing recipe-service database tables...")
+
+        # Тестируем подключение
+        if not test_connection():
+            raise Exception("Cannot connect to database")
+
+        # Создаем таблицы только для recipe-service
+        Base.metadata.create_all(bind=engine)
+        print("Recipe service database tables created successfully.")
 
     except Exception as e:
-        print(f"Error creating database tables: {e}")
+        print(f"Error creating recipe service database tables: {e}")
         raise
 
 
@@ -112,12 +124,12 @@ def test_connection() -> bool:
     Тестирование подключения к базе данных
     """
     try:
-        with get_db_context() as db:
-            db.execute(text("SELECT 1"))
-        print("Database connection successful!")
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("Database connection for recipe-service successful!")
         return True
     except Exception as e:
-        print(f"Database connection failed: {e}")
+        print(f"Database connection for recipe-service failed: {e}")
         return False
 
 
@@ -145,6 +157,8 @@ def recreate_database() -> None:
         raise RuntimeError(
             "Cannot recreate database in production environment")
 
-    BaseModel.metadata.drop_all(bind=engine)
-    BaseModel.metadata.create_all(bind=engine)
-    print("Database recreated successfully.")
+    from backend.services.recipe_service.src.models import Base
+
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    print("Database for recipe-service recreated successfully.")

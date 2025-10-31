@@ -1,24 +1,25 @@
-from backend.database.schemas import (
-    UserBase,
-    UserCreate as BaseUserCreate,
-    UserUpdate as BaseUserUpdate,
-    UserResponse as BaseUserResponse,
-    Token as BaseToken,
-    TokenData as BaseTokenData
-)
-
-from pydantic import BaseModel, EmailStr, field_validator
-from typing import Optional
 
 """
 Схемы Pydantic для user-service
-Наследуются от базовых схем из backend.database.schemas
+Автономная реализация без зависимостей от общих модулей
 """
 
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
+from typing import Optional
+from uuid import UUID
+from datetime import datetime
 
-class UserCreate(BaseUserCreate):
-    """Схема для создания пользователя"""
+
+class UserBase(BaseModel):
+    """Базовая схема пользователя"""
+    username: str
     email: EmailStr
+    full_name: Optional[str] = None
+
+
+class UserCreate(UserBase):
+    """Схема для создания пользователя"""
+    password: str
 
     @field_validator('password')
     @classmethod
@@ -33,17 +34,24 @@ class UserCreate(BaseUserCreate):
         return v
 
 
-class UserUpdate(BaseUserUpdate):
+class UserUpdate(BaseModel):
     """Схема для обновления пользователя"""
+    username: Optional[str] = None
     email: Optional[EmailStr] = None
+    full_name: Optional[str] = None
     bio: Optional[str] = None
 
 
-class UserResponse(BaseUserResponse):
+class UserResponse(UserBase):
     """Схема ответа с данными пользователя"""
+    id: UUID
     bio: Optional[str] = None
+    is_admin: bool = False
+    is_active: bool = True
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
-    model_config = {'from_attributes': True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):
@@ -52,14 +60,19 @@ class UserLogin(BaseModel):
     password: str
 
 
-class Token(BaseToken):
+class Token(BaseModel):
     """Схема токена доступа"""
-    pass
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    refresh_token: str
 
 
-class TokenData(BaseTokenData):
+class TokenData(BaseModel):
     """Схема данных из токена"""
-    pass
+    username: Optional[str] = None
+    user_id: Optional[UUID] = None
+    is_admin: bool = False
 
 
 class RefreshTokenRequest(BaseModel):
