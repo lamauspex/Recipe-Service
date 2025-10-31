@@ -23,9 +23,6 @@ from backend.database.models import (
 class User(BaseModel):
     """Модель пользователя"""
 
-    # Переопределяем имя таблицы (так как базовый класс генерирует 'users')
-    __tablename__ = "users"
-
     username: Mapped[str] = mapped_column(
         String(50),
         unique=True,
