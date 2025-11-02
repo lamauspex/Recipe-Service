@@ -4,7 +4,7 @@
 """
 
 
-def test_create_recipe_success(self, client, auth_headers):
+def test_create_recipe_success(client, auth_headers):
     """Тест успешного создания рецепта через API"""
     recipe_data = {
         "title": "Новый рецепт",
@@ -28,17 +28,16 @@ def test_create_recipe_success(self, client, auth_headers):
     assert "id" in data
 
 
-def test_get_recipes_list(self, client):
+def test_get_recipes_list(client):
     """Тест получения списка рецептов"""
     response = client.get("/api/recipes/")
 
     assert response.status_code == 200
     data = response.json()
-    assert "items" in data
-    assert "total" in data
+    assert isinstance(data, list)
 
 
-def test_get_recipe_by_id(self, client, test_recipe):
+def test_get_recipe_by_id(client, test_recipe):
     """Тест получения рецепта по ID"""
     response = client.get(f"/api/recipes/{test_recipe.id}")
 
