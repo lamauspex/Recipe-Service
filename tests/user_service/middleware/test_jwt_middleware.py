@@ -6,8 +6,8 @@ from uuid import UUID
 from datetime import timedelta
 
 from backend.services.user_service.src.services.auth_service import AuthService
-from tests.fixtures.client_fixtures import *
-from tests.fixtures.user_fixtures import (
+from tests.user_service.fixtures.client_fixtures import *
+from tests.user_service.fixtures.user_fixtures import (
     create_test_user,
     create_test_tokens
 )

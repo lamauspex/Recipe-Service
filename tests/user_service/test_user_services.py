@@ -7,8 +7,8 @@ from uuid import uuid4
 
 from backend.services.user_service.src.services.user_service import UserService
 from backend.services.user_service.src.schemas import UserCreate, UserUpdate
-from tests.fixtures.service_fixtures import *
-from tests.fixtures.user_fixtures import *
+from tests.user_service.fixtures.service_fixtures import *
+from tests.user_service.fixtures.user_fixtures import *
 
 
 def test_password_hashing(auth_service):

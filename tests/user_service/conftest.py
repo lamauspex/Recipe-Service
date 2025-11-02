@@ -14,9 +14,7 @@ from sqlalchemy import (
 
 from backend.services.user_service.src.models import (
     RefreshToken, User, Base as UserBase)
-from backend.services.recipe_service.src.models import (
-    Recipe, Ingredient, RecipeStep, Category,
-    RecipeCategory, Rating, Base as RecipeBase)
+from tests.user_service.fixtures.user_fixtures import *
 
 
 # Настройки тестовой базы данных
@@ -69,12 +67,10 @@ def setup_test_database():
     """Настройка тестовой базы данных для всей сессии тестов"""
     # Создаем таблицы перед всеми тестами
     UserBase.metadata.create_all(bind=test_engine)
-    RecipeBase.metadata.create_all(bind=test_engine)
 
     yield
     # Удаляем таблицы после всех тестов
     UserBase.metadata.drop_all(bind=test_engine)
-    RecipeBase.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
@@ -95,18 +91,6 @@ def cleanup_test_data(db_session):
         inspector = inspect(db_session.bind)
 
         # Очищаем в правильном порядке из-за внешних ключей
-        if inspector.has_table('ratings'):
-            db_session.query(Rating).delete()
-        if inspector.has_table('recipe_steps'):
-            db_session.query(RecipeStep).delete()
-        if inspector.has_table('ingredients'):
-            db_session.query(Ingredient).delete()
-        if inspector.has_table('recipe_categories'):
-            db_session.query(RecipeCategory).delete()
-        if inspector.has_table('categories'):
-            db_session.query(Category).delete()
-        if inspector.has_table('recipes'):
-            db_session.query(Recipe).delete()
         if inspector.has_table('refresh_tokens'):
             db_session.query(RefreshToken).delete()
         if inspector.has_table('users'):
