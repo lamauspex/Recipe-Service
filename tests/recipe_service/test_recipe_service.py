@@ -10,11 +10,9 @@ from fastapi import HTTPException
 from backend.services.recipe_service.src.schemas import (
     RecipeCreate, RecipeUpdate, RecipeSearchParams
 )
-from tests.fixtures.recipe_fixtures import *
-from tests.user_service.fixtures.user_fixtures import *
 
 
-def test_create_recipe_success(self, recipe_service, test_user):
+def test_create_recipe_success(recipe_service, test_user):
     """Тест успешного создания рецепта"""
     recipe_data = RecipeCreate(
         title="Новый рецепт",
@@ -35,7 +33,7 @@ def test_create_recipe_success(self, recipe_service, test_user):
     assert len(recipe.instructions) == 2
 
 
-def test_get_recipe_success(self, recipe_service, test_recipe):
+def test_get_recipe_success(recipe_service, test_recipe):
     """Тест успешного получения рецепта"""
     recipe = recipe_service.get_recipe(test_recipe.id)
 
@@ -43,7 +41,7 @@ def test_get_recipe_success(self, recipe_service, test_recipe):
     assert recipe.title == test_recipe.title
 
 
-def test_get_recipe_not_found(self, recipe_service):
+def test_get_recipe_not_found(recipe_service):
     """Тест получения несуществующего рецепта"""
     fake_id = uuid4()
 
@@ -54,10 +52,10 @@ def test_get_recipe_not_found(self, recipe_service):
     assert "Рецепт не найден" in exc_info.value.detail
 
 
-def test_update_recipe_success(self,
-                               recipe_service,
-                               test_recipe,
-                               test_user):
+def test_update_recipe_success(
+        recipe_service,
+        test_recipe,
+        test_user):
     """Тест успешного обновления рецепта"""
     update_data = RecipeUpdate(
         title="Обновленный рецепт",
@@ -72,7 +70,7 @@ def test_update_recipe_success(self,
     assert updated_recipe.description == "Обновленное описание"
 
 
-def test_update_recipe_not_found(self, recipe_service, test_user):
+def test_update_recipe_not_found(recipe_service, test_user):
     """Тест обновления несуществующего рецепта"""
     fake_id = uuid4()
     update_data = RecipeUpdate(title="Обновленный рецепт")
@@ -83,7 +81,7 @@ def test_update_recipe_not_found(self, recipe_service, test_user):
     assert exc_info.value.status_code == 404
 
 
-def test_update_recipe_no_permission(self, recipe_service, test_recipe):
+def test_update_recipe_no_permission(recipe_service, test_recipe):
     """Тест обновления рецепта без прав"""
     other_user_id = uuid4()
     update_data = RecipeUpdate(title="Обновленный рецепт")
@@ -96,17 +94,17 @@ def test_update_recipe_no_permission(self, recipe_service, test_recipe):
     assert "Недостаточно прав" in exc_info.value.detail
 
 
-def test_delete_recipe_success(self,
-                               recipe_service,
-                               test_recipe,
-                               test_user):
+def test_delete_recipe_success(
+        recipe_service,
+        test_recipe,
+        test_user):
     """Тест успешного удаления рецепта"""
     result = recipe_service.delete_recipe(test_recipe.id, test_user.id)
 
     assert result is True
 
 
-def test_delete_recipe_not_found(self, recipe_service, test_user):
+def test_delete_recipe_not_found(recipe_service, test_user):
     """Тест удаления несуществующего рецепта"""
     fake_id = uuid4()
 
@@ -116,7 +114,7 @@ def test_delete_recipe_not_found(self, recipe_service, test_user):
     assert exc_info.value.status_code == 404
 
 
-def test_get_recipes_list(self, recipe_service, test_recipe):
+def test_get_recipes_list(recipe_service, test_recipe):
     """Тест получения списка рецептов"""
 
     search_params = RecipeSearchParams(skip=0, limit=10)
