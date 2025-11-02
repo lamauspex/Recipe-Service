@@ -14,15 +14,15 @@
 Перед запуском сервисов убедитесь, что PostgreSQL запущен и доступен:
 
 
-# Проверка подключения к PostgreSQL
 ```bash
 psql -h localhost -p 5432 -U postgres -c "SELECT version();"
 ```
 
+
 ### 2. Создание ОДНОЙ общей базы данных
 
+Подключитесь к PostgreSQL и выполните:
 ```sql
--- Подключитесь к PostgreSQL и выполните:
 CREATE DATABASE recipe_app;
 ```
 
@@ -57,24 +57,30 @@ python main.py
 
 ### Проверка каждого сервиса:
 
+
+#### Проверка user-service
 ```bash
-# Проверка user-service
 cd backend/services/user_service/src
 python -c "from database.connection import test_connection; test_connection()"
+```
 
-# Проверка recipe-service
+#### Проверка recipe-service
+```bash
 cd backend/services/recipe_service/src
 python -c "from database.connection import test_connection; test_connection()"
 ```
 
+
 ### Инициализация базы данных:
 
+#### Инициализация user-service (создает таблицы users и refresh_tokens)
 ```bash
-# Инициализация user-service (создает таблицы users и refresh_tokens)
 cd backend/services/user_service/src
 python -c "from database.connection import init_db; init_db()"
+```
 
-# Инициализация recipe-service (создает таблицы recipes, ingredients и т.д.)
+#### Инициализация recipe-service (создает таблицы recipes, ingredients и т.д.)
+```bash
 cd backend/services/recipe_service/src
 python -c "from database.connection import init_db; init_db()"
 ```
