@@ -5,8 +5,7 @@
 ### Основные файлы:
 - **`.env`** - текущая конфигурация (разработка)
 - **`.env.example`** - шаблон для создания новой конфигурации
-- **`.env.test`** - конфигурация для тестового окружения
-- **`.env.production.example`** - шаблон для продакшена
+
 
 ## Быстрая настройка
 
@@ -14,8 +13,9 @@
 
 Перед запуском сервисов убедитесь, что PostgreSQL запущен и доступен:
 
-```bash
+
 # Проверка подключения к PostgreSQL
+```bash
 psql -h localhost -p 5432 -U postgres -c "SELECT version();"
 ```
 
@@ -30,13 +30,12 @@ CREATE DATABASE recipe_app;
 
 Откройте файл `.env` и убедитесь, что настройки соответствуют вашему окружению:
 
-```env
-DB_USER=postgres
-DB_PASSWORD=258074
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=recipe_app  # ОДНА ОБЩАЯ БАЗА
-```
+DB_USER
+DB_PASSWORD
+DB_HOST
+DB_PORT
+DB_NAME
+
 
 ### 4. Запуск сервисов
 
