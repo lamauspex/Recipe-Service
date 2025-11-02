@@ -11,7 +11,7 @@ from backend.services.recipe_service.src.schemas import (
     RecipeCreate, RecipeUpdate, RecipeSearchParams
 )
 from tests.fixtures.recipe_fixtures import *
-from tests.fixtures.user_fixtures import *
+from tests.user_service.fixtures.user_fixtures import *
 
 
 def test_create_recipe_success(self, recipe_service, test_user):

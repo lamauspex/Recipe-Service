@@ -25,7 +25,7 @@ def sample_recipe_data():
         "title": "Тестовый рецепт пасты",
         "description": "Простой и вкусный рецепт пасты",
         "cooking_time": 30,
-        "difficulty": "medium",
+        "difficulty": "средне",
         "servings": 4,
     }
 
@@ -39,7 +39,7 @@ def recipe_create_data():
         ingredients=["ингредиент 1", "ингредиент 2"],
         instructions=["Шаг 1. Приготовить\nШаг 2. Подать"],
         cooking_time=30,
-        difficulty="easy",
+        difficulty="легко",
         servings=2
     )
 
@@ -61,19 +61,15 @@ def recipe_update_data():
 @pytest.fixture
 def test_recipe(db_session, test_user):
     """Фикстура для создания тестового рецепта"""
-    recipe = {
-        "title": "Тестовый рецепт",
-        "description": "Тестовое описание",
-        "ingredients": ["тест1", "тест2"],
-        "instructions": "тест инструкция",
-        "cooking_time": 30,
-        "difficulty": "easy",
-        "servings": 2,
-        "author_id": str(test_user.id),
-        "is_published": True
-    }
+    recipe = Recipe(
+        title="Тестовый рецепт",
+        description="Тестовое описание",
+        cooking_time=30,
+        difficulty="легко",
+        servings=2,
+        author_id=str(test_user.id)
+    )
 
-    recipe = Recipe(**recipe)
     db_session.add(recipe)
     db_session.commit()
     db_session.refresh(recipe)
