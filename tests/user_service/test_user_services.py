@@ -2,11 +2,12 @@
 Тесты для сервисного слоя user-service
 """
 import pytest
-from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+from datetime import datetime, timedelta, timezone
 
 from backend.services.user_service.src.services.user_service import UserService
-from backend.services.user_service.src.schemas import UserCreate, UserUpdate
+from backend.services.user_service.schemas.schemas import (
+    UserCreate, UserUpdate)
 from tests.user_service.fixtures.service_fixtures import *
 from tests.user_service.fixtures.user_fixtures import *
 
@@ -116,7 +117,7 @@ def test_authenticate_user_success(auth_service, test_user_data):
     # Создаем пользователя через сервис
     user_service = UserService(auth_service.db)
     user_create = UserCreate(
-        username=test_user_data["username"],
+        user_name=test_user_data["user_name"],
         email=test_user_data["email"],
         password=test_user_data["password"],
         full_name="Test User"
@@ -125,13 +126,13 @@ def test_authenticate_user_success(auth_service, test_user_data):
 
     # Аутентифицируем пользователя
     authenticated_user = auth_service.authenticate_user(
-        test_user_data["username"],
+        test_user_data["user_name"],
         test_user_data["password"]
     )
 
     assert authenticated_user is not None
     assert authenticated_user.id == user.id
-    assert authenticated_user.username == user.username
+    assert authenticated_user.user_name == user.user_name
 
 
 def test_authenticate_user_wrong_password(auth_service, test_user_data):
@@ -139,7 +140,7 @@ def test_authenticate_user_wrong_password(auth_service, test_user_data):
     # Создаем пользователя
     user_service = UserService(auth_service.db)
     user_create = UserCreate(
-        username=test_user_data["username"],
+        user_name=test_user_data["user_name"],
         email=test_user_data["email"],
         password=test_user_data["password"],
         full_name="Test User"
@@ -148,7 +149,7 @@ def test_authenticate_user_wrong_password(auth_service, test_user_data):
 
     # Пытаемся аутентифицироваться с неверным паролем
     authenticated_user = auth_service.authenticate_user(
-        test_user_data["username"],
+        test_user_data["user_name"],
         "wrong_password"
     )
 
@@ -170,7 +171,7 @@ def test_create_tokens(auth_service, test_user_data):
     # Создаем пользователя
     user_service = UserService(auth_service.db)
     user_create = UserCreate(
-        username=test_user_data["username"],
+        user_name=test_user_data["user_name"],
         email=test_user_data["email"],
         password=test_user_data["password"],
         full_name="Test User"
@@ -183,13 +184,13 @@ def test_create_tokens(auth_service, test_user_data):
     # Проверяем access token
     access_payload = auth_service.verify_token(access_token)
     assert access_payload is not None
-    assert access_payload["sub"] == user.username
+    assert access_payload["sub"] == user.user_name
     assert access_payload["type"] == "access"
 
     # Проверяем refresh token
     refresh_payload = auth_service.verify_token(refresh_token)
     assert refresh_payload is not None
-    assert refresh_payload["sub"] == user.username
+    assert refresh_payload["sub"] == user.user_name
     assert refresh_payload["type"] == "refresh"
     assert refresh_payload["user_id"] == str(user.id)
 
@@ -206,7 +207,7 @@ def test_revoke_refresh_token(auth_service):
     # Создаем тестового пользователя
     user_service = UserService(auth_service.db)
     user_create = UserCreate(
-        username="testuser_token",
+        user_name="testuser_token",
         email="token@example.com",
         password="Testpassword123",
         full_name="Test User"
@@ -242,7 +243,7 @@ def test_get_user_from_token(auth_service, test_user_data):
     # Создаем пользователя
     user_service = UserService(auth_service.db)
     user_create = UserCreate(
-        username=test_user_data["username"],
+        user_name=test_user_data["user_name"],
         email=test_user_data["email"],
         password=test_user_data["password"],
         full_name="Test User"
@@ -256,7 +257,7 @@ def test_get_user_from_token(auth_service, test_user_data):
     user_from_token = auth_service.get_user_from_token(refresh_token)
     assert user_from_token is not None
     assert user_from_token.id == user.id
-    assert user_from_token.username == user.username
+    assert user_from_token.user_name == user.user_name
 
 
 def test_get_user_from_invalid_token(auth_service):
@@ -270,7 +271,7 @@ def test_create_user(user_service, user_data):
     user = user_service.create_user(user_data)
 
     assert user is not None
-    assert user.username == user_data.username
+    assert user.user_name == user_data.user_name
     assert user.email == user_data.email
     assert user.full_name == user_data.full_name
     assert user.is_active is True
@@ -289,20 +290,20 @@ def test_get_user_by_id(user_service, user_data):
 
     assert found_user is not None
     assert found_user.id == created_user.id
-    assert found_user.username == created_user.username
+    assert found_user.user_name == created_user.user_name
 
 
-def test_get_user_by_username(user_service, user_data):
-    """Тест получения пользователя по username"""
+def test_get_user_by_user_name(user_service, user_data):
+    """Тест получения пользователя по user_name"""
     # Создаем пользователя
     created_user = user_service.create_user(user_data)
 
-    # Получаем пользователя по username
-    found_user = user_service.get_user_by_username(created_user.username)
+    # Получаем пользователя по user_name
+    found_user = user_service.get_user_by_username(created_user.user_name)
 
     assert found_user is not None
     assert found_user.id == created_user.id
-    assert found_user.username == created_user.username
+    assert found_user.user_name == created_user.user_name
 
 
 def test_get_user_by_email(user_service, user_data):
@@ -334,7 +335,7 @@ def test_update_user(user_service, user_data):
     assert updated_user.full_name == "Updated Name"
     assert updated_user.bio == "Updated bio"
     # Проверяем, что другие поля не изменились
-    assert updated_user.username == created_user.username
+    assert updated_user.user_name == created_user.user_name
     assert updated_user.email == created_user.email
 
 
@@ -361,7 +362,7 @@ def test_update_user_email_conflict(user_service, user_data):
     user1 = user_service.create_user(user_data)
 
     user2_data = UserCreate(
-        username="testuser2",
+        user_name="testuser2",
         email="test2@example.com",
         password="Testpassword123",
         full_name="Test User 2"
@@ -398,7 +399,7 @@ def test_get_users(user_service, user_data):
     users = []
     for i in range(3):
         user_data_i = UserCreate(
-            username=f"testuser{i}",
+            user_name=f"testuser{i}",
             email=f"test{i}@example.com",
             password="Testpassword123",
             full_name=f"Test User {i}"
@@ -409,9 +410,9 @@ def test_get_users(user_service, user_data):
     all_users = user_service.get_users()
 
     assert len(all_users) >= 3
-    usernames = [user.username for user in all_users]
+    user_names = [user.user_name for user in all_users]
     for i in range(3):
-        assert f"testuser{i}" in usernames
+        assert f"testuser{i}" in user_names
 
 
 def test_get_users_with_pagination(user_service, user_data):
@@ -420,7 +421,7 @@ def test_get_users_with_pagination(user_service, user_data):
     users = []
     for i in range(5):
         user_data_i = UserCreate(
-            username=f"testuser{i}",
+            user_name=f"testuser{i}",
             email=f"test{i}@example.com",
             password="Yestpassword123",
             full_name=f"Test User {i}"
@@ -504,8 +505,8 @@ def test_get_nonexistent_user(user_service):
     assert user is None
 
 
-def test_get_nonexistent_user_by_username(user_service):
-    """Тест получения несуществующего пользователя по username"""
+def test_get_nonexistent_user_by_user_name(user_service):
+    """Тест получения несуществующего пользователя по user_name"""
     user = user_service.get_user_by_username("nonexistent_user")
     assert user is None
 

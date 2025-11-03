@@ -3,37 +3,28 @@
 Автономная реализация без зависимостей от общих модулей
 """
 
+
+from backend.services.user_service.models.user_models import User
+from backend.services.user_service.src.repository.token_repo import (
+    RefreshTokenRepository
+)
+from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import secrets
 import os
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from uuid import UUID
-
-from backend.services.user_service.src.models import User
-from backend.services.user_service.src.repository.repo import (
-    RefreshTokenRepository
-)
+from dotenv import load_dotenv
+load_dotenv()
 
 
-# Настройки JWT из переменных окружения
+# Настройки JWT из переменных окружения с значениями по умолчанию
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
-
-# Контекст для хеширования паролей - используем Argon2
-pwd_context = CryptContext(
-    schemes=["argon2"],
-    deprecated="auto",
-    argon2__time_cost=3,      # Количество итераций
-    argon2__memory_cost=65536,  # Используемая память в KB
-    argon2__parallelism=4,    # Количество потоков
-    argon2__hash_len=32       # Длина хеша
-)
 
 
 class AuthService:
@@ -42,29 +33,33 @@ class AuthService:
     def __init__(self, db: Session):
         self.db = db
         self.refresh_token_repo = RefreshTokenRepository(db)
+        self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-    def verify_password(self,
-                        plain_password: str,
-                        hashed_password: str
-                        ) -> bool:
+    def verify_password(
+        self,
+        plain_password: str,
+        hashed_password: str
+    ) -> bool:
         """Проверка пароля"""
-        return pwd_context.verify(plain_password, hashed_password)
+        return self.pwd_context.verify(plain_password, hashed_password)
 
     def get_password_hash(self, password: str) -> str:
         """Хеширование пароля"""
-        # Argon2 не имеет ограничения на длину пароля, но ограничим
+        # Проверяем длину пароля в байтах
         if len(password.encode('utf-8')) > 1024:
             raise ValueError("Пароль слишком длинный (максимум 1024 байта)")
-        return pwd_context.hash(password)
 
-    def authenticate_user(self,
-                          username: str,
-                          password: str
-                          ) -> Optional[User]:
+        return self.pwd_context.hash(password)
+
+    def authenticate_user(
+        self,
+        user_name: str,
+        password: str
+    ) -> Optional[User]:
         """Аутентификация пользователя"""
         from .user_service import UserService
         user_service = UserService(self.db)
-        user = user_service.get_user_by_username(username)
+        user = user_service.get_user_by_username(user_name)
 
         if not user:
             return None
@@ -72,11 +67,12 @@ class AuthService:
             return None
         return user
 
-    def create_access_token(self,
-                            data: dict,
-                            expires_delta:
-                                Optional[timedelta] = None
-                            ) -> str:
+    def create_access_token(
+        self,
+        data: dict,
+        expires_delta:
+        Optional[timedelta] = None
+    ) -> str:
         """Создание access token"""
         to_encode = data.copy()
         if expires_delta:
@@ -93,10 +89,11 @@ class AuthService:
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
-    def create_refresh_token(self,
-                             data: dict,
-                             expires_delta: Optional[timedelta] = None
-                             ) -> str:
+    def create_refresh_token(
+        self,
+        data: dict,
+        expires_delta: Optional[timedelta] = None
+    ) -> str:
         """Создание refresh token"""
         to_encode = data.copy()
         if expires_delta:
@@ -116,8 +113,8 @@ class AuthService:
 
     def create_tokens(self, user: User) -> tuple[str, str]:
         """Создание access и refresh токенов для пользователя"""
-        access_token_data = {"sub": user.username}
-        refresh_token_data = {"sub": user.username, "user_id": str(user.id)}
+        access_token_data = {"sub": user.user_name}
+        refresh_token_data = {"sub": user.user_name, "user_id": str(user.id)}
 
         access_token = self.create_access_token(
             data=access_token_data,
@@ -142,10 +139,10 @@ class AuthService:
         """Верификация JWT токена"""
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username: str = payload.get("sub")
+            user_name: str = payload.get("sub")
             token_type: str = payload.get("type")
 
-            if username is None or token_type is None:
+            if user_name is None or token_type is None:
                 return None
 
             return payload
@@ -162,7 +159,8 @@ class AuthService:
         test_uuid = UUID('12345678-1234-5678-1234-567812345678')
         access_token = self.create_access_token({"sub": "test_user"})
         refresh_token = self.create_refresh_token(
-            {"sub": "test_user", "user_id": str(test_uuid)})
+            {"sub": "test_user", "user_id": str(test_uuid)}
+        )
         return access_token, refresh_token
 
     def get_user_from_token(self, token: str) -> Optional[User]:
@@ -171,10 +169,10 @@ class AuthService:
         if payload is None:
             return None
 
-        username: str = payload.get("sub")
-        if username is None:
+        user_name: str = payload.get("sub")
+        if user_name is None:
             return None
 
         from .user_service import UserService
         user_service = UserService(self.db)
-        return user_service.get_user_by_username(username)
+        return user_service.get_user_by_username(user_name)

@@ -15,10 +15,13 @@ from tests.user_service.fixtures.user_fixtures import *
 from tests.user_service.fixtures.client_fixtures import *
 from tests.recipe_service.fixtures.recipe_fixtures import *
 from tests.recipe_service.fixtures.client_fixtures import *
-from backend.services.recipe_service.src.models import (
-    Recipe, Ingredient, RecipeStep, Category, RecipeCategory,
-    Rating, Base as RecipeBase
-)
+from backend.services.recipe_service.models.models_recipe import (
+    Base as RecipeBase)
+from backend.services.recipe_service.models.rating_recipe import Rating
+from backend.services.recipe_service.models.ingredient_recipe import Ingredient
+from backend.services.recipe_service.models.category_recipe import (
+    Category, RecipeCategory)
+from backend.services.recipe_service.models.step_recipe import RecipeStep
 
 # Загружаем переменные окружения из .env файла
 load_dotenv()

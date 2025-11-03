@@ -7,7 +7,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from backend.services.recipe_service.src.models import (
+from backend.services.recipe_service.models.models_recipe import (
     Recipe, Ingredient, RecipeStep, Category, Rating
 )
 

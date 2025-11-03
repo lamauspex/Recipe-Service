@@ -7,7 +7,7 @@ import pytest
 from uuid import uuid4
 from fastapi import HTTPException
 
-from backend.services.recipe_service.src.schemas import (
+from backend.services.recipe_service.schemas.schemas import (
     RecipeCreate, RecipeUpdate, RecipeSearchParams
 )
 

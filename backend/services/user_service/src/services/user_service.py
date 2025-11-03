@@ -4,10 +4,12 @@
 from typing import Optional, List
 from uuid import UUID
 
-from backend.services.user_service.src.models import User
-from backend.services.user_service.src.schemas import UserCreate, UserUpdate
-from backend.services.user_service.src.repository.repo import UserRepository
+from backend.services.user_service.src.repository.user_repo import (
+    UserRepository)
 from backend.services.user_service.src.services.auth_service import AuthService
+from backend.services.user_service.models.user_models import User
+from backend.services.user_service.schemas.schemas import (
+    UserCreate, UserUpdate)
 
 
 class UserService:
@@ -19,8 +21,8 @@ class UserService:
     def create_user(self, user_data: UserCreate) -> User:
         """Создание нового пользователя"""
         # Проверяем существование пользователя
-        if self.repository.get_user_by_username(user_data.username):
-            raise ValueError("Пользователь с таким username уже существует")
+        if self.repository.get_user_by_username(user_data.user_name):
+            raise ValueError("Пользователь с таким user_name уже существует")
 
         if self.repository.get_user_by_email(user_data.email):
             raise ValueError("Пользователь с таким email уже существует")
@@ -30,7 +32,7 @@ class UserService:
         hashed_password = auth_service.get_password_hash(user_data.password)
 
         user_dict = {
-            "username": user_data.username,
+            "user_name": user_data.user_name,
             "email": user_data.email,
             "hashed_password": hashed_password,
             "full_name": user_data.full_name
@@ -42,9 +44,9 @@ class UserService:
         """Получение пользователя по ID"""
         return self.repository.get_user_by_id(user_id)
 
-    def get_user_by_username(self, username: str) -> Optional[User]:
-        """Получение пользователя по username"""
-        return self.repository.get_user_by_username(username)
+    def get_user_by_username(self, user_name: str) -> Optional[User]:
+        """Получение пользователя по user_name"""
+        return self.repository.get_user_by_username(user_name)
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Получение пользователя по email"""

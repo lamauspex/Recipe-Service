@@ -1,4 +1,9 @@
+"""
+Фикстуры для сервисов
+"""
+
 import pytest
+
 from backend.services.user_service.src.services.user_service import UserService
 from backend.services.user_service.src.services.auth_service import AuthService
 

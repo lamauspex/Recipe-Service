@@ -2,16 +2,18 @@
 Тесты для моделей user-service
 """
 
-from backend.services.user_service.src.models import User, RefreshToken
+import pytest
 from uuid import UUID
 from datetime import datetime, timezone, timedelta
-import pytest
+
+from backend.services.user_service.models.user_models import User
+from backend.services.user_service.models.token_models import RefreshToken
 
 
 def test_user_model_creation(db_session):
     """Тест создания модели пользователя"""
     user = User(
-        username="testuser",
+        user_name="testuser",
         email="test@example.com",
         hashed_password="hashed_password123",
         full_name="Test User",
@@ -26,7 +28,7 @@ def test_user_model_creation(db_session):
 
     assert user.id is not None
     assert isinstance(user.id, UUID)
-    assert user.username == "testuser"
+    assert user.user_name == "testuser"
     assert user.email == "test@example.com"
     assert user.hashed_password == "hashed_password123"
     assert user.full_name == "Test User"
@@ -40,7 +42,7 @@ def test_user_model_creation(db_session):
 def test_user_model_repr(db_session):
     """Тест строкового представления пользователя"""
     user = User(
-        username="testuser",
+        user_name="testuser",
         email="test@example.com",
         hashed_password="hashed_password123"
     )
@@ -52,7 +54,7 @@ def test_user_model_repr(db_session):
     repr_str = repr(user)
     assert "User" in repr_str
     assert f"id={user.id}" in repr_str
-    assert "username='testuser'" in repr_str
+    assert "user_name='testuser'" in repr_str
     assert "email='test@example.com'" in repr_str
 
 
@@ -60,16 +62,16 @@ def test_user_model_unique_constraints(db_session):
     """Тест уникальных ограничений пользователя"""
     # Первый пользователь
     user1 = User(
-        username="testuser",
+        user_name="testuser",
         email="test@example.com",
         hashed_password="hashed_password123"
     )
     db_session.add(user1)
     db_session.commit()
 
-    # Второй пользователь с таким же username
+    # Второй пользователь с таким же user_name
     user2 = User(
-        username="testuser",  # Дубликат
+        user_name="testuser",  # Дубликат
         email="test2@example.com",
         hashed_password="hashed_password123"
     )
@@ -82,7 +84,7 @@ def test_user_model_unique_constraints(db_session):
 
     # Третий пользователь с таким же email
     user3 = User(
-        username="testuser2",
+        user_name="testuser2",
         email="test@example.com",  # Дубликат
         hashed_password="hashed_password123"
     )
@@ -96,7 +98,7 @@ def test_refresh_token_model_creation(db_session):
     """Тест создания модели refresh токена"""
     # Сначала создаем пользователя
     user = User(
-        username="testuser_token",
+        user_name="testuser_token",
         email="testtoken@example.com",
         hashed_password="hashed_password123"
     )
@@ -130,7 +132,7 @@ def test_refresh_token_model_creation(db_session):
 def test_refresh_token_model_repr(db_session):
     """Тест строкового представления refresh токена"""
     user = User(
-        username="testuser_repr",
+        user_name="testuser_repr",
         email="testrepr@example.com",
         hashed_password="hashed_password123"
     )
@@ -157,7 +159,7 @@ def test_refresh_token_model_repr(db_session):
 def test_refresh_token_unique_constraint(db_session):
     """Тест уникальности токена"""
     user = User(
-        username="testuser_unique",
+        user_name="testuser_unique",
         email="testunique@example.com",
         hashed_password="hashed_password123"
     )
@@ -189,7 +191,7 @@ def test_refresh_token_unique_constraint(db_session):
 def test_cascade_delete_user_tokens(db_session):
     """Тест каскадного удаления токенов при удалении пользователя"""
     user = User(
-        username="testuser_cascade",
+        user_name="testuser_cascade",
         email="testcascade@example.com",
         hashed_password="hashed_password123"
     )

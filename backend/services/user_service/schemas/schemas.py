@@ -12,7 +12,7 @@ from datetime import datetime
 
 class UserBase(BaseModel):
     """Базовая схема пользователя"""
-    username: str
+    user_name: str
     email: EmailStr
     full_name: Optional[str] = None
 
@@ -36,7 +36,7 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     """Схема для обновления пользователя"""
-    username: Optional[str] = None
+    user_name: Optional[str] = None
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
     bio: Optional[str] = None
@@ -56,7 +56,7 @@ class UserResponse(UserBase):
 
 class UserLogin(BaseModel):
     """Схема для входа пользователя"""
-    username: str
+    user_name: str
     password: str
 
 
@@ -70,7 +70,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """Схема данных из токена"""
-    username: Optional[str] = None
+    user_name: Optional[str] = None
     user_id: Optional[UUID] = None
     is_admin: bool = False
 
