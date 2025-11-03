@@ -23,8 +23,7 @@ class RecipeRepository:
             Recipe.is_deleted.is_(False)
         ).options(
             selectinload(Recipe.ingredients),
-            selectinload(Recipe.steps),
-            selectinload(Recipe.author)
+            selectinload(Recipe.steps)
         ).first()
 
     def get_recipes_list(

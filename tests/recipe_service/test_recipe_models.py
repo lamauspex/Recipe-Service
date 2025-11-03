@@ -1,5 +1,5 @@
 """
-Тесты для моделей recipe-service
+Тесты моделей данных рецептов
 """
 
 from datetime import datetime
@@ -14,11 +14,11 @@ def test_recipe_model_creation(db_session, test_user):
     """Тест создания модели рецепта"""
     recipe = Recipe(
         title="Тестовый рецепт",
-        description="Описание тестового рецепта",
+        description="Тестовое описание",
         cooking_time=30,
         difficulty="средне",
         servings=4,
-        author_id=str(test_user.id)
+        author_id=test_user.id
     )
 
     db_session.add(recipe)
@@ -31,7 +31,6 @@ def test_recipe_model_creation(db_session, test_user):
     assert recipe.cooking_time == 30
     assert recipe.difficulty == "средне"
     assert recipe.servings == 4
-    assert recipe.author_id == str(test_user.id)
     assert recipe.author_id == test_user.id
     assert recipe.created_at is not None
     assert isinstance(recipe.created_at, datetime)
@@ -118,7 +117,7 @@ def test_recipe_relationships(db_session, test_user):
         cooking_time=30,
         difficulty="легко",
         servings=2,
-        author_id=str(test_user.id)
+        author_id=test_user.id  # ✅ Правильный UUID
     )
     db_session.add(recipe)
     db_session.commit()

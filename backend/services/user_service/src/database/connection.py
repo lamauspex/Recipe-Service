@@ -28,31 +28,35 @@ def create_engine_for_service():
     db_name = os.getenv("DB_NAME")
     db_pass = os.getenv("DB_PASSWORD")
 
-    # Формируем DSN
-    database_url = (
-        f"postgresql+psycopg2://{db_user}:{db_pass}"
-        f"@{db_host}:{db_port}/{db_name}"
-    )
-
-    # Параметры движка
-    engine_kwargs = {
-        "echo": os.getenv("DEBUG", "False").lower() == "true",
-        "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 20,
-        "connect_args": {
-            "client_encoding": "utf8",
-            "options": "-c client_encoding=utf8"
-        }
-    }
-
     # Для тестового окружения используем SQLite в памяти
     if os.getenv("TESTING"):
         database_url = "sqlite:///:memory:"
-        engine_kwargs.update({
+
+        engine_kwargs = {
             "connect_args": {"check_same_thread": False},
-            "poolclass": StaticPool
-        })
+            "poolclass": StaticPool,
+            "echo": os.getenv("DEBUG", "False").lower() == "true"
+        }
+
+    # Для продакшена - PostgreSQL с пулом соединений
+    else:
+        # Формируем DSN
+        database_url = (
+            f"postgresql+psycopg2://{db_user}:{db_pass}"
+            f"@{db_host}:{db_port}/{db_name}"
+        )
+
+        # Параметры движка
+        engine_kwargs = {
+            "echo": os.getenv("DEBUG", "False").lower() == "true",
+            "pool_pre_ping": True,
+            "pool_size": 10,
+            "max_overflow": 20,
+            "connect_args": {
+                "client_encoding": "utf8",
+                "options": "-c client_encoding=utf8"
+            }
+        }
 
     return create_engine(database_url, **engine_kwargs)
 
