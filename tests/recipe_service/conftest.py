@@ -1,6 +1,7 @@
 """
 Конфигурация фикстур для recipe_service тестов
 """
+
 import os
 import pytest
 from dotenv import load_dotenv
@@ -13,29 +14,32 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 
 
-from tests.user_service.fixtures.user_fixtures import *
+from backend.services.recipe_service.models import (
+    Base, Recipe, Rating, Ingredient,
+    Category, RecipeCategory, RecipeStep
+)
+from backend.services.user_service.models.user_models import User
+from backend.services.user_service.models.token_models import RefreshToken
+from backend.services.recipe_service.src.services.recipe_service import (
+    RecipeService
+)
+from backend.services.user_service.src.middleware.jwt_middleware import (
+    get_current_user
+)
+from backend.services.recipe_service.main import app
 from tests.recipe_service.fixtures.recipe_fixtures import (
     create_test_recipe, create_test_ingredients, create_test_steps,
     create_test_category, create_test_rating, get_sample_recipe_data,
     get_recipe_create_data, get_recipe_update_data
 )
-from backend.services.recipe_service.src.services.recipe_service import (
-    RecipeService
-)
-from backend.services.user_service.src.services.auth_service import AuthService
-from backend.services.user_service.models.token_models import RefreshToken
-from backend.services.user_service.models.user_models import User
-from backend.services.recipe_service.models import (
-    Base, Recipe, Rating, Ingredient,
-    Category, RecipeCategory, RecipeStep
+from tests.user_service.fixtures.user_fixtures import (
+    create_test_user
 )
 
 
 # Устанавливаем переменную окружения для тестов ПЕРЕД импортами
 os.environ["TESTING"] = "true"
 
-
-# Импортируем функции из фикстур
 
 # Загружаем переменные окружения из .env файла
 load_dotenv()
@@ -73,36 +77,43 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 @pytest.fixture(scope="function")
 def client():
-    """Фикстура для тестового клиента FastAPI с тестовой базой данных"""
-    from backend.services.recipe_service.main import app
+    """Фикстура для тестового клиента FastAPI с мок-аутентификацией"""
+
+    # Моковый пользователь для тестов
+    async def mock_get_current_user():
+        # Создаем тестового пользователя в тестовой базе
+        db_session = TestingSessionLocal()
+        try:
+            user = create_test_user(db_session)
+            return user
+        finally:
+            db_session.close()
+
+    # Подменяем реальную аутентификацию на мок
+    app.dependency_overrides[get_current_user] = mock_get_current_user
 
     # Создаем приложение с тестовой базой данных
-    with patch('backend.services.recipe_service.src.database.connection.engine', test_engine):
-        with patch('backend.services.recipe_service.src.database.connection.SessionLocal', TestingSessionLocal):
+    with patch(
+        'backend.services.recipe_service.src.database.connection.engine',
+        test_engine
+    ):
+        with patch(
+            'backend.services.recipe_service.src.database.connection.SessionLocal',
+            TestingSessionLocal
+        ):
             yield TestClient(app)
 
 
 @pytest.fixture(scope="function")
-def auth_headers(test_user):
-    """Фикстура для заголовков аутентификации с реальным JWT токеном"""
-    # Используем тестовую сессию базы данных
-    db_session = TestingSessionLocal()
+def auth_headers():
+    """Заголовки для тестов (аутентификация замокана)"""
+    return {"Content-Type": "application/json"}
 
-    try:
-        # Создаем сервис аутентификации
-        auth_service = AuthService(db_session)
 
-        # Генерируем JWT токен для тестового пользователя
-        token = auth_service.create_access_token(
-            data={"sub": test_user.user_name}
-        )
-
-        return {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-    finally:
-        db_session.close()
+@pytest.fixture(scope="function")
+def test_user(db_session):
+    """Фикстура для создания тестового пользователя"""
+    return create_test_user(db_session)
 
 
 @pytest.fixture(scope="function")
@@ -212,9 +223,8 @@ def cleanup_test_data(db_session):
         db_session.rollback()
         raise e
 
+
 # Дополнительные фикстуры для recipe-service тестов
-
-
 @pytest.fixture(scope="function")
 def test_user_with_recipes(db_session, test_user):
     """Фикстура: пользователь с несколькими рецептами"""
