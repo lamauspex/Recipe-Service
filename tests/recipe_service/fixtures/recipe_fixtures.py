@@ -4,12 +4,15 @@
 
 import pytest
 
+from backend.services.recipe_service.models.category_recipe import Category
+from backend.services.recipe_service.models.ingredient_recipe import Ingredient
+from backend.services.recipe_service.models.rating_recipe import Rating
+from backend.services.recipe_service.models.step_recipe import RecipeStep
 from backend.services.recipe_service.src.services.recipe_service import (
     RecipeService)
-from backend.services.recipe_service.src.schemas import (
+from backend.services.recipe_service.schemas.schemas import (
     RecipeCreate, RecipeUpdate)
-from backend.services.recipe_service.src.models import (
-    Recipe, Ingredient, RecipeStep, Category, Rating)
+from backend.services.recipe_service.models.models_recipe import Recipe
 
 
 @pytest.fixture

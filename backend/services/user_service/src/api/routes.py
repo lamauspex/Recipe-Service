@@ -10,8 +10,8 @@ import logging
 from uuid import UUID
 
 from backend.services.user_service.src.database.connection import get_db
-from backend.services.user_service.src.models import User
-from backend.services.user_service.src.schemas import (
+from backend.services.user_service.models.user_models import User
+from backend.services.user_service.schemas.schemas import (
     UserCreate, UserResponse, UserLogin, Token,
     UserUpdate, RefreshTokenRequest
 )

@@ -3,26 +3,28 @@
 Автономная реализация без зависимостей от общих модулей
 """
 
+from backend.services.user_service.src.middleware.exception_handler import (
+    setup_exception_handlers
+)
+from backend.services.user_service.src.database.connection import init_db
+from backend.services.user_service.src.api.routes import router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run as uvi_run
 from contextlib import asynccontextmanager
 import os
+from dotenv import load_dotenv
 
-from backend.services.user_service.src.api.routes import router
-from backend.services.user_service.src.database.connection import init_db
-from backend.services.user_service.src.middleware.exception_handler import (
-    setup_exception_handlers
-)
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
 
-# Получаем настройки из переменных окружения
+# Получаем настройки
 SERVICE_NAME = "user-service"
-PORT = int(os.getenv("USER_SERVICE_PORT", "8000"))
+PORT = int(os.getenv("USER_SERVICE_PORT"))
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-CORS_ORIGINS = os.getenv(
-    "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+ENVIRONMENT = os.getenv("ENVIRONMENT")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS").split(",")
 
 
 @asynccontextmanager

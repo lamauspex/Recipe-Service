@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from typing import Generator
 import os
 
+
 # Создаем базовый класс моделей для recipe-service
 Base = declarative_base()
 
@@ -24,7 +25,7 @@ def create_engine_for_service():
     db_password = os.getenv("DB_PASSWORD", "password")
     db_host = os.getenv("DB_HOST", "localhost")
     db_port = os.getenv("DB_PORT", "5432")
-    db_name = os.getenv("DB_NAME", "recipe_app")  # ОБЩАЯ БАЗА ДАННЫХ
+    db_name = os.getenv("DB_NAME", "recipe_app")
 
     # Формируем DSN
     database_url = (
@@ -101,8 +102,7 @@ def init_db() -> None:
     Создает только таблицы, относящиеся к recipe-service
     """
     try:
-        # Импортируем модели после создания движка
-        from backend.services.recipe_service.src.models import Base
+        from backend.services.recipe_service.models.models_recipe import Base
 
         print("Initializing recipe-service database tables...")
 
@@ -157,7 +157,7 @@ def recreate_database() -> None:
         raise RuntimeError(
             "Cannot recreate database in production environment")
 
-    from backend.services.recipe_service.src.models import Base
+    from backend.services.recipe_service.models.models_recipe import Base
 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

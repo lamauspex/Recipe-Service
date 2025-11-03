@@ -18,7 +18,7 @@ def test_jwt_middleware_valid_token(client, db_session):
     # Создаем тестового пользователя
     user = create_test_user(
         db_session,
-        username="testuser",
+        user_name="testuser",
         email="test@example.com"
     )
     access_token, _ = create_test_tokens(db_session, user)
@@ -29,7 +29,7 @@ def test_jwt_middleware_valid_token(client, db_session):
 
     assert response.status_code == 200
     data = response.json()
-    assert data["username"] == "testuser"
+    assert data["user_name"] == "testuser"
     # Проверяем, что ID является UUID
     UUID(data["id"])
 
@@ -55,7 +55,7 @@ def test_jwt_middleware_expired_token(client, db_session):
     auth_service = AuthService(db_session)
     user = create_test_user(
         db_session,
-        username="testuser",
+        user_name="testuser",
         email="test@example.com"
     )
 
@@ -81,7 +81,7 @@ def test_admin_middleware_admin_user(client, db_session):
     # Создаем администратора
     admin_user = create_test_user(
         db_session,
-        username="adminuser",
+        user_name="adminuser",
         email="admin@example.com",
         is_admin=True
     )
@@ -99,7 +99,7 @@ def test_admin_middleware_regular_user(client, db_session):
     # Создаем обычного пользователя
     regular_user = create_test_user(
         db_session,
-        username="regularuser",
+        user_name="regularuser",
         email="regular@example.com"
     )
     access_token, _ = create_test_tokens(db_session, regular_user)
@@ -115,7 +115,7 @@ def test_exception_handler_validation_error(client):
     """Тест обработчика исключений валидации"""
     # Отправка невалидных данных
     invalid_data = {
-        "username": "",            # Пустой username
+        "user_name": "",            # Пустой user_name
         "email": "invalid-email",  # Невалидный email
         "password": "123"          # Слишком короткий пароль
     }
@@ -133,7 +133,7 @@ def test_exception_handler_not_found(client, db_session):
     # Создаем администратора
     admin_user = create_test_user(
         db_session,
-        username="testuser",
+        user_name="testuser",
         email="test@example.com",
         is_admin=True
     )

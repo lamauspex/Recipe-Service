@@ -1,12 +1,10 @@
 """
 Схемы Pydantic для recipe-service
-Автономная реализация без зависимостей от общих модулей
 """
-
-from typing import Optional, List, Generic, TypeVar
-from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID
 from datetime import datetime
+from typing import Optional, List, Generic, TypeVar
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # Дженерики для пагинации
@@ -25,8 +23,17 @@ class BaseResponse(BaseModel):
 
 class PaginationParams(BaseModel):
     """Параметры пагинации"""
-    skip: int = Field(default=0, ge=0, description="Пропустить записей")
-    limit: int = Field(default=100, ge=1, le=1000, description="Лимит записей")
+    skip: int = Field(
+        default=0,
+        ge=0,
+        description="Пропустить записей"
+    )
+    limit: int = Field(
+        default=100,
+        ge=1,
+        le=1000,
+        description="Лимит записей"
+    )
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
@@ -46,7 +53,8 @@ class RecipeBase(BaseModel):
         description="Название рецепта"
     )
     description: Optional[str] = Field(
-        None, description="Описание рецепта"
+        None,
+        description="Описание рецепта"
     )
     cooking_time: int = Field(
         ...,
@@ -81,34 +89,78 @@ class RecipeCreate(RecipeBase):
 
 class RecipeUpdate(BaseModel):
     """Схема для обновления рецепта"""
-    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    title: Optional[str] = Field(
+        None,
+        min_length=1,
+        max_length=200
+    )
     description: Optional[str] = Field(None)
-    cooking_time: Optional[int] = Field(None, ge=1)
-    difficulty: Optional[str] = Field(None, pattern="^(легко|средне|сложно)$")
-    servings: Optional[int] = Field(None, ge=1)
-    ingredients: Optional[List[str]] = Field(None, min_items=1)
-    instructions: Optional[List[str]] = Field(None, min_items=1)
+    cooking_time: Optional[int] = Field(
+        None,
+        ge=1
+    )
+    difficulty: Optional[str] = Field(
+        None,
+        pattern="^(легко|средне|сложно)$"
+    )
+    servings: Optional[int] = Field(
+        None,
+        ge=1
+    )
+    ingredients: Optional[List[str]] = Field(
+        None,
+        min_items=1
+    )
+    instructions: Optional[List[str]] = Field(
+        None,
+        min_items=1
+    )
 
 
 class RecipeResponse(RecipeBase, BaseResponse):
     """Схема ответа с данными рецепта"""
-    ingredients: List[str] = Field(description="Список ингредиентов")
-    instructions: List[str] = Field(description="Шаги приготовления")
-    author_id: UUID = Field(description="ID автора рецепта")
+    ingredients: List[str] = Field(
+        description="Список ингредиентов"
+    )
+    instructions: List[str] = Field(
+        description="Шаги приготовления"
+    )
+    author_id: UUID = Field(
+        description="ID автора рецепта"
+    )
     rating: Optional[float] = Field(
-        None, ge=0, le=5, description="Рейтинг рецепта")
-    review_count: int = Field(default=0, description="Количество отзывов")
+        None,
+        ge=0,
+        le=5,
+        description="Рейтинг рецепта"
+    )
+    review_count: int = Field(
+        default=0,
+        description="Количество отзывов"
+    )
 
 
 class RecipeSearchParams(PaginationParams):
     """Параметры поиска рецептов"""
     search: Optional[str] = Field(
-        None, description="Поиск по названию и описанию")
-    difficulty: Optional[str] = Field(None, pattern="^(легко|средне|сложно)$")
+        None,
+        description="Поиск по названию и описанию"
+    )
+    difficulty: Optional[str] = Field(
+        None,
+        pattern="^(легко|средне|сложно)$"
+    )
     max_cooking_time: Optional[int] = Field(
-        None, ge=1, description="Максимальное время приготовления")
+        None,
+        ge=1,
+        description="Максимальное время приготовления"
+    )
     min_rating: Optional[float] = Field(
-        None, ge=0, le=5, description="Минимальный рейтинг")
+        None,
+        ge=0,
+        le=5,
+        description="Минимальный рейтинг"
+    )
 
 
 class RecipeListResponse(PaginatedResponse[RecipeResponse]):
@@ -133,13 +185,20 @@ class ReviewBase(BaseModel):
 
 class ReviewCreate(ReviewBase):
     """Схема для создания отзыва"""
-    recipe_id: UUID = Field(..., description="ID рецепта")
+    recipe_id: UUID = Field(
+        ...,
+        description="ID рецепта"
+    )
 
 
 class ReviewResponse(ReviewBase, BaseResponse):
     """Схема ответа с данными отзыва"""
-    recipe_id: UUID = Field(description="ID рецепта")
-    author_id: UUID = Field(description="ID автора отзыва")
+    recipe_id: UUID = Field(
+        description="ID рецепта"
+    )
+    author_id: UUID = Field(
+        description="ID автора отзыва"
+    )
 
 
 # Дженерики для использования в других сервисах

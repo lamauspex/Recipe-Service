@@ -1,24 +1,25 @@
-""" Фикстуры для тестовых данных пользователя """
-
+"""
+Фикстуры для тестовых данных пользователя
+"""
 
 import pytest
 
-from backend.services.user_service.src.schemas import UserCreate
+from backend.services.user_service.schemas.schemas import UserCreate
 from backend.services.user_service.src.services.user_service import UserService
 from backend.services.user_service.src.services.auth_service import AuthService
 
 
 def create_test_user(
     db_session,
-    username="testuser",
+    user_name="testuser",
     email="test@example.com",
-    password="Testpassword123",
+    password="Test123!",
     is_admin=False
 ):
     """Создание тестового пользователя"""
     user_service = UserService(db_session)
     user_data = UserCreate(
-        username=username,
+        user_name=user_name,
         email=email,
         password=password,
         full_name="Test User"
@@ -45,9 +46,9 @@ def test_user(db_session):
     """Фикстура для создания тестового пользователя"""
     return create_test_user(
         db_session,
-        username="testuser",
+        user_name="testuser",
         email="test@example.com",
-        password="Testpassword123"
+        password="Test123!"
     )
 
 
@@ -55,9 +56,9 @@ def test_user(db_session):
 def test_user_data():
     """Тестовые данные пользователя"""
     return {
-        "username": "testuser",
+        "user_name": "testuser",
         "email": "test@example.com",
-        "password": "Testpassword123"
+        "password": "Test123!"
     }
 
 
@@ -65,9 +66,9 @@ def test_user_data():
 def user_data():
     """Тестовые данные для создания пользователя"""
     return UserCreate(
-        username="testuser",
+        user_name="testuser",
         email="test@example.com",
-        password="Testpassword123",
+        password="Test123!",
         full_name="Test User",
     )
 
@@ -77,8 +78,8 @@ def test_admin_user(db_session):
     """Фикстура для создания тестового администратора"""
     return create_test_user(
         db_session,
-        username="adminuser",
+        user_name="adminuser",
         email="admin@example.com",
-        password="Adminpassword123",
+        password="TesT123!",
         is_admin=True
     )

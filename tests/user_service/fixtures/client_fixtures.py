@@ -1,7 +1,11 @@
-import pytest
+"""
+Фикстуры для тестового клиента
+"""
 
-from fastapi.testclient import TestClient
+import pytest
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
 from backend.services.user_service.src.api.routes import router
 from backend.services.user_service.src.database.connection import get_db
 from backend.services.user_service.src.services.auth_service import AuthService

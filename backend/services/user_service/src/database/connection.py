@@ -3,14 +3,17 @@
 Использует общую базу данных со всеми сервисами
 """
 
+from backend.services.user_service.models.base_models import Base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 from typing import Generator
 import os
+from dotenv import load_dotenv
 
-from backend.services.user_service.src.models import Base
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
 
 def create_engine_for_service():
@@ -150,8 +153,7 @@ def recreate_database() -> None:
     УДАЛЯЕТ ВСЕ ДАННЫЕ!
     """
     if os.getenv("ENVIRONMENT") not in ["test", "development"]:
-        raise RuntimeError(
-            "Cannot recreate database in production environment")
+        raise Exception("Cannot recreate database in production environment")
 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

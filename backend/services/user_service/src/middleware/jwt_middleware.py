@@ -8,7 +8,7 @@ from typing import Optional
 
 from backend.services.user_service.src.database.connection import get_db
 from backend.services.user_service.src.services.auth_service import AuthService
-from backend.services.user_service.src.models import User
+from backend.services.user_service.models.user_models import User
 
 # Используем auto_error=False для обработки случаев, когда токен отсутствует
 security = HTTPBearer(auto_error=False)
@@ -67,8 +67,8 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    username: str = payload.get("sub")
-    if username is None:
+    user_name: str = payload.get("sub")
+    if user_name is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный токен",
@@ -76,7 +76,7 @@ async def get_current_user(
         )
 
     # Получение пользователя из базы данных
-    user = db.query(User).filter(User.username == username).first()
+    user = db.query(User).filter(User.user_name == user_name).first()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

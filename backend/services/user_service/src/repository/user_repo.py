@@ -1,11 +1,11 @@
 """
 Repository слой для работы с пользователями
 """
+
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 from typing import List, Optional
 from uuid import UUID
-from backend.services.user_service.src.models import User, RefreshToken
+from backend.services.user_service.models.user_models import User
 
 
 class UserRepository:
@@ -18,9 +18,9 @@ class UserRepository:
         """Получение пользователя по ID"""
         return self.db.query(User).filter(User.id == user_id).first()
 
-    def get_user_by_username(self, username: str) -> Optional[User]:
-        """Получение пользователя по username"""
-        return self.db.query(User).filter(User.username == username).first()
+    def get_user_by_username(self, user_name: str) -> Optional[User]:
+        """Получение пользователя по user_name"""
+        return self.db.query(User).filter(User.user_name == user_name).first()
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Получение пользователя по email"""
@@ -66,67 +66,6 @@ class UserRepository:
         return self.db.query(User).filter(
             User.is_active.is_(True)
         ).offset(skip).limit(limit).all()
-
-
-class RefreshTokenRepository:
-    """Репозиторий для работы с refresh токенами"""
-
-    def __init__(self, db: Session):
-        self.db = db
-
-    def create_refresh_token(self, user_id: UUID, token: str, expires_at) -> RefreshToken:
-        """Создание refresh токена"""
-        # Отзываем старые токены пользователя
-        self.revoke_user_tokens(user_id)
-
-        refresh_token = RefreshToken(
-            user_id=user_id,
-            token=token,
-            expires_at=expires_at
-        )
-        self.db.add(refresh_token)
-        self.db.commit()
-        self.db.refresh(refresh_token)
-        return refresh_token
-
-    def get_valid_token(self, token: str) -> Optional[RefreshToken]:
-        """Получение валидного токена"""
-        return self.db.query(RefreshToken).filter(
-            and_(
-                RefreshToken.token == token,
-                RefreshToken.is_revoked.is_(False)
-            )
-        ).first()
-
-    def revoke_token(self, token: str) -> bool:
-        """Отзыв токена"""
-        refresh_token = self.db.query(RefreshToken).filter(
-            RefreshToken.token == token
-        ).first()
-
-        if refresh_token:
-            refresh_token.is_revoked = True
-            self.db.commit()
-            return True
-        return False
-
-    def revoke_user_tokens(self, user_id: UUID) -> None:
-        """Отзыв всех токенов пользователя"""
-        self.db.query(RefreshToken).filter(
-            RefreshToken.user_id == user_id
-        ).update({"is_revoked": True})
-        self.db.commit()
-
-    def cleanup_expired_tokens(self) -> int:
-        """Очистка просроченных токенов"""
-        from datetime import datetime, timezone
-
-        expired_count = self.db.query(RefreshToken).filter(
-            RefreshToken.expires_at < datetime.now(timezone.utc)
-        ).delete()
-
-        self.db.commit()
-        return expired_count
 
 
 # Для обратной совместимости
