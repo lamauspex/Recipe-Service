@@ -15,11 +15,10 @@ from backend.services.recipe_service.src.database.connection import init_db
 
 # Получаем настройки из переменных окружения
 SERVICE_NAME = "recipe-service"
-PORT = int(os.getenv("RECIPE_SERVICE_PORT", "8001"))
+PORT = int(os.getenv("RECIPE_SERVICE_PORT"))
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-CORS_ORIGINS = os.getenv(
-    "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+ENVIRONMENT = os.getenv("ENVIRONMENT")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS").split(",")
 
 
 @asynccontextmanager

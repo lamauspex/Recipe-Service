@@ -1,13 +1,11 @@
-
 """
 Тесты для моделей recipe-service
 """
 
-
 from datetime import datetime
 from uuid import UUID
 
-from backend.services.recipe_service.models.models_recipe import (
+from backend.services.recipe_service.models import (
     Recipe, Ingredient, RecipeStep, Category, Rating
 )
 
@@ -34,6 +32,7 @@ def test_recipe_model_creation(db_session, test_user):
     assert recipe.difficulty == "средне"
     assert recipe.servings == 4
     assert recipe.author_id == str(test_user.id)
+    assert recipe.author_id == test_user.id
     assert recipe.created_at is not None
     assert isinstance(recipe.created_at, datetime)
 

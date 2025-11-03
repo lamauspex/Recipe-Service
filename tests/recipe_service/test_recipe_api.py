@@ -17,7 +17,7 @@ def test_create_recipe_success(client, auth_headers):
     }
 
     response = client.post(
-        "/api/recipes/",
+        "/recipes/",
         json=recipe_data,
         headers=auth_headers
     )
@@ -30,7 +30,7 @@ def test_create_recipe_success(client, auth_headers):
 
 def test_get_recipes_list(client):
     """Тест получения списка рецептов"""
-    response = client.get("/api/recipes/")
+    response = client.get("/recipes/")
 
     assert response.status_code == 200
     data = response.json()
@@ -39,7 +39,7 @@ def test_get_recipes_list(client):
 
 def test_get_recipe_by_id(client, test_recipe):
     """Тест получения рецепта по ID"""
-    response = client.get(f"/api/recipes/{test_recipe.id}")
+    response = client.get(f"/recipes/{test_recipe.id}")
 
     assert response.status_code == 200
     data = response.json()

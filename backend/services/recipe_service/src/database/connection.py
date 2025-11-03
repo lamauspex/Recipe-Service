@@ -3,16 +3,19 @@
 Использует общую базу данных со всеми сервисами
 """
 
+
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session, declarative_base
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
+from dotenv import load_dotenv
 from typing import Generator
 import os
 
+from backend.services.recipe_service.models.base_recipe import Base
 
-# Создаем базовый класс моделей для recipe-service
-Base = declarative_base()
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
 
 def create_engine_for_service():
@@ -21,15 +24,15 @@ def create_engine_for_service():
     Использует ОДНУ общую базу данных со всеми сервисами
     """
     # Получаем настройки из переменных окружения
-    db_user = os.getenv("DB_USER", "postgres")
-    db_password = os.getenv("DB_PASSWORD", "password")
-    db_host = os.getenv("DB_HOST", "localhost")
-    db_port = os.getenv("DB_PORT", "5432")
-    db_name = os.getenv("DB_NAME", "recipe_app")
+    db_user = os.getenv("DB_USER")
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT")
+    db_name = os.getenv("DB_NAME")
+    db_pass = os.getenv("DB_PASSWORD")
 
     # Формируем DSN
     database_url = (
-        f"postgresql+psycopg2://{db_user}:{db_password}"
+        f"postgresql+psycopg2://{db_user}:{db_pass}"
         f"@{db_host}:{db_port}/{db_name}"
     )
 
@@ -37,8 +40,6 @@ def create_engine_for_service():
     engine_kwargs = {
         "echo": os.getenv("DEBUG", "False").lower() == "true",
         "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 20,
         "connect_args": {
             "client_encoding": "utf8",
             "options": "-c client_encoding=utf8"
@@ -102,8 +103,6 @@ def init_db() -> None:
     Создает только таблицы, относящиеся к recipe-service
     """
     try:
-        from backend.services.recipe_service.models.models_recipe import Base
-
         print("Initializing recipe-service database tables...")
 
         # Тестируем подключение
@@ -155,9 +154,8 @@ def recreate_database() -> None:
     """
     if os.getenv("ENVIRONMENT") not in ["test", "development"]:
         raise RuntimeError(
-            "Cannot recreate database in production environment")
-
-    from backend.services.recipe_service.models.models_recipe import Base
+            "Cannot recreate database in production environment"
+        )
 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

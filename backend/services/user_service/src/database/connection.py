@@ -153,7 +153,9 @@ def recreate_database() -> None:
     УДАЛЯЕТ ВСЕ ДАННЫЕ!
     """
     if os.getenv("ENVIRONMENT") not in ["test", "development"]:
-        raise Exception("Cannot recreate database in production environment")
+        raise Exception(
+            "Cannot recreate database in production environment"
+        )
 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

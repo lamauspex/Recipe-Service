@@ -4,64 +4,14 @@
 
 import pytest
 
-from backend.services.recipe_service.models.category_recipe import Category
-from backend.services.recipe_service.models.ingredient_recipe import Ingredient
-from backend.services.recipe_service.models.rating_recipe import Rating
-from backend.services.recipe_service.models.step_recipe import RecipeStep
-from backend.services.recipe_service.src.services.recipe_service import (
-    RecipeService)
+from backend.services.recipe_service.models import (
+    Category, Ingredient, Rating, RecipeStep, Recipe
+)
 from backend.services.recipe_service.schemas.schemas import (
     RecipeCreate, RecipeUpdate)
-from backend.services.recipe_service.models.models_recipe import Recipe
 
 
-@pytest.fixture
-def recipe_service(db_session):
-    """Фикстура для RecipeService"""
-    return RecipeService(db_session)
-
-
-@pytest.fixture
-def sample_recipe_data():
-    """Тестовые данные рецепта"""
-    return {
-        "title": "Тестовый рецепт пасты",
-        "description": "Простой и вкусный рецепт пасты",
-        "cooking_time": 30,
-        "difficulty": "средне",
-        "servings": 4,
-    }
-
-
-@pytest.fixture
-def recipe_create_data():
-    """Тестовые данные для создания рецепта"""
-    return RecipeCreate(
-        title="Тестовый рецепт",
-        description="Описание тестового рецепта",
-        ingredients=["ингредиент 1", "ингредиент 2"],
-        instructions=["Шаг 1. Приготовить\nШаг 2. Подать"],
-        cooking_time=30,
-        difficulty="легко",
-        servings=2
-    )
-
-
-@pytest.fixture
-def recipe_update_data():
-    """Тестовые данные для обновления рецепта"""
-    return RecipeUpdate(
-        title="Обновленный рецепт",
-        description="Обновленное описание",
-        ingredients=["новый ингредиент 1", "новый ингредиент 2"],
-        instructions=["Обновленный шаг 1", "Обновленный шаг 2"],
-        cooking_time=45,
-        difficulty="сложно",
-        servings=3
-    )
-
-
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_recipe(db_session, test_user):
     """Фикстура для создания тестового рецепта"""
     recipe = Recipe(
@@ -146,7 +96,7 @@ def create_test_recipe(db_session, author, **kwargs):
         "cooking_time": 30,
         "difficulty": "средне",
         "servings": 4,
-        "author_id": str(author.id)
+        "author_id": author.id  # Правильный тип UUID, не строка
     }
     default_data.update(kwargs)
 
@@ -187,3 +137,73 @@ def create_test_steps(db_session, recipe, steps_data):
     db_session.add_all(steps)
     db_session.commit()
     return steps
+
+
+def create_test_category(db_session, **kwargs):
+    """Создание тестовой категории"""
+    default_data = {
+        "name": "Тестовая категория",
+        "description": "Описание тестовой категории"
+    }
+    default_data.update(kwargs)
+
+    category = Category(**default_data)
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
+    return category
+
+
+def create_test_rating(db_session, recipe, user, **kwargs):
+    """Создание тестового рейтинга"""
+    default_data = {
+        "recipe_id": recipe.id,
+        "user_id": user.id,
+        "value": 5,
+        "comment": "Отличный рецепт!"
+    }
+    default_data.update(kwargs)
+
+    rating = Rating(**default_data)
+    db_session.add(rating)
+    db_session.commit()
+    db_session.refresh(rating)
+    return rating
+
+
+# Фабрики для тестовых данных (без зависимостей от pytest)
+def get_sample_recipe_data():
+    """Тестовые данные рецепта"""
+    return {
+        "title": "Тестовый рецепт пасты",
+        "description": "Простой и вкусный рецепт пасты",
+        "cooking_time": 30,
+        "difficulty": "средне",
+        "servings": 4,
+    }
+
+
+def get_recipe_create_data():
+    """Тестовые данные для создания рецепта"""
+    return RecipeCreate(
+        title="Тестовый рецепт",
+        description="Описание тестового рецепта",
+        ingredients=["ингредиент 1", "ингредиент 2"],
+        instructions=["Шаг 1. Приготовить\nШаг 2. Подать"],
+        cooking_time=30,
+        difficulty="легко",
+        servings=2
+    )
+
+
+def get_recipe_update_data():
+    """Тестовые данные для обновления рецепта"""
+    return RecipeUpdate(
+        title="Обновленный рецепт",
+        description="Обновленное описание",
+        ingredients=["новый ингредиент 1", "новый ингредиент 2"],
+        instructions=["Обновленный шаг 1", "Обновленный шаг 2"],
+        cooking_time=45,
+        difficulty="сложно",
+        servings=3
+    )
