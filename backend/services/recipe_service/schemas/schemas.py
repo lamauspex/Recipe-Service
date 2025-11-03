@@ -77,12 +77,12 @@ class RecipeCreate(RecipeBase):
     """Схема для создания рецепта"""
     ingredients: List[str] = Field(
         ...,
-        min_items=1,
+        min_length=1,
         description="Список ингредиентов"
     )
     instructions: List[str] = Field(
         ...,
-        min_items=1,
+        min_length=1,
         description="Шаги приготовления"
     )
 
@@ -109,11 +109,11 @@ class RecipeUpdate(BaseModel):
     )
     ingredients: Optional[List[str]] = Field(
         None,
-        min_items=1
+        min_length=1
     )
     instructions: Optional[List[str]] = Field(
         None,
-        min_items=1
+        min_length=1
     )
 
 

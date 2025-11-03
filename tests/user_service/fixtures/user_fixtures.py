@@ -11,7 +11,7 @@ from backend.services.user_service.src.services.auth_service import AuthService
 
 def create_test_user(
     db_session,
-    user_name="testuser",
+    user_name="test-user",
     email="test@example.com",
     password="Test123!",
     is_admin=False
@@ -46,7 +46,7 @@ def test_user(db_session):
     """Фикстура для создания тестового пользователя"""
     return create_test_user(
         db_session,
-        user_name="testuser",
+        user_name="test-user",
         email="test@example.com",
         password="Test123!"
     )
@@ -56,7 +56,7 @@ def test_user(db_session):
 def test_user_data():
     """Тестовые данные пользователя"""
     return {
-        "user_name": "testuser",
+        "user_name": "test-user",
         "email": "test@example.com",
         "password": "Test123!"
     }
@@ -66,7 +66,7 @@ def test_user_data():
 def user_data():
     """Тестовые данные для создания пользователя"""
     return UserCreate(
-        user_name="testuser",
+        user_name="test-user",
         email="test@example.com",
         password="Test123!",
         full_name="Test User",

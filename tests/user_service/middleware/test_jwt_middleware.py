@@ -18,7 +18,7 @@ def test_jwt_middleware_valid_token(client, db_session):
     # Создаем тестового пользователя
     user = create_test_user(
         db_session,
-        user_name="testuser",
+        user_name="test-user",
         email="test@example.com"
     )
     access_token, _ = create_test_tokens(db_session, user)
@@ -29,7 +29,7 @@ def test_jwt_middleware_valid_token(client, db_session):
 
     assert response.status_code == 200
     data = response.json()
-    assert data["user_name"] == "testuser"
+    assert data["user_name"] == "test-user"
     # Проверяем, что ID является UUID
     UUID(data["id"])
 

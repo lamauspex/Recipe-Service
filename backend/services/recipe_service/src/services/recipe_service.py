@@ -24,8 +24,7 @@ from backend.services.recipe_service.schemas.schemas import (
     RecipeUpdate,
     RecipeResponse,
     RecipeSearchParams,
-    ReviewCreate
-)
+    ReviewCreate)
 
 
 class RecipeService:

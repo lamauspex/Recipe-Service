@@ -13,8 +13,7 @@ from sqlalchemy import (
 )
 
 from backend.services.user_service.models.user_models import User as UserBase
-from backend.services.user_service.models.token_models import RefreshToken
-from backend.services.user_service.models.user_models import User
+from backend.services.user_service.models import RefreshToken, User
 from tests.user_service.fixtures.user_fixtures import *
 
 
