@@ -67,6 +67,22 @@ class UserRepository:
             User.is_active.is_(True)
         ).offset(skip).limit(limit).all()
 
+    def update_password(self, user_id: UUID, new_password: str) -> Optional[User]:
+        """Обновление пароля пользователя"""
+        return self.update_user(user_id, {"hashed_password": new_password})
+
+    def activate_user(self, user_id: UUID) -> Optional[User]:
+        """Активация пользователя"""
+        return self.update_user(user_id, {"is_active": True})
+
+    def deactivate_user(self, user_id: UUID) -> Optional[User]:
+        """Деактивация пользователя"""
+        return self.update_user(user_id, {"is_active": False})
+
+    def set_admin(self, user_id: UUID, is_admin: bool = True) -> Optional[User]:
+        """Установка статуса администратора"""
+        return self.update_user(user_id, {"is_admin": is_admin})
+
 
 # Для обратной совместимости
 class Repository(UserRepository):

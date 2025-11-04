@@ -10,7 +10,9 @@ from contextlib import asynccontextmanager
 import os
 
 from backend.services.recipe_service.src.api.recipe_router import router
-from backend.services.recipe_service.src.database.connection import init_db
+from backend.services.recipe_service.src.database.connection import init_db, get_db_session_factory
+from backend.services.recipe_service.src.events.publishers import recipe_event_publisher
+from backend.services.recipe_service.src.events.consumers import start_recipe_consumers, stop_recipe_consumers
 
 
 # Получаем настройки из переменных окружения
@@ -24,11 +26,34 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS").split(",")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan для управления состоянием приложения"""
-    # Код при запуске приложения
+    # Инициализация базы данных
     init_db()
+
+    # Подключение к RabbitMQ
+    try:
+        await recipe_event_publisher.connect()
+        print("RabbitMQ connected for recipe-service")
+
+        # Запуск потребителей
+        db_session_factory = get_db_session_factory()
+        await start_recipe_consumers(db_session_factory)
+        print("Recipe service consumers started")
+
+    except Exception as e:
+        print(f"Failed to connect to RabbitMQ: {e}")
+        # Продолжаем работу без RabbitMQ для разработки
+
     print(f"{SERVICE_NAME} started on port {PORT}")
     yield
-    # Код при остановке приложения
+
+    # Очистка при остановке
+    try:
+        await stop_recipe_consumers()
+        await recipe_event_publisher.disconnect()
+        print("RabbitMQ disconnected for recipe-service")
+    except Exception as e:
+        print(f"Error disconnecting from RabbitMQ: {e}")
+
     print(f"{SERVICE_NAME} shutting down.")
 
 
