@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 
 from backend.database_service import database
-from user_service.services import StatisticsService
+from backend.user_service.src.services import StatisticsService
 
 
 router = APIRouter(

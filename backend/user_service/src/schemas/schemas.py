@@ -13,7 +13,7 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-from user_service.schemas.user_roles import UserRole
+from backend.user_service.src.schemas.user_roles import UserRole
 
 
 class UserBase(BaseModel):

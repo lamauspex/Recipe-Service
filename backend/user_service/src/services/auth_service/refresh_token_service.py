@@ -8,7 +8,7 @@ from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
-from user_service.repository import RefreshTokenRepository
+from backend.user_service.src.repository import RefreshTokenRepository
 
 
 class RefreshTokenService:

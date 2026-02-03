@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import datetime, timezone
 from uuid import UUID
 
-from user_service.models import RefreshToken
+from backend.user_service.src.models import RefreshToken
 
 
 class RefreshTokenRepository:

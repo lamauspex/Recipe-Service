@@ -15,7 +15,7 @@ from sqlalchemy.orm import (
     relationship
 )
 
-from user_service.models.base_models import BaseModel
+from backend.user_service.src.models.base_models import BaseModel
 
 
 class RefreshToken(BaseModel):

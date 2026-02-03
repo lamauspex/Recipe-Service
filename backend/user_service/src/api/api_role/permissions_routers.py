@@ -9,10 +9,10 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from backend.database_service import database
-from user_service.middleware import get_current_admin_user
-from user_service.models import User, Permission
-from user_service.services import RoleService
-from user_service.services.admin_service import role_service
+from backend.user_service.src.middleware import get_current_admin_user
+from backend.user_service.src.models import User, Permission
+from backend.user_service.src.services import RoleService
+from backend.user_service.src.services.admin_service import role_service
 
 router = APIRouter(
     prefix="/roles",

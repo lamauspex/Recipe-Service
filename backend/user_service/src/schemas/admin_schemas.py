@@ -13,8 +13,8 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-from user_service.schemas.schemas import UserResponse
-from user_service.schemas.user_roles import UserRole
+from backend.user_service.src.schemas.schemas import UserResponse
+from backend.user_service.src.schemas.user_roles import UserRole
 
 
 class AdminUserResponse(UserResponse):

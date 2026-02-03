@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-from user_service.models import User
+from backend.user_service.src.models import User
 
 
 class AdminRepository:

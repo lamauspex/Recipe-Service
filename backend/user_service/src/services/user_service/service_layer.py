@@ -10,8 +10,8 @@ from uuid import UUID
 from datetime import datetime, timezone
 from passlib.context import CryptContext
 
-from user_service.repository import UserRepository
-from user_service.models import User
+from backend.user_service.src.repository import UserRepository
+from backend.user_service.src.models import User
 
 
 class UserService:

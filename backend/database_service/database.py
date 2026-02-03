@@ -2,7 +2,8 @@
 
 
 from pydantic import Field
-from ..user_service.config.base import BaseConfig
+
+from .base import BaseConfig
 
 
 class DataBaseConfig(BaseConfig):

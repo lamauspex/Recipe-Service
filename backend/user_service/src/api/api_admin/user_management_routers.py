@@ -6,10 +6,10 @@ from typing import List, Optional
 from uuid import UUID
 
 from backend.database_service import database
-from user_service.middleware import get_current_admin_user
-from user_service.models import User, RoleModel
-from user_service.services import UserManagementService
-from user_service.schemas import UserResponse
+from backend.user_service.src.middleware import get_current_admin_user
+from backend.user_service.src.models import User, RoleModel
+from backend.user_service.src.services import UserManagementService
+from backend.user_service.src.schemas import UserResponse
 
 
 router = APIRouter(

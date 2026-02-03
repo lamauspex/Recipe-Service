@@ -3,10 +3,10 @@ Database пакет для user-service
 Предоставляет единую точку входа для работы с базой данных
 """
 
-from .connection import database, create_engine_for_service
-
+from .base import DatabaseBaseConfig
+from .database import database_config
 
 __all__ = [
-    "database",
-    "create_engine_for_service"
+    "DatabaseBaseConfig",
+    "database_config",
 ]

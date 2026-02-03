@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 
-from user_service.middleware import get_current_admin_user
-from user_service.models import User
+from backend.user_service.src.middleware import get_current_admin_user
+from backend.user_service.src.models import User
 from backend.database_service import database
-from user_service.services import UserService
-from user_service.schemas import (
+from backend.user_service.src.services import UserService
+from backend.user_service.src.schemas import (
     AdminUserResponse,
     PasswordResetConfirm,
     PasswordResetRequest,

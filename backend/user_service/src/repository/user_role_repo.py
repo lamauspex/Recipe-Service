@@ -8,7 +8,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, select
 
-from user_service.models import User, RoleModel, user_roles
+from backend.user_service.src.models import User, RoleModel, user_roles
 
 
 class UserRoleRepository:

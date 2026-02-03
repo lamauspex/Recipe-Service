@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
-from user_service.config import settings
+from backend.user_service.src.config import settings
 from backend.database_service import database
-from user_service.repository import UserRepository
+from backend.user_service.src.repository import UserRepository
 
 
 router_1 = APIRouter(

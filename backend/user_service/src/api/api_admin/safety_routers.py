@@ -6,11 +6,14 @@ from typing import Optional
 from uuid import UUID
 
 
-from user_service.config import settings
+from backend.user_service.src.config import settings
 from backend.database_service import database
-from user_service.middleware import get_current_admin_user
-from user_service.models import User
-from user_service.services import LoginAttemptsService, SecurityService
+from backend.user_service.src.middleware import get_current_admin_user
+from backend.user_service.src.models import User
+from backend.user_service.src.services import (
+    LoginAttemptsService,
+    SecurityService
+)
 
 
 router = APIRouter(

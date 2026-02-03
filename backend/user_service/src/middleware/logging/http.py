@@ -13,13 +13,13 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from user_service.config import settings
-from user_service.exceptions.base import AppException
-from user_service.middleware.logging.utils_trace_id import (
+from backend.user_service.src.config import settings
+from backend.user_service.src.exceptions.base import AppException
+from backend.user_service.src.middleware.logging.utils_trace_id import (
     get_trace_id,
     set_trace_id,
 )
-from user_service.middleware.logging.loggers import http_logger
+from backend.user_service.src.middleware.logging.loggers import http_logger
 from .._utils import get_client_ip
 
 

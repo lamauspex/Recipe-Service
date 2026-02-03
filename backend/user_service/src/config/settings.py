@@ -1,10 +1,13 @@
 """ Центральный объект конфигурации для user_service """
 
-from .api import api_config
-from .auth import auth_config
-from .cache import cache_config
-from .monitoring import monitoring_config
-from ...database_service.database import database_config
+
+from ..config import (
+    monitoring_config,
+    cache_config,
+    api_config,
+    auth_config,
+)
+from backend.database_service.database import database_config
 
 
 class _SettingsHolder:

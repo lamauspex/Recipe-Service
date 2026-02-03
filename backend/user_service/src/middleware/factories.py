@@ -3,9 +3,9 @@
 from typing import Dict, Any, Optional
 from fastapi import FastAPI
 
-from user_service.config import settings
-from user_service.middleware.logging.http import HTTPLoggingMiddleware
-from user_service.middleware.exceptions.handlers import (
+from backend.user_service.src.config import settings
+from backend.user_service.src.middleware.logging.http import HTTPLoggingMiddleware
+from backend.user_service.src.middleware.exceptions.handlers import (
     setup_exception_handlers
 )
 from .security.advanced import (

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import and_
 from typing import Optional
 
-from user_service.models import LoginAttempt
+from backend.user_service.src.models import LoginAttempt
 
 
 class AccountLocker:

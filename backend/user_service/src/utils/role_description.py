@@ -1,6 +1,6 @@
 
 
-from user_service.models import RoleModel
+from backend.user_service.src.models import RoleModel
 
 
 def get_role_description(role: RoleModel) -> str:

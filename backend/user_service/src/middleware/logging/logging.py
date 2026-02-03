@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from user_service.middleware.logging.utils_trace_id import (
+from backend.user_service.src.middleware.logging.utils_trace_id import (
     get_trace_id,
     set_trace_id,
     clear_trace_id,
@@ -26,22 +26,22 @@ from user_service.middleware.logging.utils_trace_id import (
 )
 
 # Конфигурация
-from user_service.middleware.logging.config import (
+from backend.user_service.src.middleware.logging.config import (
     setup_logging,
     get_log_level_from_config,
 )
 
 # Logger классы
-from user_service.middleware.logging.http import (
+from backend.user_service.src.middleware.logging.http import (
     HTTPLogger,
     HTTPLoggingMiddleware,
 )
 
-from user_service.middleware.logging.exception import ExceptionLogger
+from backend.user_service.src.middleware.logging.exception import ExceptionLogger
 
-from user_service.middleware.logging.business import BusinessEventLogger
+from backend.user_service.src.middleware.logging.business import BusinessEventLogger
 
-from user_service.middleware.logging.loggers import (
+from backend.user_service.src.middleware.logging.loggers import (
     http_logger,
     exception_logger,
     business_logger,

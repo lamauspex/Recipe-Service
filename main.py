@@ -4,7 +4,8 @@
 """
 
 import uvicorn
-from user_service.app_users import app_users
+
+from backend.user_service.app_users import app_users
 
 if __name__ == "__main__":
 

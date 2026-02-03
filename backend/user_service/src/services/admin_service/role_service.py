@@ -6,8 +6,8 @@
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from user_service.models import RoleModel, Permission, DEFAULT_ROLES, User
-from user_service.exceptions.convenience import ServiceException
+from backend.user_service.src.models import RoleModel, Permission, DEFAULT_ROLES, User
+from backend.user_service.src.exceptions.convenience import ServiceException
 
 
 class RoleService:

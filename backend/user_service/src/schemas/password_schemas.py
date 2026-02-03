@@ -5,7 +5,7 @@ from pydantic import (
     field_validator
 )
 
-from user_service.utils import PasswordValidator
+from backend.user_service.src.utils import PasswordValidator
 
 
 class UserLogin(BaseModel):

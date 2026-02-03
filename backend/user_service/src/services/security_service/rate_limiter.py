@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from sqlalchemy import and_, select
 
-from user_service.models import LoginAttempt
+from backend.user_service.src.models import LoginAttempt
 
 
 class RateLimiter:

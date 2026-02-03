@@ -8,10 +8,10 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from backend.database_service import database
-from user_service.middleware import get_current_admin_user
-from user_service.models import User
-from user_service.services import RoleService
-from user_service.schemas import (
+from backend.user_service.src.middleware import get_current_admin_user
+from backend.user_service.src.models import User
+from backend.user_service.src.services import RoleService
+from backend.user_service.src.schemas import (
     RoleCreate,
     RoleUpdate,
     RoleResponse,

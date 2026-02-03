@@ -6,9 +6,9 @@
 from typing import List
 from datetime import datetime, timezone, timedelta
 
-from user_service.models import LoginAttempt, User
-from user_service.schemas.user_roles import UserRole
-from user_service.repository import UserRepository
+from backend.user_service.src.models import LoginAttempt, User
+from backend.user_service.src.schemas.user_roles import UserRole
+from backend.user_service.src.repository import UserRepository
 
 
 class StatisticsService:

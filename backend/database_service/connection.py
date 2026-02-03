@@ -11,8 +11,8 @@ from contextlib import contextmanager
 from typing import Generator
 
 
-from user_service.config import settings
-from user_service.models.base_models import Base
+from .database import database_config
+from backend.user_service.src.models.base_models import Base
 
 
 def create_engine_for_service():
@@ -21,8 +21,8 @@ def create_engine_for_service():
     Использует ОДНУ общую базу данных со всеми сервисами
     """
     # Для тестового окружения используем SQLite в памяти
-    if settings.database.TESTING:
-        database_url = settings.database.get_database_url("sqlite")
+    if database_config.TESTING:
+        database_url = database_config.get_database_url("sqlite")
         engine_kwargs = {
             "connect_args": {"check_same_thread": False},
             "poolclass": StaticPool,
@@ -30,7 +30,7 @@ def create_engine_for_service():
         }
     else:
         # Для продакшена - PostgreSQL с пулом соединений
-        database_url = settings.database.get_database_url()
+        database_url = database_config.get_database_url()
         engine_kwargs = {
             "echo": False,  # Отключаем SQL логирование
             "pool_pre_ping": True,
@@ -146,7 +146,7 @@ class DatabaseManager:
         Пересоздание базы данных (для тестов и разработки)
         УДАЛЯЕТ ВСЕ ДАННЫЕ!
         """
-        if settings.database.environment not in ["test", "development"]:
+        if database_config.environment not in ["test", "development"]:
             raise Exception(
                 "Cannot recreate database in production environment"
             )

@@ -6,8 +6,8 @@ import logging
 from typing import Any, Optional
 import structlog
 
-from backend.user_service.config.monitoring import MonitoringConfig
-from user_service.middleware.logging.utils_trace_id import trace_id_var
+from backend.user_service.src.config.monitoring import MonitoringConfig
+from backend.user_service.src.middleware.logging.utils_trace_id import trace_id_var
 
 
 def get_log_level_from_config(log_level: str) -> int:
@@ -33,7 +33,7 @@ def setup_logging(config: Optional[MonitoringConfig] = None) -> None:
         config: Конфигурация мониторинга
         (используется из settings если не передана)
     """
-    from user_service.config import settings
+    from backend.user_service.src.config import settings
 
     if config is None:
         config = settings.monitoring

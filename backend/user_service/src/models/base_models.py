@@ -4,7 +4,7 @@
 
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
-from user_service.models.mixin import (
+from backend.user_service.src.models.mixin import (
     UUIDPrimaryKeyMixin,
     StatusMixin,
     TimestampMixin

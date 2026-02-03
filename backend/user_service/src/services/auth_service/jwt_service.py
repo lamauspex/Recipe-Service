@@ -7,7 +7,7 @@ from datetime import datetime, timezone, timedelta
 from jose import jwt
 from typing import Optional, Dict
 
-from user_service.config import settings
+from backend.user_service.src.config import settings
 
 
 class JWTService:

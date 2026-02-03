@@ -8,9 +8,9 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
-from user_service.models import User
-from user_service.schemas.user_roles import UserRole
-from user_service.repository import AdminRepository
+from backend.user_service.src.models import User
+from backend.user_service.src.schemas.user_roles import UserRole
+from backend.user_service.src.repository import AdminRepository
 
 
 class UserManagementService:

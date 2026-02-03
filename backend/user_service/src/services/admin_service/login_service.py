@@ -9,8 +9,8 @@ from datetime import datetime, timezone, timedelta
 from uuid import UUID
 
 
-from user_service.models import LoginAttempt
-from user_service.repository import UserRepository
+from backend.user_service.src.models import LoginAttempt
+from backend.user_service.src.repository import UserRepository
 
 
 class LoginAttemptsService:

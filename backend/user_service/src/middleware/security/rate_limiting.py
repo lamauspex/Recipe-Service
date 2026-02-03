@@ -13,7 +13,7 @@ from typing import Dict, Tuple, Optional
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from user_service.config import settings
+from backend.user_service.src.config import settings
 
 
 @dataclass

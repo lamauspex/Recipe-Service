@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from typing import List, Optional, Dict, Any
 
-from user_service.models import RoleModel
+from backend.user_service.src.models import RoleModel
 
 
 class RoleRepository:

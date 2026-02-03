@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from backend.database_service import database
-from user_service.schemas import UserCreate, UserResponse
-from user_service.services import RegisterService
-from user_service.repository import UserRepository
+from backend.user_service.src.schemas import UserCreate, UserResponse
+from backend.user_service.src.services import RegisterService
+from backend.user_service.src.repository import UserRepository
 
 
 # Создаем router
