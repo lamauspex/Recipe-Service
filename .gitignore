@@ -4,3 +4,5 @@ __pycache__/
 .pytest_cache/
 -p/
 .venv/
+.git-rewrite/
+.git/
