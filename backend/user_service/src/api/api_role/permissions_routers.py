@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 
-from backend.database_service import database
+from backend.database_service.connection import database
 from backend.user_service.src.middleware import get_current_admin_user
 from backend.user_service.src.models import User, Permission
 from backend.user_service.src.services import RoleService

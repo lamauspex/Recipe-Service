@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 
-from backend.database_service import database
+from backend.database_service.connection import database
 from backend.user_service.src.services import AuthService
 from backend.user_service.src.schemas import (
     UserLogin,

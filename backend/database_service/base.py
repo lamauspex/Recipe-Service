@@ -4,7 +4,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class DatabaseBaseConfig(BaseSettings):
+class DBBaseConfig(BaseSettings):
     """ Базовый конфигурационный класс """
 
     model_config = SettingsConfigDict(

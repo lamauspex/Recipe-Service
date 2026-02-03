@@ -3,10 +3,10 @@
 
 from pydantic import Field
 
-from .base import BaseConfig
+from .base import DBBaseConfig
 
 
-class DataBaseConfig(BaseConfig):
+class DataBaseConfig(DBBaseConfig):
     """ Конфигурация БД """
 
     # БАЗА ДАННЫХ (ОБЩИЕ НАСТРОЙКИ)

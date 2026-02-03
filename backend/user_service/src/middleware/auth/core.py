@@ -3,7 +3,7 @@
 
 from fastapi import HTTPException, status
 
-from user_service.models import User
+from backend.user_service.src.models import User
 
 
 async def get_current_user_core(user: User) -> User:

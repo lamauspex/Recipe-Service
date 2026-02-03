@@ -2,7 +2,7 @@
 
 from typing import Optional, List
 
-from user_service.models import User
+from backend.user_service.src.models import User
 
 
 def extract_user_from_context(*args, **kwargs) -> Optional[User]:

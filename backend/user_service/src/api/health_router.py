@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
 from backend.user_service.src.config import settings
-from backend.database_service import database
+from backend.database_service.connection import database
 from backend.user_service.src.repository import UserRepository
 
 

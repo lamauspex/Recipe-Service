@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 
-from backend.database_service import database
+from backend.database_service.connection import database
 from backend.user_service.src.middleware import get_current_admin_user
 from backend.user_service.src.models import User, RoleModel
 from backend.user_service.src.services import UserManagementService
