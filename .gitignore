@@ -1,9 +1,6 @@
-mark_3/
-project_structure
-.pytest_cache/
+.neten/
 __pycache__/
-.env
-certs/
 .vscode/
-test.db
+.pytest_cache/
+-p/
 .venv/
