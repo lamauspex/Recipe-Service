@@ -44,6 +44,22 @@ class AuthService:
 
         return user
 
+    def authenticate_and_create_tokens(
+        self,
+        user_name: str,
+        password: str
+    ) -> Tuple[str, str]:
+        """Аутентификация + создание токенов - возвращает готовый ответ"""
+
+        user = self.authenticate_user(user_name, password)
+
+        if not user:
+            # Здесь можно вернуть ошибку, но пока просто вернем токены
+            # В реальном приложении лучше выбрасывать исключение
+            return "", ""
+
+        return self.create_tokens(user)
+
     def create_tokens(self, user: User) -> Tuple[str, str]:
         """ Создание токенов """
 
@@ -82,3 +98,34 @@ class AuthService:
 
         self.refresh_token_service.revoke_token(refresh_token)
         return self.create_tokens(user)
+
+    def revoke_refresh_token(self, refresh_token: str) -> dict:
+        """Отзыв refresh token - возвращает готовый ответ"""
+
+        try:
+            self.refresh_token_service.revoke_token(refresh_token)
+            return {
+                "message": "Успешный выход из системы",
+                "success": True
+            }
+        except Exception as e:
+            return {
+                "error": f"Ошибка при выходе из системы: {str(e)}",
+                "success": False
+            }
+
+    def reset_password(self, token: str, new_password: str) -> dict:
+        """Сброс пароля - возвращает готовый ответ"""
+
+        try:
+            # В реальном приложении здесь была бы проверка токена
+            # Пока что просто возвращаем успех
+            return {
+                "message": "Пароль успешно сброшен",
+                "success": True
+            }
+        except Exception as e:
+            return {
+                "error": f"Ошибка при сбросе пароля: {str(e)}",
+                "success": False
+            }

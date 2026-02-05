@@ -5,16 +5,15 @@ API ручки для управления ролями
 from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from typing import List
+from dependency_injector.wiring import inject, Provide
 
-from backend.database_service.connection import database
 from backend.user_service.src.middleware import get_current_admin_user
 from backend.user_service.src.models import User
 from backend.user_service.src.services import RoleService
+from backend.database_service.container import Container
 from backend.user_service.src.schemas import (
     RoleCreate,
-    RoleUpdate,
-    RoleResponse,
+    RoleUpdate
 )
 
 
@@ -32,83 +31,69 @@ router = APIRouter(
 
 @router.post(
     "/",
-    response_model=RoleResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Создание новой роли",
     description="Создание новой роли с набором разрешений. \
         Доступно только администраторам."
 )
+@inject
 async def create_role(
     role_data: RoleCreate,
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Создание новой роли"""
-    role_service = RoleService(db)
 
-    role = role_service.create_role(
-        name=role_data.name,
-        display_name=role_data.display_name,
-        permissions=role_data.permissions,
-        description=role_data.description
-    )
-
-    return RoleResponse.from_orm(role)
+    role_service = RoleService(db_session)
+    return role_service.create_role_response(role_data)
 
 
 @router.get(
     "/",
-    response_model=List[RoleResponse],
     summary="Получение списка всех ролей"
 )
+@inject
 async def list_roles(
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Получение списка ролей"""
-    role_service = RoleService(db)
-    roles = role_service.get_all_roles()
-    return [RoleResponse.from_orm(r) for r in roles]
+
+    role_service = RoleService(db_session)
+    return role_service.get_all_roles_response()
 
 
 @router.get(
     "/{role_id}",
-    response_model=RoleResponse,
     summary="Получение информации о роли"
 )
+@inject
 async def get_role(
     role_id: UUID,
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Получение роли по ID"""
 
-    role_service = RoleService(db)
-    role = role_service.get_role_by_id(str(role_id))
-
-    return RoleResponse.from_orm(role)
+    role_service = RoleService(db_session)
+    return role_service.get_role_by_id_response(str(role_id))
 
 
 @router.put(
     "/{role_id}",
-    response_model=RoleResponse,
     summary="Обновление роли"
 )
+@inject
 async def update_role(
     role_id: UUID,
     role_data: RoleUpdate,
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Обновление роли"""
 
-    role_service = RoleService(db)
-    role = role_service.update_role(
-        str(role_id),
-        role_data.model_dump(exclude_unset=True)
-    )
-
-    return RoleResponse.from_orm(role)
+    role_service = RoleService(db_session)
+    return role_service.update_role_response(str(role_id), role_data)
 
 
 @router.delete(
@@ -116,12 +101,13 @@ async def update_role(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Удаление роли"
 )
+@inject
 async def delete_role(
     role_id: UUID,
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Удаление роли (мягкое)"""
 
-    role_service = RoleService(db)
-    role_service.delete_role(str(role_id))
+    role_service = RoleService(db_session)
+    return role_service.delete_role_response(str(role_id))

@@ -1,18 +1,14 @@
-"""
-API ручки для управления ролями
-"""
-
+""" API ручки для управления разрешениями """
 
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import List
+from dependency_injector.wiring import inject, Provide
 
-from backend.database_service.connection import database
+from backend.database_service.container import Container
 from backend.user_service.src.middleware import get_current_admin_user
-from backend.user_service.src.models import User, Permission
+from backend.user_service.src.models import User
 from backend.user_service.src.services import RoleService
-from backend.user_service.src.services.admin_service import role_service
 
 router = APIRouter(
     prefix="/roles",
@@ -28,57 +24,50 @@ router = APIRouter(
 
 @router.get(
     "/available-permissions",
-    response_model=List[str],
     summary="Получение списка доступных разрешений"
 )
+@inject
 async def get_available_permissions(
-    _: User = Depends(get_current_admin_user)
+    _: User = Depends(get_current_admin_user),
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Получение списка доступных разрешений"""
 
-    return sorted([p.name for p in Permission if p != Permission.NONE])
+    role_service = RoleService(db_session)
+    return role_service.get_available_permissions_response()
 
 
 @router.get(
     "/user-permissions/{user_id}",
-    response_model=List[str],
     summary="Получение всех разрешений пользователя"
 )
+@inject
 async def get_user_permissions(
     user_id: UUID,
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Получение всех разрешений пользователя"""
 
-    user = db.query(User).filter(User.id == user_id).first()
-
-    role_service = RoleService(db)
-    perms = role_service.get_user_permissions(user)
-
-    return [p.name for p in perms]
+    role_service = RoleService(db_session)
+    return role_service.get_user_permissions_response(str(user_id))
 
 
 @router.get(
     "/user-permissions/check/{user_id}/{permission}",
-    response_model=dict,
     summary="Проверка наличия разрешения у пользователя"
 )
+@inject
 async def check_user_permission(
     user_id: UUID,
     permission: str,
     _: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Проверка наличия разрешения у пользователя"""
 
-    user = db.query(User).filter(User.id == user_id).first()
-
-    perm = Permission[permission.upper()]
-    has_perm = role_service.user_has_permission(user, perm)
-
-    return {
-        "user_id": str(user_id),
-        "permission": permission,
-        "has_permission": has_perm
-    }
+    role_service = RoleService(db_session)
+    return role_service.check_user_permission_response(
+        str(user_id),
+        permission
+    )

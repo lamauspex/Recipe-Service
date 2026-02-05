@@ -1,14 +1,13 @@
-"""
-Роуты API для user-service
-"""
+""" Роуты API для user-service """
+
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
+from dependency_injector.wiring import inject, Provide
 
 from backend.user_service.src.middleware import get_current_admin_user
 from backend.user_service.src.models import User
-from backend.database_service.connection import database
+from backend.database_service.container import Container
 from backend.user_service.src.services import UserService
 from backend.user_service.src.schemas import (
     AdminUserResponse,
@@ -30,13 +29,15 @@ router = APIRouter(
     response_model=UserResponse,
     summary="Получение текущего пользователя"
 )
+@inject
 def get_current_user_info(
     current_user: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Получение текущего пользователя через сервис"""
-    # Используем сервис для получения актуальных данных пользователя
-    user_service = UserService(db)
+
+    user_service = UserService(db_session)
+
     user = user_service.get_user(current_user.id)
 
     # Если пользователь не найден в БД, возвращаем данные из токена
@@ -51,12 +52,15 @@ def get_current_user_info(
     response_model=AdminUserResponse,
     summary="Получение пользователя по ID"
 )
+@inject
 def get_user(
     user_id: UUID,
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Получение детальной информации о пользователе"""
-    user_service = UserService(db)
+
+    user_service = UserService(db_session)
+
     user = user_service.get_user(user_id)
 
     return user
@@ -67,14 +71,16 @@ def get_user(
     response_model=UserResponse,
     summary="Обновление данных текущего пользователя"
 )
+@inject
 def update_current_user(
     user_data: UserUpdate,
     current_user: User = Depends(get_current_admin_user),
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Обновление данных текущего пользователя"""
 
-    user_service = UserService(db)
+    user_service = UserService(db_session)
+
     update_data = user_data.model_dump(exclude_unset=True)
     user = user_service.update_user(current_user.id, update_data)
 
@@ -85,37 +91,32 @@ def update_current_user(
     "/password/reset-request",
     summary="Запрос сброса пароля"
 )
+@inject
 def request_reset_password(
     reset_data: PasswordResetRequest,
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """ Отправка email с токеном для сброса пароля """
 
-    user_service = UserService(db)
-    success, message = user_service.request_reset_password(reset_data.email)
+    user_service = UserService(db_session)
 
-    return {
-        'message': message,
-        'success': success,
-    }
+    return user_service.request_reset_password_response(reset_data.email)
 
 
 @router.post(
     "/password/reset-confirm",
     summary="Подтверждение сброса пароля"
 )
+@inject
 def confirm_password_reset(
     reset_data: PasswordResetConfirm,
-    db: Session = Depends(database.get_db)
+    db_session: Session = Depends(Provide[Container.db_dependency])
 ):
     """Установка нового пароля по токену"""
 
-    user_service = UserService(db)
-    success, message = user_service.confirm_password_reset(
+    user_service = UserService(db_session)
+
+    return user_service.confirm_password_reset_response(
         reset_data.token,
         reset_data.new_password
     )
-    return {
-        'message': message,
-        'success': success,
-    }

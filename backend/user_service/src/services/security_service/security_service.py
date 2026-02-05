@@ -47,3 +47,28 @@ class SecurityService:
             return False, "Обнаружено подозрительное поведение"
 
         return True, None
+
+    def block_ip_address(
+        self,
+        ip_address: str,
+        reason: str,
+        duration_hours: Optional[int] = None,
+        admin_id: Optional[str] = None
+    ) -> dict:
+        """Блокировка IP адреса - возвращает готовый ответ"""
+
+        try:
+            self.ip_blocker.block_ip_address(
+                ip_address,
+                duration_hours,
+                reason
+            )
+            return {
+                "message": f"IP адрес {ip_address} заблокирован",
+                "success": True
+            }
+        except Exception as e:
+            return {
+                "error": f"Не удалось заблокировать {ip_address}: {str(e)}",
+                "success": False
+            }

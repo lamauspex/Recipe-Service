@@ -3,11 +3,12 @@
 Продакшен-стандарт
 """
 
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.orm import Session
 
 from backend.user_service.src.models import RoleModel, Permission, DEFAULT_ROLES, User
 from backend.user_service.src.exceptions.convenience import ServiceException
+from backend.user_service.src.schemas import RoleResponse, RoleCreate, RoleUpdate
 
 
 class RoleService:
@@ -29,12 +30,238 @@ class RoleService:
         return self.db.query(RoleModel).filter(
             RoleModel.name == name).first()
 
-    def get_all_roles(self) -> list[RoleModel]:
+    def get_all_roles(self) -> List[RoleModel]:
         """Получить все активные роли"""
 
         return self.db.query(RoleModel).filter(
             RoleModel.is_active is True).all()
 
+    def create_role_response(self, role_data: RoleCreate) -> dict:
+        """Создать новую роль - возвращает готовый ответ"""
+
+        try:
+            if self.get_role_by_name(role_data.name):
+                raise ServiceException(
+                    f"Роль '{role_data.name}' уже существует")
+
+            role = RoleModel(
+                name=role_data.name,
+                display_name=role_data.display_name,
+                permissions=role_data.permissions,
+                description=role_data.description,
+                is_system=False
+            )
+            self.db.add(role)
+            self.db.commit()
+            self.db.refresh(role)
+
+            return {
+                "role": RoleResponse.model_validate(role),
+                "message": "Роль успешно создана",
+                "success": True
+            }
+
+        except ServiceException:
+            raise
+        except Exception as e:
+            return {
+                "error": f"Ошибка при создании роли: {str(e)}",
+                "success": False
+            }
+
+    def get_all_roles_response(self) -> dict:
+        """Получить все роли - возвращает готовый ответ"""
+
+        try:
+            roles = self.get_all_roles()
+            role_responses = [
+                RoleResponse.model_validate(role) for role in roles]
+
+            return {
+                "roles": role_responses,
+                "total_count": len(role_responses),
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при получении ролей: {str(e)}",
+                "success": False
+            }
+
+    def get_role_by_id_response(self, role_id: str) -> dict:
+        """Получить роль по ID - возвращает готовый ответ"""
+
+        try:
+            role = self.get_role_by_id(role_id)
+            if not role:
+                return {
+                    "error": f"Роль с ID {role_id} не найдена",
+                    "success": False
+                }
+
+            return {
+                "role": RoleResponse.model_validate(role),
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при получении роли: {str(e)}",
+                "success": False
+            }
+
+    def update_role_response(self, role_id: str, role_data: RoleUpdate) -> dict:
+        """Обновить роль - возвращает готовый ответ"""
+
+        try:
+            role = self.get_role_by_id(role_id)
+            if not role:
+                return {
+                    "error": f"Роль с ID {role_id} не найдена",
+                    "success": False
+                }
+
+            if role.is_system:
+                return {
+                    "error": "Нельзя изменить системную роль",
+                    "success": False
+                }
+
+            # Обновляем поля
+            update_data = role_data.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
+                if hasattr(role, key):
+                    setattr(role, key, value)
+
+            self.db.commit()
+            self.db.refresh(role)
+
+            return {
+                "role": RoleResponse.model_validate(role),
+                "message": "Роль успешно обновлена",
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при обновлении роли: {str(e)}",
+                "success": False
+            }
+
+    def delete_role_response(self, role_id: str) -> dict:
+        """Удалить роль - возвращает готовый ответ"""
+
+        try:
+            role = self.get_role_by_id(role_id)
+            if not role:
+                return {
+                    "error": f"Роль с ID {role_id} не найдена",
+                    "success": False
+                }
+
+            if role.is_system:
+                return {
+                    "error": "Нельзя удалить системную роль",
+                    "success": False
+                }
+
+            self.db.delete(role)
+            self.db.commit()
+
+            return {
+                "message": "Роль успешно удалена",
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при удалении роли: {str(e)}",
+                "success": False
+            }
+
+    # === USER-ROLE MANAGEMENT ===
+    def get_user_permissions_response(self, user_id: str) -> dict:
+        """Получить разрешения пользователя - возвращает готовый ответ"""
+
+        try:
+            user = self.db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return {
+                    "error": f"Пользователь с ID {user_id} не найден",
+                    "success": False
+                }
+
+            permissions = self.get_user_permissions(user)
+            permission_names = [p.name for p in permissions]
+
+            return {
+                "user_id": user_id,
+                "permissions": permission_names,
+                "total_count": len(permission_names),
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при получении разрешений пользователя: {str(e)}",
+                "success": False
+            }
+
+    def check_user_permission_response(self, user_id: str, permission: str) -> dict:
+        """Проверить разрешение пользователя - возвращает готовый ответ"""
+
+        try:
+            user = self.db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return {
+                    "error": f"Пользователь с ID {user_id} не найден",
+                    "success": False
+                }
+
+            try:
+                perm = Permission[permission.upper()]
+            except KeyError:
+                return {
+                    "error": f"Разрешение '{permission}' не существует",
+                    "success": False
+                }
+
+            has_perm = self.user_has_permission(user, perm)
+
+            return {
+                "user_id": user_id,
+                "permission": permission,
+                "has_permission": has_perm,
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при проверке разрешения: {str(e)}",
+                "success": False
+            }
+
+    def get_available_permissions_response(self) -> dict:
+        """Получить список доступных разрешений - возвращает готовый ответ"""
+
+        try:
+            permissions = sorted(
+                [p.name for p in Permission if p != Permission.NONE])
+
+            return {
+                "permissions": permissions,
+                "total_count": len(permissions),
+                "success": True
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Ошибка при получении списка разрешений: {str(e)}",
+                "success": False
+            }
+
+    # === LEGACY METHODS (оставляем для обратной совместимости) ===
     def create_role(
         self,
         name: str,
@@ -104,7 +331,6 @@ class RoleService:
         self.db.commit()
         return True
 
-    # === PERMISSION HELPERS ===
     def add_permission_to_role(
         self,
         role_id: str,
@@ -137,7 +363,6 @@ class RoleService:
         self.db.refresh(role)
         return role
 
-    # === USER-ROLE MANAGEMENT ===
     def assign_role_to_user(self, user: User, role_name: str) -> User:
         """Назначить роль пользователю"""
 
