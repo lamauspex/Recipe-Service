@@ -1,28 +1,27 @@
 """
 Подключение к базе данных для user-service
 Использует общую базу данных со всеми сервисами
+Теперь без глобальных переменных - управляется через DI контейнер
 """
 
+from typing import Generator
 
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
-from typing import Generator
 
-
-from .database import database_config
 from backend.user_service.src.models.base_models import Base
 
 
-def create_engine_for_service():
+def create_engine_for_service(database_config_instance):
     """
     Создание движка базы данных для user-service
     Использует ОДНУ общую базу данных со всеми сервисами
     """
     # Для тестового окружения используем SQLite в памяти
-    if database_config.TESTING:
-        database_url = database_config.get_database_url("sqlite")
+    if database_config_instance.TESTING:
+        database_url = database_config_instance.get_database_url("sqlite")
         engine_kwargs = {
             "connect_args": {"check_same_thread": False},
             "poolclass": StaticPool,
@@ -30,7 +29,7 @@ def create_engine_for_service():
         }
     else:
         # Для продакшена - PostgreSQL с пулом соединений
-        database_url = database_config.get_database_url()
+        database_url = database_config_instance.get_database_url()
         engine_kwargs = {
             "echo": False,  # Отключаем SQL логирование
             "pool_pre_ping": True,
@@ -52,28 +51,25 @@ class DatabaseManager:
     """
     Менеджер базы данных для user-service
     Инкапсулирует всю логику работы с БД в одном классе
-
+    Теперь не содержит глобальных переменных
     """
 
-    def __init__(self):
-        """Инициализация менеджера БД"""
-
-        self.engine = create_engine_for_service()
+    def __init__(self, database_config_instance):
+        """
+        Инициализация менеджера БД
+        """
+        self.config = database_config_instance
+        self.engine = create_engine_for_service(database_config_instance)
         self.SessionLocal = sessionmaker(
             autocommit=False,
             autoflush=False,
             bind=self.engine
         )
 
-        # Создаем глобальный движок для совместимости
-        global engine
-        engine = self.engine
-
     def get_db(self) -> Generator[Session, None, None]:
         """
         Dependency function для FastAPI - предоставляет сессию БД
         Используется в эндпоинтах
-
         """
         db = self.SessionLocal()
         try:
@@ -146,17 +142,10 @@ class DatabaseManager:
         Пересоздание базы данных (для тестов и разработки)
         УДАЛЯЕТ ВСЕ ДАННЫЕ!
         """
-        if database_config.environment not in ["test", "development"]:
+        if self.config.environment not in ["test", "development"]:
             raise Exception(
                 "Cannot recreate database in production environment"
             )
 
         Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
-
-
-# Создаем глобальный экземпляр менеджера БД
-database = DatabaseManager()
-
-# Глобальный движок базы данных для обратной совместимости
-engine = database.engine

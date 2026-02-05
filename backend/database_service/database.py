@@ -36,6 +36,3 @@ class DataBaseConfig(DBBaseConfig):
             f"{self.DB_DRIVER}://{self.DB_USER}:{self.DB_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
-
-
-database_config = DataBaseConfig()

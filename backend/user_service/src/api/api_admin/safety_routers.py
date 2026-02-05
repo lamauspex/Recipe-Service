@@ -15,6 +15,9 @@ from backend.user_service.src.services import (
     SecurityService
 )
 
+from backend.database_service.database import get_db_dependency, get_db_context, Container
+from dependency_injector.wiring import Provide
+
 
 router = APIRouter(
     prefix="/admins",
@@ -22,14 +25,16 @@ router = APIRouter(
 )
 
 
-@router.get("/security/login-logs",
-            summary="Логи входов пользователей")
+@router.get(
+    "/security/login-logs",
+    summary="Логи входов пользователей"
+)
 def get_login_logs(
     user_id: Optional[UUID] = None,
     ip_address: Optional[str] = None,
     days: int = 7,
     limit: int = 100,
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(get_db_dependency)
 ):
     """Получение логов входов пользователей"""
     user_service = LoginAttemptsService(db)
@@ -43,8 +48,10 @@ def get_login_logs(
     return logs
 
 
-@router.post("/security/block-ip",
-             summary="Блокировка IP адреса")
+@router.post(
+    "/security/block-ip",
+    summary="Блокировка IP адреса"
+)
 def block_ip_address(
     ip_address: str,
     reason: str,
