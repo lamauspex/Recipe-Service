@@ -4,10 +4,10 @@
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, desc
+from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.user_service.src.models import User

@@ -1,8 +1,9 @@
 """
 Базовые классы для usecase'ов
 """
-from abc import ABC, abstractmethod
+
 from typing import Any
+from abc import ABC, abstractmethod
 
 from ..dto.requests import BaseRequestDTO
 from ..dto.responses import BaseResponseDTO
@@ -19,7 +20,10 @@ class BaseUsecase(ABC):
         pass
 
     @abstractmethod
-    async def execute(self, request: BaseRequestDTO) -> BaseResponseDTO:
+    async def execute(
+        self,
+        request: BaseRequestDTO
+    ) -> BaseResponseDTO:
         """Выполнение usecase'а"""
         pass
 
@@ -28,8 +32,11 @@ class UsecaseResult:
     """Класс для хранения результата выполнения usecase'а"""
 
     def __init__(
-            self, success: bool = True, data: Any = None,
-            message: str = "Success"):
+            self,
+            success: bool = True,
+            data: Any = None,
+            message: str = "Success"
+    ):
         self.success = success
         self.data = data
         self.message = message
@@ -43,17 +50,28 @@ class UsecaseResult:
 
     @classmethod
     def success(
-            cls, data: Any = None,
-            message: str = "Success") -> "UsecaseResult":
+            cls,
+            data: Any = None,
+            message: str = "Success"
+    ) -> "UsecaseResult":
         """Создание успешного результата"""
-        return cls(success=True, data=data, message=message)
+        return cls(
+            success=True,
+            data=data,
+            message=message
+        )
 
     @classmethod
     def failure(
-            cls, message: str = "Operation failed",
-            errors: list = None) -> "UsecaseResult":
+            cls,
+            message: str = "Operation failed",
+            errors: list = None
+    ) -> "UsecaseResult":
         """Создание неудачного результата"""
-        result = cls(success=False, message=message)
+        result = cls(
+            success=False,
+            message=message
+        )
         if errors:
             result.errors.extend(errors)
         return result

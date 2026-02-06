@@ -1,7 +1,8 @@
 """
 Базовые DTO для ответов
 """
-from abc import ABC
+
+
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
@@ -46,9 +47,13 @@ class AuthTokensDTO(BaseModel):
 class LoginResponseDTO(BaseResponseDTO):
     """DTO для ответа авторизации"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
-    def create_success(cls, user: UserResponseDTO, tokens: AuthTokensDTO) -> "LoginResponseDTO":
+    def create_success(
+        cls,
+        user: UserResponseDTO,
+        tokens: AuthTokensDTO
+    ) -> "LoginResponseDTO":
         return cls(
             data={
                 "user": user.dict(),
@@ -60,7 +65,7 @@ class LoginResponseDTO(BaseResponseDTO):
 class RegisterResponseDTO(BaseResponseDTO):
     """DTO для ответа регистрации"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
     def create_success(cls, user: UserResponseDTO) -> "RegisterResponseDTO":
         return cls(
@@ -71,9 +76,12 @@ class RegisterResponseDTO(BaseResponseDTO):
 class TokenRefreshResponseDTO(BaseResponseDTO):
     """DTO для ответа обновления токена"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
-    def create_success(cls, tokens: AuthTokensDTO) -> "TokenRefreshResponseDTO":
+    def create_success(
+        cls,
+        tokens: AuthTokensDTO
+    ) -> "TokenRefreshResponseDTO":
         return cls(
             data={"tokens": tokens.dict()}
         )
@@ -82,9 +90,15 @@ class TokenRefreshResponseDTO(BaseResponseDTO):
 class UserListResponseDTO(BaseResponseDTO):
     """DTO для списка пользователей"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
-    def create_success(cls, users: List[UserResponseDTO], total: int, page: int, per_page: int) -> "UserListResponseDTO":
+    def create_success(
+        cls,
+        users: List[UserResponseDTO],
+        total: int,
+        page: int,
+        per_page: int
+    ) -> "UserListResponseDTO":
         return cls(
             data={
                 "users": [user.dict() for user in users],
@@ -101,7 +115,7 @@ class UserListResponseDTO(BaseResponseDTO):
 class UserCreateResponseDTO(BaseResponseDTO):
     """DTO для ответа создания пользователя"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
     def create_success(cls, user: UserResponseDTO) -> "UserCreateResponseDTO":
         return cls(
@@ -112,7 +126,7 @@ class UserCreateResponseDTO(BaseResponseDTO):
 class UserUpdateResponseDTO(BaseResponseDTO):
     """DTO для ответа обновления пользователя"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
     def create_success(cls, user: UserResponseDTO) -> "UserUpdateResponseDTO":
         return cls(
@@ -123,7 +137,7 @@ class UserUpdateResponseDTO(BaseResponseDTO):
 class UserDeleteResponseDTO(BaseResponseDTO):
     """DTO для ответа удаления пользователя"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
     def create_success(cls, user_id: int) -> "UserDeleteResponseDTO":
         return cls(
@@ -134,7 +148,7 @@ class UserDeleteResponseDTO(BaseResponseDTO):
 class PasswordResetResponseDTO(BaseResponseDTO):
     """DTO для ответа сброса пароля"""
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
     @classmethod
     def create_success(cls, message: str) -> "PasswordResetResponseDTO":
         return cls(
@@ -147,3 +161,69 @@ class LogoutResponseDTO(BaseResponseDTO):
     @classmethod
     def create_success(cls) -> "LogoutResponseDTO":
         return cls(message="Successfully logged out")
+
+
+# === DTO для управления пользователями ===
+
+class UserDetailResponseDTO(BaseResponseDTO):
+    """DTO для детальной информации о пользователе"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_data: Dict[str, Any]) -> "UserDetailResponseDTO":
+        return cls(
+            data={"user": user_data}
+        )
+
+
+class UserStatusResponseDTO(BaseResponseDTO):
+    """DTO для ответа обновления статуса пользователя"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, status: str) -> "UserStatusResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "status": status
+            },
+            message=f"User status updated to {status}"
+        )
+
+
+class UserActivityResponseDTO(BaseResponseDTO):
+    """DTO для активности пользователя"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, activity_data: Dict[str, Any]) -> "UserActivityResponseDTO":
+        return cls(
+            data=activity_data
+        )
+
+
+class UserSearchResponseDTO(BaseResponseDTO):
+    """DTO для результатов поиска пользователей"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(
+        cls,
+        search_term: str,
+        results: List[Dict[str, Any]],
+        total_found: int
+    ) -> "UserSearchResponseDTO":
+        return cls(
+            data={
+                "search_term": search_term,
+                "results": results,
+                "total_found": total_found
+            }
+        )
+
+# === DTO для управления role ===
+
+
+class UserRoleResponseDTO(BaseResponseDTO):
+    """DTO для ответа на запрос на получение ролей пользователей"""
+    data: Dict[str, Any] = Field(default_factory=dict)

@@ -85,7 +85,11 @@ class ManagementService(BaseService):
         except Exception as e:
             return self._handle_error(e, "получения пользователя по ID")
 
-    def update_user_status(self, user_id: UUID, status: str, reason: str = None) -> Dict[str, Any]:
+    def update_user_status(
+        self,
+        user_id: UUID,
+        status: str, reason: str = None
+    ) -> Dict[str, Any]:
         """Обновление статуса пользователя"""
         try:
             user = self.db_session.query(User).filter(

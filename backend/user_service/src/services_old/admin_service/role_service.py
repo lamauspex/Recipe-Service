@@ -3,11 +3,10 @@
 Разделен на отдельные сервисы для лучшей архитектуры
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from uuid import UUID
 
 from backend.user_service.src.models import User, RoleModel
-from backend.user_service.src.exceptions.base import NotFoundException, ConflictException
 from common.base_service import BaseService
 from common.response_builder import ResponseBuilder
 
