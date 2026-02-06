@@ -1,54 +1,84 @@
+"""Usecase для создания роли"""
 
+from typing import List
 
+from ...dto.requests import RoleCreateRequestDTO
+from ...dto.responses import RoleCreateResponseDTO, RoleResponseDTO
 from ..base import BaseUsecase
-from backend.user_service.src.models.role_model import RoleModel
-from backend.user_service.src.services.dto.requests import UserRoleRequestDTO
-from backend.user_service.src.services.dto.responses import UserRoleResponseDTO
+from ...infrastructure.common.exceptions import ConflictException, ValidationException
+from ....models.role_model import RoleModel, Permission
+from ...infrastructure.repositories.role_repository import RoleRepository
 
 
 class CreateRoleUsecase(BaseUsecase):
-    """ Usecase для для управления ролями """
+    """Usecase для создания роли"""
 
-    def __init__(
-        self,
-        user_repository,
-        **kwargs
-    ):
-        self.user_repository = user_repository
+    def __init__(self, role_repository: RoleRepository, **kwargs):
+        self.role_repository = role_repository
         super().__init__(**kwargs)
 
-    async def create_role(
+    async def execute(
         self,
-        request: UserRoleRequestDTO
-    ) -> UserRoleResponseDTO:
-        """Создание новой роли"""
-
+        request: RoleCreateRequestDTO
+    ) -> RoleCreateResponseDTO:
+        """Выполнение создания роли"""
         try:
-            # Проверяем, существует ли роль с таким именем
-            existing_role = self.db_session.query(RoleModel).filter(
-                RoleModel.name == role_data["name"]).first()
-
+            # Проверка уникальности имени роли
+            existing_role = await self.role_repository.get_by_name(request.name)
             if existing_role:
-                return ResponseBuilder.error(
-                    "Роль с таким именем уже существует",
-                    error_code="ROLE_EXISTS"
-                )
+                raise ConflictException(
+                    f"Role with name '{request.name}' already exists")
 
-            # Создаем новую роль
-            new_role = RoleModel(
-                name=role_data["name"],
-                description=role_data.get("description", ""),
-                permissions=role_data.get("permissions", [])
-            )
+            # Валидация разрешений
+            permissions_mask = self._validate_permissions(request.permissions)
 
-            self.db_session.add(new_role)
-            self.db_session.commit()
+            # Создание роли
+            role_data = {
+                "name": request.name,
+                "display_name": request.display_name,
+                "description": request.description,
+                "permissions": permissions_mask,
+                "is_active": request.is_active,
+                "is_system": False
+            }
 
-            return self._handle_success(
-                "Роль создана",
-                data=self._serialize_role(new_role)
+            role = await self.role_repository.create(role_data)
+
+            # Возврат результата
+            return RoleCreateResponseDTO.create_success(
+                role=self._serialize_role(role)
             )
 
         except Exception as e:
-            self.db_session.rollback()
-            return self._handle_error(e, "создания роли")
+            if isinstance(e, (ConflictException, ValidationException)):
+                raise e
+            raise ValidationException(f"Failed to create role: {str(e)}")
+
+    def _validate_permissions(self, permissions: List[str]) -> int:
+        """Валидация и преобразование разрешений в битовую маску"""
+        if not permissions:
+            return Permission.NONE
+
+        permissions_mask = Permission.NONE
+        for perm_name in permissions:
+            if hasattr(Permission, perm_name.upper()):
+                permissions_mask |= getattr(Permission, perm_name.upper())
+            else:
+                raise ValidationException(f"Invalid permission: {perm_name}")
+
+        return permissions_mask
+
+    def _serialize_role(self, role: RoleModel) -> RoleResponseDTO:
+        """Сериализация роли"""
+        return RoleResponseDTO(
+            id=str(role.id),
+            name=role.name,
+            display_name=role.display_name,
+            description=role.description,
+            permissions=role.permissions,
+            permissions_list=[p.name for p in role.permissions_list],
+            is_system=role.is_system,
+            is_active=role.is_active,
+            created_at=role.created_at.isoformat() if role.created_at else None,
+            updated_at=role.updated_at.isoformat() if role.updated_at else None
+        )

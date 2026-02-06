@@ -1,29 +1,60 @@
+"""
+Usecase для проверки разрешений пользователя
+"""
 
+from uuid import UUID
+
+from ...dto.requests import PermissionCheckRequestDTO
+from ...dto.responses import PermissionCheckResponseDTO
 from ..base import BaseUsecase
+from ...infrastructure.common.exceptions import NotFoundException, ValidationException
+from ....models.role_model import Permission
 
 
-class CheckUserPermission(BaseUsecase):
-    """Usecase для проверки разрешения пользователя"""
+class CheckUserPermissionUsecase(BaseUsecase):
+    """Usecase для проверки разрешений пользователя"""
 
-    async def check_user_permission(self, user_id: UUID, permission: str) -> Dict[str, Any]:
+    def __init__(self, user_repository, **kwargs):
+        self.user_repository = user_repository
+        super().__init__(**kwargs)
 
-    try:
-        user = self.db_session.query(User).filter(
-            User.id == user_id).first()
+    async def execute(
+        self,
+        request: PermissionCheckRequestDTO
+    ) -> PermissionCheckResponseDTO:
+        """Выполнение проверки разрешений пользователя"""
+        try:
+            # Валидация UUID
+            try:
+                UUID(request.user_id)
+            except ValueError:
+                raise ValidationException("Invalid user ID format")
 
-        if not user:
-            return ResponseBuilder.not_found("Пользователь")
+            # Валидация разрешения
+            if not hasattr(Permission, request.permission.upper()):
+                raise ValidationException(
+                    f"Invalid permission: {request.permission}. "
+                    f"Available permissions: {[p.name for p in Permission if p != Permission.NONE]}"
+                )
 
-        has_permission = self._user_has_permission(user, permission)
+            # Получение пользователя
+            user = await self.user_repository.get_by_id(request.user_id)
+            if not user:
+                raise NotFoundException("User not found")
 
-        return self._handle_success(
-            "Проверка разрешения выполнена",
-            data={
-                "user_id": str(user_id),
-                "permission": permission,
-                "has_permission": has_permission
-            }
-        )
+            # Проверка разрешения
+            permission_enum = getattr(Permission, request.permission.upper())
+            has_permission = user.has_permission(permission_enum)
 
-    except Exception as e:
-        return self._handle_error(e, "проверки разрешения")
+            # Возврат результата
+            return PermissionCheckResponseDTO.create_success(
+                user_id=str(request.user_id),
+                permission=request.permission,
+                has_permission=has_permission
+            )
+
+        except Exception as e:
+            if isinstance(e, (NotFoundException, ValidationException)):
+                raise e
+            raise ValidationException(
+                f"Failed to check user permission: {str(e)}")

@@ -1,54 +1,63 @@
-""" Usecase для логирования попытки входа """
+"""Usecase для логирования попытки входа"""
 
-from ...dto.requests.login_logging import LoginAttemptLogRequestDTO
-from ...dto.responses.login_monitoring import LoginAttemptLogResponseDTO
+from typing import Dict, Any
+from datetime import datetime
+
+from ...dto.requests import BaseRequestDTO
+from ...dto.responses import BaseResponseDTO
 from ..base import BaseUsecase
 from ...infrastructure.common.exceptions import ValidationException
+from ....models.user_models import User
 
 
 class LogLoginAttemptUsecase(BaseUsecase):
     """Usecase для логирования попытки входа"""
 
-    def __init__(
-        self,
-        login_log_repository,
-        user_repository,  # для обновления данных пользователя
-        **kwargs
-    ):
-        self.login_log_repository = login_log_repository
+    def __init__(self, user_repository, **kwargs):
         self.user_repository = user_repository
         super().__init__(**kwargs)
 
-    async def execute(
-        self,
-        request: LoginAttemptLogRequestDTO
-    ) -> LoginAttemptLogResponseDTO:
+    async def execute(self, request: BaseRequestDTO) -> BaseResponseDTO:
         """Выполнение логирования попытки входа"""
+        try:
+            # Валидация входных данных
+            if not hasattr(request, 'email') or not request.email:
+                raise ValidationException("Email is required")
 
-        # Валидация входных данных
-        if not request.email or not request.ip_address:
-            raise ValidationException("Email and IP address are required")
+            if not hasattr(request, 'ip_address') or not request.ip_address:
+                raise ValidationException("IP address is required")
 
-        # Поиск пользователя для обновления его данных
-        user = await self.user_repository.get_by_email(request.email)
-        user_id = user.id if user else None
+            # Поиск пользователя для обновления его данных
+            user = await self.user_repository.get_by_email(request.email)
+            user_id = str(user.id) if user else None
 
-        # Логирование попытки входа
-        log_data = await self.login_log_repository.log_login_attempt(
-            email=request.email,
-            ip_address=request.ip_address,
-            user_agent=request.user_agent,
-            success=request.success,
-            failure_reason=request.failure_reason,
-            user_id=user_id
-        )
+            # Подготовка данных для логирования
+            log_data = {
+                "email": request.email,
+                "ip_address": request.ip_address,
+                "user_agent": getattr(request, 'user_agent', None),
+                "success": getattr(request, 'success', False),
+                "failure_reason": getattr(request, 'failure_reason', None),
+                "user_id": user_id,
+                "timestamp": getattr(request, 'timestamp', datetime.utcnow())
+            }
 
-        # Обновление данных пользователя (если найден)
-        if user and request.success:
-            await self.user_repository.update(user.id, {
-                "last_login_at": request.timestamp,
-                "last_login_ip": request.ip_address,
-                "last_user_agent": request.user_agent
-            })
+            # Обновление данных пользователя (если найден)
+            if user and request.success:
+                update_data = {
+                    "last_login": datetime.utcnow(),
+                    "login_count": user.login_count + 1
+                }
+                await self.user_repository.update(str(user.id), update_data)
 
-        return LoginAttemptLogResponseDTO.create_success(log_data)
+            # Возврат результата
+            return BaseResponseDTO(
+                success=True,
+                message="Login attempt logged successfully",
+                data=log_data
+            )
+
+        except Exception as e:
+            if isinstance(e, ValidationException):
+                raise e
+            raise ValidationException(f"Failed to log login attempt: {str(e)}")

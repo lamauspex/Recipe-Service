@@ -1,35 +1,63 @@
+"""
+Usecase для удаления роли
+"""
 
+from uuid import UUID
+
+from ...dto.requests import RoleDeleteRequestDTO
+from ...dto.responses import RoleDeleteResponseDTO
 from ..base import BaseUsecase
+from ...infrastructure.common.exceptions import NotFoundException, ValidationException, ConflictException
+from ...infrastructure.repositories.role_repository import RoleRepository
 
 
 class DeleteRoleUsecase(BaseUsecase):
-    """Usecase для Удаление роли"""
+    """Usecase для удаления роли"""
 
-    def delete_role(self, role_id: UUID) -> Dict[str, Any]:
+    def __init__(self, role_repository: RoleRepository, **kwargs):
+        self.role_repository = role_repository
+        super().__init__(**kwargs)
 
+    async def execute(
+        self,
+        request: RoleDeleteRequestDTO
+    ) -> RoleDeleteResponseDTO:
+        """Выполнение удаления роли"""
         try:
-            role = self.db_session.query(RoleModel).filter(
-                RoleModel.id == role_id).first()
+            # Валидация UUID
+            try:
+                role_id = UUID(request.role_id)
+            except ValueError:
+                raise ValidationException("Invalid role ID format")
 
+            # Получение роли
+            role = await self.role_repository.get_by_id(str(role_id))
             if not role:
-                return ResponseBuilder.not_found("Роль")
+                raise NotFoundException(
+                    f"Role with ID {request.role_id} not found")
 
-            # Проверяем, есть ли пользователи с этой ролью
-            users_with_role = self.db_session.query(User).filter(
-                User.roles.any(RoleModel.id == role_id)
-            ).count()
+            # Проверка системной роли (системные роли нельзя удалять)
+            if role.is_system:
+                raise ValidationException("Cannot delete system role")
 
-            if users_with_role > 0:
-                return ResponseBuilder.error(
-                    "Нельзя удалить роль, которая назначена пользователям",
-                    error_code="ROLE_IN_USE"
+            # Проверка количества пользователей с этой ролью
+            user_count = await self.role_repository.get_user_count_for_role(str(role_id))
+            if user_count > 0:
+                raise ConflictException(
+                    f"Cannot delete role that is assigned to {user_count} users"
                 )
 
-            self.db_session.delete(role)
-            self.db_session.commit()
+            # Удаление роли
+            success = await self.role_repository.delete(str(role_id))
+            if not success:
+                raise ValidationException("Failed to delete role")
 
-            return self._handle_success("Роль удалена")
+            # Возврат результата
+            return RoleDeleteResponseDTO.create_success(
+                role_id=str(role_id)
+            )
 
         except Exception as e:
-            self.db_session.rollback()
-            return self._handle_error(e, "удаления роли")
+            if isinstance(e, (NotFoundException, ValidationException, ConflictException)):
+                raise e
+            raise ValidationException(f"Failed to delete role: {str(e)}")

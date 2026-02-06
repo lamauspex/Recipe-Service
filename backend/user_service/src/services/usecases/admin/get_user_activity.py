@@ -15,9 +15,8 @@ from ...infrastructure.common.exceptions import NotFoundException, ValidationExc
 class GetUserActivityUsecase(BaseUsecase):
     """Usecase для получения активности пользователя"""
 
-    def __init__(self, user_repository, activity_repository=None, **kwargs):
+    def __init__(self, user_repository, **kwargs):
         self.user_repository = user_repository
-        self.activity_repository = activity_repository  # Может быть None
         super().__init__(**kwargs)
 
     async def execute(self, request: UserActivityRequestDTO) -> UserActivityResponseDTO:
@@ -48,61 +47,21 @@ class GetUserActivityUsecase(BaseUsecase):
                 "period_start": start_date.isoformat(),
                 "period_end": datetime.utcnow().isoformat(),
                 "user_info": {
-                    "email": user['email'],
-                    "full_name": user.get('full_name') or f"{user.get('first_name', '')} {user.get('last_name', '')}",
-                    "last_login_at": user['last_login_at'].isoformat() if user.get('last_login_at') else None,
-                    "last_login_ip": user.get('last_login_ip')
+                    "email": user.email,
+                    "full_name": getattr(user, 'full_name', f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}"),
+                    "last_login_at": user.last_login.isoformat() if user.last_login else None,
+                    "last_login_ip": getattr(user, 'last_login_ip', None)
                 }
             }
 
-            # Получение статистики входов (если есть репозиторий активности)
-            if self.activity_repository:
-                login_stats = await self.activity_repository.get_login_stats(
-                    user_id=request.user_id,
-                    start_date=start_date,
-                    end_date=datetime.utcnow()
-                )
+            # Получение статистики входов
+            login_stats = await self.user_repository.get_login_statistics(
+                request.user_id, days=request.days
+            )
 
-                activity_data.update({
-                    "login_statistics": {
-                        "total_logins": login_stats.get('total_logins', 0),
-                        "successful_logins": login_stats.get('successful_logins', 0),
-                        "failed_logins": login_stats.get('failed_logins', 0),
-                        "unique_ips": len(login_stats.get('unique_ips', [])),
-                        "last_login_source": login_stats.get('last_login_source')
-                    }
-                })
-            else:
-                # Базовая статистика из данных пользователя
-                activity_data.update({
-                    "login_statistics": {
-                        "total_logins": user.get('login_count', 0),
-                        "successful_logins": user.get('login_count', 0),
-                        "failed_logins": 0,
-                        "unique_ips": 1 if user.get('last_login_ip') else 0,
-                        "last_login_source": "web"  # По умолчанию
-                    }
-                })
-
-            # Получение истории действий (если есть репозиторий активности)
-            if self.activity_repository:
-                recent_actions = await self.activity_repository.get_recent_actions(
-                    user_id=request.user_id,
-                    start_date=start_date,
-                    limit=50
-                )
-
-                activity_data["recent_actions"] = [
-                    {
-                        "action": action['action'],
-                        "timestamp": action['created_at'].isoformat(),
-                        "ip_address": action.get('ip_address'),
-                        "user_agent": action.get('user_agent')
-                    }
-                    for action in recent_actions
-                ]
-            else:
-                activity_data["recent_actions"] = []
+            activity_data.update({
+                "login_statistics": login_stats
+            })
 
             # Возврат результата
             return UserActivityResponseDTO.create_success(activity_data)

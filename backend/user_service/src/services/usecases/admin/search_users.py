@@ -1,6 +1,4 @@
-"""
-Usecase для поиска пользователей
-"""
+"""Usecase для поиска пользователей"""
 
 from typing import Dict, Any, List
 from uuid import UUID
@@ -23,7 +21,8 @@ class SearchUsersUsecase(BaseUsecase):
         try:
             # Валидация поискового запроса
             if not request.search_term or len(request.search_term.strip()) < 2:
-                raise ValidationException("Search term must be at least 2 characters long")
+                raise ValidationException(
+                    "Search term must be at least 2 characters long")
 
             if request.limit < 1 or request.limit > 100:
                 raise ValidationException("Limit must be between 1 and 100")
@@ -31,23 +30,22 @@ class SearchUsersUsecase(BaseUsecase):
             search_term = request.search_term.strip()
 
             # Поиск пользователей
-            users_data = await self.user_repository.search_users(
-                search_term=search_term,
-                limit=request.limit
-            )
+            users = await self.user_repository.search_users(search_term, request.limit)
 
             # Форматирование результатов
             results = []
-            for user_data in users_data:
+            for user in users:
                 result = {
-                    "id": str(user_data['id']),
-                    "email": user_data['email'],
-                    "full_name": user_data.get('full_name') or f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}",
-                    "phone": user_data.get('phone'),
-                    "is_active": user_data['is_active'],
-                    "is_verified": user_data.get('is_verified', False),
-                    "last_login_at": user_data['last_login_at'].isoformat() if user_data.get('last_login_at') else None,
-                    "created_at": user_data['created_at'].isoformat()
+                    "id": str(user.id),
+                    "email": user.email,
+                    "first_name": getattr(user, 'first_name', ''),
+                    "last_name": getattr(user, 'last_name', ''),
+                    "full_name": getattr(user, 'full_name', f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}"),
+                    "phone": getattr(user, 'phone', None),
+                    "is_active": user.is_active,
+                    "is_verified": getattr(user, 'is_verified', False),
+                    "last_login": user.last_login.isoformat() if user.last_login else None,
+                    "created_at": user.created_at.isoformat() if user.created_at else None
                 }
                 results.append(result)
 

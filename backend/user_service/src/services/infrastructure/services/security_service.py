@@ -12,11 +12,17 @@ from ...interfaces.security import SecurityInterface
 class SecurityServiceAdapter(SecurityInterface):
     """Адаптер для работы с безопасностью"""
 
-    def __init__(self, jwt_secret: str, jwt_algorithm: str = "HS256"):
+    def __init__(
+        self,
+        jwt_secret: str,
+        jwt_algorithm: str = "HS256"
+    ):
         self.jwt_secret = jwt_secret
         self.jwt_algorithm = jwt_algorithm
         self.password_context = CryptContext(
-            schemes=["bcrypt"], deprecated="auto")
+            schemes=["bcrypt"],
+            deprecated="auto"
+        )
 
     async def hash_password(self, password: str) -> str:
         """Хеширование пароля"""

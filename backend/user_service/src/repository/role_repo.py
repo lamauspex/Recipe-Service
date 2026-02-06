@@ -17,6 +17,8 @@ class RoleRepository:
     def __init__(self, db_session: Session):
         self.db = db_session
 
+    # === Синхронные методы ===
+
     def get_role_by_id(self, role_id: UUID) -> Optional[RoleModel]:
         """Получение роли по ID"""
         return self.db.query(RoleModel).filter(
@@ -138,3 +140,48 @@ class RoleRepository:
     def role_exists(self, name: str) -> bool:
         """Проверка существования роли по имени"""
         return self.get_role_by_name(name) is not None
+
+    # === Асинхронные методы для совместимости с usecases ===
+
+    async def get_by_id(self, role_id: str) -> Optional[RoleModel]:
+        """Получение роли по ID (async wrapper)"""
+        try:
+            uuid_id = UUID(role_id)
+        except ValueError:
+            return None
+        return self.get_role_by_id(uuid_id)
+
+    async def get_by_name(self, name: str) -> Optional[RoleModel]:
+        """Получение роли по имени (async wrapper)"""
+        return self.get_role_by_name(name)
+
+    async def create(self, role_data: Dict[str, Any]) -> RoleModel:
+        """Создание роли (async wrapper)"""
+        return self.create_role(
+            name=role_data["name"],
+            permissions=role_data["permissions"],
+            description=role_data.get("description", ""),
+            is_active=role_data.get("is_active", True),
+            display_name=role_data.get("display_name", role_data["name"]),
+            is_system=role_data.get("is_system", False)
+        )
+
+    async def update(self, role_id: str, updates: Dict[str, Any]) -> Optional[RoleModel]:
+        """Обновление роли (async wrapper)"""
+        try:
+            uuid_id = UUID(role_id)
+        except ValueError:
+            return None
+        return self.update_role(uuid_id, updates)
+
+    async def delete(self, role_id: str) -> bool:
+        """Удаление роли (async wrapper)"""
+        try:
+            uuid_id = UUID(role_id)
+        except ValueError:
+            return False
+        return self.delete_role(uuid_id)
+
+    async def get_all_active(self) -> List[RoleModel]:
+        """Получение всех активных ролей (async wrapper)"""
+        return self.list_active_roles()

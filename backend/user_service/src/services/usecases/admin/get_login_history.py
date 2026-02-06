@@ -2,14 +2,11 @@
 Usecase для получения истории входов пользователей
 """
 
-
 from datetime import datetime
+from uuid import UUID
 
-from ...dto.requests.login_logging import LoginHistoryRequestDTO
-from ...dto.responses.login_monitoring import (
-    LoginHistoryResponseDTO,
-    LoginHistoryItemDTO
-)
+from ...dto.requests import UserActivityRequestDTO
+from ...dto.responses import UserActivityResponseDTO
 from ..base import BaseUsecase
 from ...infrastructure.common.exceptions import (
     ValidationException,
@@ -20,85 +17,58 @@ from ...infrastructure.common.exceptions import (
 class GetLoginHistoryUsecase(BaseUsecase):
     """Usecase для получения истории входов пользователя"""
 
-    def __init__(
-        self,
-        login_log_repository,
-        user_repository,
-        **kwargs
-    ):
-        self.login_log_repository = login_log_repository
+    def __init__(self, user_repository, **kwargs):
         self.user_repository = user_repository
         super().__init__(**kwargs)
 
-    async def execute(self, request: LoginHistoryRequestDTO) -> LoginHistoryResponseDTO:
+    async def execute(self, request: UserActivityRequestDTO) -> UserActivityResponseDTO:
         """Выполнение получения истории входов"""
         try:
-            # Валидация входных данных
-            if not request.user_id and not request.email:
-                raise ValidationException(
-                    "Необходимо указать user_id или email")
+            # Валидация UUID
+            try:
+                UUID(request.user_id)
+            except ValueError:
+                raise ValidationException("Invalid user ID format")
 
-            # Определяем пользователя
-            user = None
-            user_id_str = None
+            # Валидация дней
+            if request.days < 1 or request.days > 365:
+                raise ValidationException("Days must be between 1 and 365")
 
-            if request.user_id:
-                try:
-                    from uuid import UUID
-                    user_uuid = UUID(request.user_id)
-                    user = await self.user_repository.get_by_id(user_uuid)
-                except ValueError:
-                    raise ValidationException("Некорректный формат user_id")
-            elif request.email:
-                user = await self.user_repository.get_by_email(request.email)
-
+            # Получение пользователя
+            user = await self.user_repository.get_by_id(request.user_id)
             if not user:
-                raise NotFoundException("Пользователь не найден", "User")
+                raise NotFoundException("User not found")
 
-            user_id_str = str(user.id)
-
-            # Получаем историю входов из репозитория логов
-            history_data = await self.login_log_repository.get_login_history(
-                user_id=user.id,
-                email=request.email,
-                days=request.days
+            # Получение истории входов
+            login_history = await self.user_repository.get_login_history(
+                request.user_id, limit=100
             )
 
-            # Преобразуем данные в DTO
-            history_items = []
-            for item in history_data:
-                history_item = LoginHistoryItemDTO(
-                    timestamp=item.get('timestamp', datetime.utcnow()),
-                    ip_address=item.get('ip_address', ''),
-                    user_agent=item.get('user_agent'),
-                    success=item.get('success', False),
-                    failure_reason=item.get('failure_reason')
-                )
-                history_items.append(history_item)
+            # Форматирование результатов
+            formatted_history = []
+            for entry in login_history:
+                formatted_entry = {
+                    "timestamp": entry.get('timestamp', '').isoformat() if entry.get('timestamp') else '',
+                    "ip_address": entry.get('ip_address', ''),
+                    "user_agent": entry.get('user_agent', ''),
+                    "success": entry.get('success', False),
+                    "failure_reason": entry.get('failure_reason', None)
+                }
+                formatted_history.append(formatted_entry)
 
-            # Если нет детальной истории в логах, создаем базовую информацию
-            if not history_items:
-                # Создаем базовую запись из данных пользователя
-                if hasattr(user, 'last_login_at') and user.last_login_at:
-                    base_item = LoginHistoryItemDTO(
-                        timestamp=user.last_login_at,
-                        ip_address=getattr(user, 'last_login_ip', ''),
-                        user_agent=getattr(user, 'last_user_agent', None),
-                        success=True,
-                        failure_reason=None
-                    )
-                    history_items.append(base_item)
-
-            return LoginHistoryResponseDTO.create_success(
-                user_id=user_id_str,
-                email=user.email,
-                period_days=request.days,
-                history=history_items,
-                account_created=user.created_at,
-                note="История входов получена успешно"
-            )
+            # Возврат результата
+            return UserActivityResponseDTO.create_success({
+                "user_id": str(request.user_id),
+                "email": user.email,
+                "login_history": formatted_history,
+                "total_login_attempts": len(formatted_history),
+                "successful_logins": len([h for h in formatted_history if h['success']]),
+                "failed_logins": len([h for h in formatted_history if not h['success']]),
+                "period_days": request.days,
+                "account_created": user.created_at.isoformat() if user.created_at else None
+            })
 
         except Exception as e:
             if isinstance(e, (ValidationException, NotFoundException)):
                 raise e
-            raise ValidationException("Ошибка получения истории входов") from e
+            raise ValidationException(f"Failed to get login history: {str(e)}")

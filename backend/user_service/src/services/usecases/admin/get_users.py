@@ -28,46 +28,30 @@ class GetUsersUsecase(BaseUsecase):
             if request.per_page < 1 or request.per_page > 100:
                 raise ValidationException("Per page must be between 1 and 100")
 
-            # Построение фильтров
-            filters = {}
-
-            if request.search:
-                filters['search'] = request.search
-
-            if request.is_active is not None:
-                filters['is_active'] = request.is_active
-
-            if request.is_locked is not None:
-                filters['is_locked'] = request.is_locked
-
             # Получение данных из репозитория
-            users_data = await self.user_repository.get_users_with_pagination(
-                page=request.page,
-                per_page=request.per_page,
-                **filters
-            )
+            users_data, total = await self.user_repository.get_list(request)
 
             # Преобразование в DTO
             users = []
-            for user_data in users_data.get('users', []):
+            for user in users_data:
                 user_dto = UserResponseDTO(
-                    id=user_data['id'],
-                    email=user_data['email'],
-                    first_name=user_data['first_name'],
-                    last_name=user_data['last_name'],
-                    phone=user_data.get('phone'),
-                    role=user_data['role'],
-                    is_active=user_data['is_active'],
-                    is_verified=user_data.get('is_verified', False),
-                    created_at=user_data['created_at'],
-                    updated_at=user_data['updated_at']
+                    id=int(user.id),
+                    email=user.email,
+                    first_name=getattr(user, 'first_name', ''),
+                    last_name=getattr(user, 'last_name', ''),
+                    phone=getattr(user, 'phone', None),
+                    role=getattr(user, 'role', 'user'),
+                    is_active=user.is_active,
+                    is_verified=getattr(user, 'email_verified', False),
+                    created_at=user.created_at,
+                    updated_at=user.updated_at
                 )
                 users.append(user_dto)
 
             # Возврат результата
             return UserListResponseDTO.create_success(
                 users=users,
-                total=users_data.get('total', 0),
+                total=total,
                 page=request.page,
                 per_page=request.per_page
             )

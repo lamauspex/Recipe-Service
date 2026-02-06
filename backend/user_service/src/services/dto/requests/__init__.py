@@ -3,7 +3,7 @@
 """
 
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 
@@ -110,9 +110,72 @@ class UserSearchRequestDTO(BaseRequestDTO):
     limit: int = 20
 
 
-# === DTO для управления role ===
+# === DTO для управления ролями ===
 
 class UserRoleRequestDTO(BaseRequestDTO):
     """DTO для получения ролей пользователей"""
     user_id: UUID
     role: str
+
+
+class RoleCreateRequestDTO(BaseRequestDTO):
+    """DTO для создания роли"""
+    name: str
+    display_name: str
+    description: Optional[str] = None
+    permissions: List[str] = []
+    is_active: bool = True
+
+
+class RoleUpdateRequestDTO(BaseRequestDTO):
+    """DTO для обновления роли"""
+    display_name: Optional[str] = None
+    description: Optional[str] = None
+    permissions: Optional[List[str]] = None
+    is_active: Optional[bool] = None
+
+
+class RoleDeleteRequestDTO(BaseRequestDTO):
+    """DTO для удаления роли"""
+    role_id: UUID
+
+
+class RoleAssignRequestDTO(BaseRequestDTO):
+    """DTO для назначения роли пользователю"""
+    user_id: UUID
+    role_id: UUID
+
+
+class RoleRemoveRequestDTO(BaseRequestDTO):
+    """DTO для удаления роли у пользователя"""
+    user_id: UUID
+    role_id: UUID
+
+
+class PermissionCheckRequestDTO(BaseRequestDTO):
+    """DTO для проверки разрешений"""
+    user_id: UUID
+    permission: str
+
+
+class UserPermissionsRequestDTO(BaseRequestDTO):
+    """DTO для управления разрешениями пользователя"""
+    user_id: UUID
+    permissions: List[str]
+
+
+class UserLockRequestDTO(BaseRequestDTO):
+    """DTO для блокировки пользователя"""
+    user_id: UUID
+    reason: Optional[str] = None
+    duration_hours: Optional[int] = None
+
+
+class UserUnlockRequestDTO(BaseRequestDTO):
+    """DTO для разблокировки пользователя"""
+    user_id: UUID
+
+
+class UserLockStatusRequestDTO(BaseRequestDTO):
+    """DTO для проверки статуса блокировки пользователя"""
+    user_id: UUID

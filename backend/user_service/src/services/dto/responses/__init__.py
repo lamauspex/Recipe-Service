@@ -2,7 +2,6 @@
 Базовые DTO для ответов
 """
 
-
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
@@ -13,6 +12,7 @@ class BaseResponseDTO(BaseModel):
     success: bool = True
     message: str = "Success"
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+    data: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ErrorResponseDTO(BaseResponseDTO):
@@ -221,9 +221,173 @@ class UserSearchResponseDTO(BaseResponseDTO):
             }
         )
 
-# === DTO для управления role ===
+# === DTO для управления ролями ===
 
 
 class UserRoleResponseDTO(BaseResponseDTO):
     """DTO для ответа на запрос на получение ролей пользователей"""
     data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, roles: List[Dict[str, Any]]) -> "UserRoleResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "roles": roles
+            }
+        )
+
+
+class RoleResponseDTO(BaseModel):
+    """DTO для данных роли"""
+    id: str
+    name: str
+    display_name: str
+    description: Optional[str] = None
+    permissions: int
+    permissions_list: List[str]
+    is_system: bool
+    is_active: bool
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class RoleCreateResponseDTO(BaseResponseDTO):
+    """DTO для ответа создания роли"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, role: RoleResponseDTO) -> "RoleCreateResponseDTO":
+        return cls(
+            data={"role": role.dict()}
+        )
+
+
+class RoleUpdateResponseDTO(BaseResponseDTO):
+    """DTO для ответа обновления роли"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, role: RoleResponseDTO) -> "RoleUpdateResponseDTO":
+        return cls(
+            data={"role": role.dict()}
+        )
+
+
+class RoleDeleteResponseDTO(BaseResponseDTO):
+    """DTO для ответа удаления роли"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, role_id: str) -> "RoleDeleteResponseDTO":
+        return cls(
+            data={"deleted_role_id": role_id}
+        )
+
+
+class RoleListResponseDTO(BaseResponseDTO):
+    """DTO для списка ролей"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(
+        cls,
+        roles: List[RoleResponseDTO],
+        total: int
+    ) -> "RoleListResponseDTO":
+        return cls(
+            data={
+                "roles": [role.dict() for role in roles],
+                "total": total
+            }
+        )
+
+
+class RoleAssignResponseDTO(BaseResponseDTO):
+    """DTO для ответа назначения роли"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, role_id: str) -> "RoleAssignResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "role_id": role_id
+            },
+            message="Role assigned successfully"
+        )
+
+
+class PermissionCheckResponseDTO(BaseResponseDTO):
+    """DTO для ответа проверки разрешений"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, permission: str, has_permission: bool) -> "PermissionCheckResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "permission": permission,
+                "has_permission": has_permission
+            }
+        )
+
+
+class UserPermissionsResponseDTO(BaseResponseDTO):
+    """DTO для ответа управления разрешениями пользователя"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, permissions: List[str]) -> "UserPermissionsResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "permissions": permissions
+            }
+        )
+
+
+class UserLockResponseDTO(BaseResponseDTO):
+    """DTO для ответа блокировки пользователя"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, reason: Optional[str] = None, duration_hours: Optional[int] = None) -> "UserLockResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "reason": reason,
+                "duration_hours": duration_hours
+            },
+            message="User locked successfully"
+        )
+
+
+class UserUnlockResponseDTO(BaseResponseDTO):
+    """DTO для ответа разблокировки пользователя"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str) -> "UserUnlockResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id
+            },
+            message="User unlocked successfully"
+        )
+
+
+class UserLockStatusResponseDTO(BaseResponseDTO):
+    """DTO для ответа статуса блокировки пользователя"""
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def create_success(cls, user_id: str, is_locked: bool, lock_reason: Optional[str] = None, locked_until: Optional[str] = None) -> "UserLockStatusResponseDTO":
+        return cls(
+            data={
+                "user_id": user_id,
+                "is_locked": is_locked,
+                "lock_reason": lock_reason,
+                "locked_until": locked_until
+            }
+        )

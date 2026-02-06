@@ -5,6 +5,7 @@ Usecase для получения пользователя по ID
 from typing import Dict, Any
 from uuid import UUID
 
+from ...dto.requests import BaseRequestDTO
 from ...dto.responses import UserDetailResponseDTO
 from ..base import BaseUsecase
 from ...infrastructure.common.exceptions import NotFoundException, ValidationException
@@ -17,40 +18,43 @@ class GetUserByIdUsecase(BaseUsecase):
         self.user_repository = user_repository
         super().__init__(**kwargs)
 
-    async def execute(self, user_id: str) -> UserDetailResponseDTO:
+    async def execute(self, request: BaseRequestDTO) -> UserDetailResponseDTO:
         """Выполнение получения пользователя по ID"""
         try:
             # Валидация UUID
+            if not hasattr(request, 'user_id'):
+                raise ValidationException("user_id is required")
+
             try:
-                UUID(user_id)
+                UUID(request.user_id)
             except ValueError:
                 raise ValidationException("Invalid user ID format")
 
             # Получение пользователя из репозитория
-            user_data = await self.user_repository.get_by_id(user_id)
+            user = await self.user_repository.get_by_id(request.user_id)
 
-            if not user_data:
+            if not user:
                 raise NotFoundException("User not found")
 
             # Преобразование данных
             user_detail_data = {
-                "id": str(user_data['id']),
-                "user_name": user_data.get('user_name'),
-                "email": user_data['email'],
-                "full_name": user_data.get('full_name'),
-                "first_name": user_data.get('first_name'),
-                "last_name": user_data.get('last_name'),
-                "phone": user_data.get('phone'),
-                "is_active": user_data['is_active'],
-                "email_verified": user_data.get('email_verified', False),
-                "is_locked": user_data.get('is_locked', False),
-                "locked_until": user_data['locked_until'].isoformat() if user_data.get('locked_until') else None,
-                "lock_reason": user_data.get('lock_reason'),
-                "last_login_at": user_data['last_login_at'].isoformat() if user_data.get('last_login_at') else None,
-                "last_login_ip": user_data.get('last_login_ip'),
-                "created_at": user_data['created_at'].isoformat(),
-                "updated_at": user_data['updated_at'].isoformat(),
-                "roles": user_data.get('roles', [])
+                "id": str(user.id),
+                "user_name": getattr(user, 'user_name', None),
+                "email": user.email,
+                "full_name": getattr(user, 'full_name', f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}"),
+                "first_name": getattr(user, 'first_name', None),
+                "last_name": getattr(user, 'last_name', None),
+                "phone": getattr(user, 'phone', None),
+                "is_active": user.is_active,
+                "email_verified": getattr(user, 'email_verified', False),
+                "is_locked": getattr(user, 'is_locked', False),
+                "locked_until": user.locked_until.isoformat() if getattr(user, 'locked_until', None) else None,
+                "lock_reason": getattr(user, 'lock_reason', None),
+                "last_login": user.last_login.isoformat() if getattr(user, 'last_login', None) else None,
+                "login_count": getattr(user, 'login_count', 0),
+                "created_at": user.created_at.isoformat() if user.created_at else None,
+                "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+                "roles": [self._serialize_role(role) for role in getattr(user, 'roles', [])]
             }
 
             # Возврат результата
@@ -60,3 +64,16 @@ class GetUserByIdUsecase(BaseUsecase):
             if isinstance(e, (NotFoundException, ValidationException)):
                 raise e
             raise ValidationException(f"Failed to get user: {str(e)}")
+
+    def _serialize_role(self, role) -> dict:
+        """Сериализация роли"""
+        return {
+            "id": str(role.id),
+            "name": role.name,
+            "display_name": role.display_name,
+            "description": role.description,
+            "permissions": getattr(role, 'permissions', 0),
+            "is_system": getattr(role, 'is_system', False),
+            "is_active": getattr(role, 'is_active', True),
+            "created_at": role.created_at.isoformat() if getattr(role, 'created_at', None) else None
+        }

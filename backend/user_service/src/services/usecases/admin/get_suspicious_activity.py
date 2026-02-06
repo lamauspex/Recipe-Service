@@ -3,114 +3,71 @@ Usecase для получения подозрительной активнос�
 """
 
 from typing import Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from ...dto.requests.login_logging import LoginStatisticsRequestDTO
-from ...dto.responses.login_monitoring import LoginStatisticsResponseDTO
+from ...dto.requests import UserActivityRequestDTO
+from ...dto.responses import UserActivityResponseDTO
 from ..base import BaseUsecase
-from ...infrastructure.common.exceptions import ValidationException
+from ...infrastructure.common.exceptions import ValidationException, NotFoundException
 
 
 class GetSuspiciousActivityUsecase(BaseUsecase):
     """Usecase для получения подозрительной активности"""
 
-    def __init__(
-        self,
-        login_log_repository,
-        user_repository,
-        **kwargs
-    ):
-        self.login_log_repository = login_log_repository
+    def __init__(self, user_repository, **kwargs):
         self.user_repository = user_repository
         super().__init__(**kwargs)
 
-    async def execute(self, request: LoginStatisticsRequestDTO) -> LoginStatisticsResponseDTO:
+    async def execute(self, request: UserActivityRequestDTO) -> UserActivityResponseDTO:
         """Выполнение получения подозрительной активности"""
         try:
-            # Валидация входных данных
-            if request.days < 1 or request.days > 90:  # Ограничиваем до 90 дней для подозрительной активности
-                raise ValidationException(
-                    "Количество дней должно быть от 1 до 90")
+            # Валидация UUID
+            try:
+                UUID(request.user_id)
+            except ValueError:
+                raise ValidationException("Invalid user ID format")
 
-            # Получаем подозрительную активность из репозитория логов
-            suspicious_data = await self.login_log_repository.get_suspicious_activity(
-                days=request.days
+            # Валидация дней
+            if request.days < 1 or request.days > 90:
+                raise ValidationException("Days must be between 1 and 90")
+
+            # Получение пользователя
+            user = await self.user_repository.get_by_id(request.user_id)
+            if not user:
+                raise NotFoundException("User not found")
+
+            # Получение подозрительной активности
+            suspicious_activity = await self.user_repository.get_suspicious_activity(
+                limit=100
             )
 
-            # Если в репозитории логов нет данных, 
-            # анализируем данные пользователей (fallback)
-            if not suspicious_data.get('activities'):
-                suspicious_data = await self._analyze_suspicious_activity(request.days)
+            # Форматирование результатов
+            formatted_activity = []
+            for activity in suspicious_activity:
+                formatted_entry = {
+                    "timestamp": activity.get('timestamp', '').isoformat() if activity.get('timestamp') else '',
+                    "type": activity.get('type', 'unknown'),
+                    "description": activity.get('description', ''),
+                    "ip_address": activity.get('ip_address', ''),
+                    "user_agent": activity.get('user_agent', ''),
+                    "severity": activity.get('severity', 'low'),
+                    "details": activity.get('details', {})
+                }
+                formatted_activity.append(formatted_entry)
 
-            return LoginStatisticsResponseDTO.create_success(
-                period_days=request.days,
-                users_with_logins=suspicious_data.get('suspicious_users_count', 0),
-                users_today=suspicious_data.get('new_suspicious_today', 0),
-                top_ips=suspicious_data.get('suspicious_ips', []),
-                generated_at=datetime.utcnow()
-            )
+            # Возврат результата
+            return UserActivityResponseDTO.create_success({
+                "user_id": str(request.user_id),
+                "email": user.email,
+                "suspicious_activity": formatted_activity,
+                "total_suspicious_events": len(formatted_activity),
+                "high_severity_count": len([a for a in formatted_activity if a.get('severity') == 'high']),
+                "period_days": request.days,
+                "generated_at": datetime.utcnow().isoformat()
+            })
 
         except Exception as e:
-            if isinstance(e, ValidationException):
+            if isinstance(e, (ValidationException, NotFoundException)):
                 raise e
             raise ValidationException(
-                "Ошибка получения подозрительной активности") from e
-
-    async def _analyze_suspicious_activity(self, days: int) -> Dict[str, Any]:
-        """Анализ подозрительной активности на основе данных пользователей"""
-        try:
-            from datetime import datetime, timedelta
-
-            # Вычисляем дату cutoff
-            cutoff_date = datetime.utcnow() - timedelta(days=days)
-            today_start = datetime.utcnow().replace(
-                hour=0, minute=0, second=0, microsecond=0)
-
-            # В реальном приложении здесь был бы анализ логов входа
-            # Пока что возвращаем базовую структуру с объяснением
-
-            # Подсчитываем пользователей с подозрительной активностью
-            # Критерии подозрительности:
-            # - Множественные неудачные попытки входа
-            # - Входы с разных географических локаций
-            # - Входы в нерабочее время
-            # - Использование разных User-Agent'ов
-
-            suspicious_users_count = 0  # В реальном приложении: анализ логов
-            new_suspicious_today = 0  # В реальном приложении: анализ логов
-
-            # Подозрительные IP адреса
-            suspicious_ips = [
-                {
-                    "ip_address": "192.168.100.1",
-                    "login_count": 45,
-                    "failed_attempts": 40,
-                    "suspicious_score": 9.2,
-                    "reasons": "Высокий процент неудачных попыток, множественные аккаунты"
-                },
-                {
-                    "ip_address": "10.200.50.25",
-                    "login_count": 32,
-                    "failed_attempts": 28,
-                    "suspicious_score": 8.7,
-                    "reasons": "Частые попытки с разными учетными данными"
-                }
-            ]
-
-            return {
-                'suspicious_users_count': suspicious_users_count,
-                'new_suspicious_today': new_suspicious_today,
-                'suspicious_ips': suspicious_ips,
-                'analysis_period_days': days,
-                'note': 'Подозрительная активность анализируется на основе паттернов входа'
-            }
-
-        except Exception as e:
-            # В случае ошибки возвращаем базовую структуру
-            return {
-                'suspicious_users_count': 0,
-                'new_suspicious_today': 0,
-                'suspicious_ips': [],
-                'analysis_period_days': days,
-                'note': f'Ошибка анализа подозрительной активности: {str(e)}'
-            }
+                f"Failed to get suspicious activity: {str(e)}")

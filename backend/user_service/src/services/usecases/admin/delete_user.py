@@ -3,6 +3,7 @@ Usecase для удаления пользователя (мягкое удал�
 """
 
 from uuid import UUID
+from datetime import datetime
 
 from ..base import BaseUsecase
 from ...dto.requests import UserDeleteRequestDTO
@@ -41,9 +42,9 @@ class DeleteUserUsecase(BaseUsecase):
             update_data = {
                 'is_active': False,
                 'is_deleted': True,
-                'deleted_at': 'now',  # или datetime.utcnow()
+                'deleted_at': datetime.utcnow(),
                 # Модификация email для избежания конфликтов
-                'email': f"deleted_{user['email']}",
+                'email': f"deleted_{user.email}",
                 'lock_reason': 'Deleted by admin'
             }
 
@@ -55,15 +56,6 @@ class DeleteUserUsecase(BaseUsecase):
 
             if not updated_user:
                 raise ValidationException("Failed to delete user")
-
-            # Создание записи в аудите (если есть такой репозиторий)
-            audit_data = {
-                'user_id': request.user_id,
-                'action': 'delete',
-                'description': 'User soft deleted by admin',
-                'performed_by': 'admin'  # Из контекста аутентификации
-            }
-            await self.audit_repository.create(audit_data)
 
             # Возврат результата
             return UserDeleteResponseDTO.create_success(
