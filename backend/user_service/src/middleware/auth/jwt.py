@@ -8,7 +8,7 @@ from uuid import UUID
 
 from backend.user_service.src.models import User
 from backend.database_service.connection import database
-from backend.user_service.src.services import JWTService
+from backend.user_service.src.services_old import JWTService
 from backend.user_service.src.repository import UserRepository
 from backend.user_service.src.config import settings
 from backend.user_service.src.exceptions import (

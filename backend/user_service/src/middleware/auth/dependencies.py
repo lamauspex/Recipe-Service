@@ -7,7 +7,7 @@ from .jwt import get_current_user as jwt_get_current_user
 from backend.database_service.connection import database
 from backend.user_service.src.models import User
 from backend.user_service.src.exceptions import HTTPException as CustomHTTPException
-from backend.user_service.src.services.admin_service import RoleService
+from backend.user_service.src.services_old.admin_service import RoleService
 from backend.user_service.src.schemas import Permission
 
 

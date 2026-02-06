@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from backend.database_service.connection import database
-from backend.user_service.src.services import RoleService
+from backend.user_service.src.services_old import RoleService
 
 
 @asynccontextmanager
