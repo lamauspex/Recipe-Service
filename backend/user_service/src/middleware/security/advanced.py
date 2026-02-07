@@ -13,8 +13,8 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from backend.user_service.src.config import settings
-from backend.user_service.src.exceptions.convenience import rate_limited
+from user_service.config import settings
+from user_service.exceptions.convenience import rate_limited
 
 from .cors import add_cors_headers
 from .headers import add_security_headers

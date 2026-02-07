@@ -6,7 +6,7 @@
 from typing import List
 from dataclasses import dataclass
 
-from backend.user_service.src.schemas.user_roles import Permission
+from backend.user_service.src.schemas_dto.user_roles import Permission
 
 
 @dataclass

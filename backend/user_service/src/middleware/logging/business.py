@@ -8,9 +8,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from backend.user_service.src.config import settings
-from backend.user_service.src.middleware.logging.utils_trace_id import get_trace_id
-from backend.user_service.src.middleware.logging.loggers import (
+from user_service.config import settings
+from user_service.middleware.logging.utils_trace_id import get_trace_id
+from user_service.middleware.logging.loggers import (
     business_logger,
     security_logger,
 )

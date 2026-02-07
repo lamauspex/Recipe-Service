@@ -10,8 +10,8 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException, RequestValidationError
 
-from backend.user_service.src.exceptions.base import AppException
-from backend.user_service.src.exceptions.handlers import ErrorHandler
+from user_service.exceptions.base import AppException
+from user_service.exceptions.handlers import ErrorHandler
 
 
 class ExceptionHandlers:

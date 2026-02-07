@@ -6,12 +6,12 @@
 
 from fastapi import FastAPI
 
-from backend.user_service.src.config import settings
-from backend.user_service.src.middleware.logging import setup_logging
-from backend.user_service.src.middleware.exceptions.handlers import (
+from user_service.config import settings
+from user_service.middleware.logging import setup_logging
+from user_service.middleware.exceptions.handlers import (
     setup_exception_handlers
 )
-from backend.user_service.src.middleware.factories import MiddlewareFactory
+from user_service.middleware.factories import MiddlewareFactory
 
 
 def setup_middleware(app: FastAPI, env: str = None) -> None:

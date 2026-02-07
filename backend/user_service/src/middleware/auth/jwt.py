@@ -6,17 +6,17 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from uuid import UUID
 
-from backend.user_service.src.models import User
-from backend.database_service.connection import database
-from backend.user_service.src.services_old import JWTService
-from backend.user_service.src.repository import UserRepository
-from backend.user_service.src.config import settings
-from backend.user_service.src.exceptions import (
+from user_service.models import User
+from user_service.database import database
+from user_service.services import JWTService
+from user_service.repository import UserRepository
+from user_service.config import settings
+from user_service.exceptions import (
     AuthException,
     ForbiddenException
 )
-from backend.user_service.src.middleware.logging import BusinessEventLogger
-from backend.user_service.src.middleware.logging.utils_trace_id import get_trace_id
+from user_service.middleware.logging import BusinessEventLogger
+from user_service.middleware.logging.utils_trace_id import get_trace_id
 
 # Используем auto_error=False для обработки случаев, когда токен отсутствует
 security = HTTPBearer(auto_error=False)

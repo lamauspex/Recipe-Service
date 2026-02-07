@@ -4,8 +4,8 @@ from fastapi import HTTPException, status
 from typing import Callable, List
 from functools import wraps
 
-from backend.user_service.src.models import User
-from backend.user_service.src.schemas import Permission
+from user_service.models import User
+from user_service.schemas import Permission
 
 
 # ========= Базовые декораторы =========

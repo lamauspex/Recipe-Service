@@ -4,11 +4,11 @@ from fastapi import Depends, status
 from sqlalchemy.orm import Session
 
 from .jwt import get_current_user as jwt_get_current_user
-from backend.database_service.connection import database
-from backend.user_service.src.models import User
-from backend.user_service.src.exceptions import HTTPException as CustomHTTPException
-from backend.user_service.src.services_old.admin_service import RoleService
-from backend.user_service.src.schemas import Permission
+from user_service.database import database
+from user_service.models import User
+from user_service.exceptions import HTTPException as CustomHTTPException
+from user_service.services.admin_service import RoleService
+from user_service.schemas import Permission
 
 
 async def get_current_user(
