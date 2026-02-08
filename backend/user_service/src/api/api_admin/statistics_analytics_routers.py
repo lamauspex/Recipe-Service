@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from dependency_injector.wiring import inject, Provide
 
-from backend.user_service.src.services_old import StatisticsService
+from backend.user_service.src.services import StatisticsService
 from backend.database_service.container import Container
 
 

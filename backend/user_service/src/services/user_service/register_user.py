@@ -4,12 +4,12 @@
 
 from datetime import datetime, timezone
 
-from user_service.exceptions.base import ConflictException
-from user_service.models.role_model import RoleModel
-from user_service.repository import UserRepository
-from user_service.schemas import UserCreate
-from user_service.models import User
-from user_service.services.auth_service import PasswordService
+from user_service.src.exceptions.base import ConflictException
+from user_service.src.models.role_model import RoleModel
+from user_service.src.repository import UserRepository
+from user_service.src.schemas import UserCreate
+from user_service.src.models import User
+from user_service.src.services.auth_service import PasswordService
 
 
 class RegisterService:

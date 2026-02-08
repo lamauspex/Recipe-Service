@@ -9,7 +9,7 @@ from dependency_injector.wiring import inject, Provide
 from backend.user_service.src.config import settings
 from backend.user_service.src.middleware import get_current_admin_user
 from backend.user_service.src.models import User
-from backend.user_service.src.services_old import (
+from backend.user_service.src.services import (
     LoginAttemptsService,
     SecurityService,
     AccountLocker,

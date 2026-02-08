@@ -13,7 +13,6 @@ from backend.user_service.src.models.mixin import (
 
 class Base(DeclarativeBase):
     """Базовый класс для всех моделей user-service"""
-
     pass
 
 

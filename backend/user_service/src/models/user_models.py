@@ -17,7 +17,7 @@ from sqlalchemy.orm import (
 )
 
 from backend.user_service.src.models.base_models import BaseModel
-from backend.user_service.src.models.role_model import RoleModel
+from backend.user_service.src.models.role_model import Permission, RoleModel
 
 
 class User(BaseModel):
@@ -134,7 +134,6 @@ class User(BaseModel):
     def all_permissions(self) -> int:
         """Получить объединённые разрешения всех ролей"""
 
-        from user_service.models.role_model import Permission
         result = Permission.NONE
         for role in self.roles:
             result |= role.permissions

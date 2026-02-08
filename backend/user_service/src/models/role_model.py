@@ -17,6 +17,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.user_service.src.models.base_models import BaseModel
 from backend.user_service.src.models.decorator import UUIDTypeDecorator
+from backend.user_service.src.models.user_models import User
 
 
 # === PERMISSIONS SYSTEM ===

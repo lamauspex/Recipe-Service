@@ -8,8 +8,8 @@ from dependency_injector.wiring import inject, Provide
 from backend.user_service.src.middleware import get_current_admin_user
 from backend.user_service.src.models import User
 from backend.database_service.container import Container
-from backend.user_service.src.services_old import UserService
-from backend.user_service.src.schemas_dto import (
+from backend.user_service.src.services import UserService
+from backend.user_service.src.schemas import (
     AdminUserResponse,
     PasswordResetConfirm,
     PasswordResetRequest,
@@ -37,12 +37,7 @@ def get_current_user_info(
     """Получение текущего пользователя через сервис"""
 
     user_service = UserService(db_session)
-
     user = user_service.get_user(current_user.id)
-
-    # Если пользователь не найден в БД, возвращаем данные из токена
-    if not user:
-        return current_user
 
     return user
 
@@ -60,7 +55,6 @@ def get_user(
     """Получение детальной информации о пользователе"""
 
     user_service = UserService(db_session)
-
     user = user_service.get_user(user_id)
 
     return user
@@ -80,7 +74,6 @@ def update_current_user(
     """Обновление данных текущего пользователя"""
 
     user_service = UserService(db_session)
-
     update_data = user_data.model_dump(exclude_unset=True)
     user = user_service.update_user(current_user.id, update_data)
 
