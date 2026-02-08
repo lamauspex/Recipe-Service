@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from dependency_injector.wiring import inject, Provide
 
-from backend.user_service.src.schemas import UserCreate
-from backend.user_service.src.services import RegisterService
+from backend.user_service.duble_service_dtoschemas.schemas import UserCreate
+from backend.user_service.duble_service_dtoschemas.service import (
+    RegisterService
+)
 from backend.database_service.container import Container
 
 
