@@ -28,10 +28,11 @@ class RoleRepository:
 
     def get_role_by_name(self, name: str) -> Optional[RoleModel]:
         """Получение роли по имени"""
+
         return self.db.query(RoleModel).filter(
             and_(
                 RoleModel.name == name,
-                RoleModel.is_active == True
+                RoleModel.is_active is True
             )
         ).first()
 
@@ -45,6 +46,7 @@ class RoleRepository:
         is_system: bool = False
     ) -> RoleModel:
         """Создание новой роли"""
+
         if self.get_role_by_name(name):
             raise ValueError(f"Роль с именем '{name}' уже существует")
 

@@ -1,13 +1,15 @@
 
-
+from backend.user_service.duble_service_dtoschemas.protocols.user_repository import UserRepositoryProtocol
 from backend.user_service.src.exceptions.base import ConflictException
-from backend.user_service.src.repository.user_repo import UserRepository
 
 
 class UserUniquenessValidator:
     """Валидатор уникальности пользователя"""
 
-    def __init__(self, user_repo: UserRepository):
+    def __init__(
+        self,
+        user_repo: UserRepositoryProtocol
+    ):
         self.user_repo = user_repo
 
     def validate(self, user_name: str, email: str) -> None:

@@ -1,13 +1,12 @@
-from sqlalchemy.orm import Session
 
+from backend.user_service.duble_service_dtoschemas.protocols.user_repository import UserRepositoryProtocol
 from backend.user_service.duble_service_dtoschemas.schemas import (
     UserCreate,
     UserResponseDTO
 )
+from backend.user_service.duble_service_dtoschemas.service.password_service.password_service import PasswordService
 from backend.user_service.duble_service_dtoschemas.service.register_service.mappers import UserRegistrationMapper
 from backend.user_service.duble_service_dtoschemas.service.register_service.validators import UserUniquenessValidator
-from backend.user_service.duble_service_dtoschemas.repository.register_repo import UserRepository
-from backend.user_service.src.services.auth_service.password_service import PasswordService
 
 
 class RegisterService:
@@ -15,14 +14,13 @@ class RegisterService:
 
     def __init__(
         self,
-        db_session: Session,
+        user_repo: UserRepositoryProtocol,
         password_service: PasswordService | None = None
     ):
-        self.db = db_session
-        self.user_repo = UserRepository(db_session)
+        self.user_repo = user_repo
 
         # Компоненты сервиса
-        self.validator = UserUniquenessValidator(self.user_repo)
+        self.validator = UserUniquenessValidator(user_repo)
         self.mapper = UserRegistrationMapper(
             password_service or PasswordService()
         )
@@ -36,7 +34,7 @@ class RegisterService:
         # 2. Маппинг (хеширование пароля)
         user_dto = self.mapper.api_to_dto(user_data)
 
-        # 3. Создание пользователя с ролью — один вызов!
+        # 3. Создание
         user = self.user_repo.create_user_with_default_role(user_dto.to_dict())
 
         # 4. Возврат DTO
