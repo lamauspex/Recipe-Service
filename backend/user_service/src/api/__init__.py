@@ -9,7 +9,7 @@ from .api_admin.statistics_analytics_routers import router as stats_router
 from .api_admin.safety_routers import router as safety_router
 from .api_user.management_routers import router as user_router
 from .api_auth.auth_routers import router as auth_router
-from .api_auth.register_user import router as register_router
+from ...duble_service_dtoschemas.api.register_user import router as register_router
 from .health_router import router_1 as health_router
 from .api_role.permissions_routers import router as role_router_p
 from .api_role.roles_routers import router as role_router_b
