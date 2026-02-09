@@ -1,7 +1,14 @@
-@field_validator('user_name')
- @classmethod
-  def validate_user_name(cls, v):
-       if not v or len(v.strip()) < 3:
+
+from pydantic import field_validator
+
+
+class NameValidator:
+
+    @field_validator('user_name')
+    @classmethod
+    def validate_user_name(cls, v):
+
+        if not v or len(v.strip()) < 3:
             raise ValueError(
                 'Имя пользователя должно содержать минимум 3 символа'
             )
