@@ -8,8 +8,8 @@ class DBBaseConfig(BaseSettings):
     """ Базовый конфигурационный класс """
 
     model_config = SettingsConfigDict(
-        env_file=r"backend/user_service/.env",
+        env_file=r"backend/database_service/.env",
         extra='ignore',
-        env_prefix="USER_SERVICE_",
+        env_prefix="DATABASE_SERVICE",
         validate_assignment=True,
     )

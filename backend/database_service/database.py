@@ -21,10 +21,7 @@ class DataBaseConfig(DBBaseConfig):
     TESTING: bool = Field(description="Тестирование")
     DEBUG: bool = Field(description="Режим отладки")
 
-    def get_database_url(
-        self,
-        driver: str = "postgresql+psycopg2"
-    ) -> str:
+    def get_database_url(self) -> str:
         """
         Получить URL базы данных с указанным драйвером
         """
