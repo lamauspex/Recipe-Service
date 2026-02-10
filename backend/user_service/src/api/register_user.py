@@ -1,21 +1,18 @@
-""" API Routers Регистрации  """
+""" API Routers Register """
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 from dependency_injector.wiring import inject, Provide
 
-from backend.database_service.container import Container
-from backend.user_service.src.schemas import (
-    UserCreate
-)
-from backend.user_service.src.factories import (
-    RegisterServiceFactory
-)
+from backend.user_service.src.container import container
+from backend.user_service.src.schemas.register.register_request import (
+    UserRegister)
 
 
 # Создаем router
 router = APIRouter(
-    prefix="/auth_users",
-    tags=["Auth_Service"]
+    prefix="/register_users",
+    tags=["Register_Service"]
 )
 
 
@@ -25,10 +22,16 @@ router = APIRouter(
 )
 @inject
 async def register_user(
-    user_data: UserCreate,
-    db_session=Depends(Provide[Container.db_dependency])
+    register_data: UserRegister,
+    db_session: Session = Depends(Provide[container.db_dependency]),
+    register_service=Depends(Provide[container.register_service])
 ):
     """Регистрация пользователя"""
 
-    register_service = RegisterServiceFactory.create(db_session)
-    return register_service.register_user(user_data)
+    user = register_service.register_user(
+        register_data.user_name,
+        register_data.email,
+        register_data.password
+    )
+
+    return user.model_dump()

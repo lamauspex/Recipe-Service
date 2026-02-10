@@ -4,11 +4,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from dependency_injector.wiring import inject, Provide
 
-from backend.database_service.container import Container
-from backend.user_service.src.factories.auth_service_factory import (
-    AuthServiceFactory)
-from backend.user_service.src.schemas.auth.login_request import (
-    UserLogin)
+from backend.user_service.src.container import container
+from backend.user_service.src.schemas.auth.login_request import UserLogin
 
 
 # Создаем router
@@ -25,11 +22,11 @@ router = APIRouter(
 @inject
 async def login_user(
     login_data: UserLogin,
-    db_session: Session = Depends(Provide[Container.db_dependency])
+    db_session: Session = Depends(Provide[container.db_dependency]),
+    auth_service=Depends(Provide[container.auth_service])
 ):
     """Аутентификация пользователя"""
 
-    auth_service = AuthServiceFactory.create(db_session)
     token_pair = auth_service.authenticate_and_create_tokens(
         login_data.user_name,
         login_data.password

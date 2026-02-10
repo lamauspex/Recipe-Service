@@ -1,11 +1,10 @@
 """
-Главный файл запуска User Service
-
+Главный файл запуска всех сервисов
 """
 
 import uvicorn
 
-from backend.user_service.src.app_users import app_users
+from backend.user_service.app_users import app_users
 
 if __name__ == "__main__":
 
