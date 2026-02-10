@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
+from backend.user_service.duble_service_dtoschemas.models.user_models import User
 from backend.user_service.duble_service_dtoschemas.repositories import (
     SQLRoleRepository)
-from backend.user_service.src.models.user_models import User
 from backend.user_service.src.exceptions.base import ConflictException
 
 
@@ -43,3 +43,14 @@ class SQLUserRepository:
     def get_user_by_email(self, email: str):
         """Поиск пользователя по email"""
         return self.db.query(User).filter(User.email == email).first()
+
+    def get_user_by_id(self, user_id: int):
+        """Поиск пользователя по ID"""
+        return self.db.query(User).filter(User.id == user_id).first()
+
+    def get_active_user_by_user_name(self, user_name: str):
+        """Поиск активного пользователя по имени"""
+        return self.db.query(User).filter(
+            User.user_name == user_name,
+            User.is_active is True
+        ).first()

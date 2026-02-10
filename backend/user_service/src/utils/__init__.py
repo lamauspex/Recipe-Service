@@ -1,5 +1,5 @@
 
-from .password_validator import PasswordValidator
+from ...duble_service_dtoschemas.core.validator_password import PasswordValidator
 from .role_description import get_role_description
 from .permission_validator import (
     PermissionValidator,

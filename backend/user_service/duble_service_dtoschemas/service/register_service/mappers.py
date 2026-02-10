@@ -5,7 +5,7 @@ from backend.user_service.duble_service_dtoschemas.schemas import (
     UserCreate,
     UserResponseDTO
 )
-from backend.user_service.duble_service_dtoschemas.core.password_service import PasswordService
+from backend.user_service.duble_service_dtoschemas.core.service_password import PasswordService
 from backend.user_service.src.models.user_models import User
 
 

@@ -6,9 +6,7 @@ from backend.user_service.duble_service_dtoschemas.service.register_service.regi
 
 class RegisterServiceFactory:
     """
-    Фабрика для создания RegisterService.
-
-    Скрывает сложность создания зависимостей.
+    Фабрика для создания RegisterService
     """
 
     @staticmethod

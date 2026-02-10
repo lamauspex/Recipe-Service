@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from backend.user_service.src.api import api_router
 from backend.user_service.src.config import settings
 from backend.user_service.src.middleware import setup_middleware
-from backend.user_service.lifespan import lifespan
+from backend.user_service.src.lifespan import lifespan
 
 
 def create_app() -> FastAPI:

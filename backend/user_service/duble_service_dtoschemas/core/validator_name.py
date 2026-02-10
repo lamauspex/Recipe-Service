@@ -12,7 +12,11 @@ class UserUniquenessValidator:
     ):
         self.user_repo = user_repo
 
-    def validate(self, user_name: str, email: str) -> None:
+    def validate(
+        self,
+        user_name: str,
+        email: str
+    ) -> None:
         """Проверка уникальности username и email"""
 
         if self.user_repo.get_user_by_user_name(user_name):

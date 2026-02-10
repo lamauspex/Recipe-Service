@@ -26,6 +26,26 @@ class AuthService:
         )
         self.refresh_token_service = RefreshTokenService(db_session)
 
+    def authenticate_and_create_tokens(
+        self,
+        user_name: str,
+        password: str
+    ) -> Optional[Tuple[str, str]]:
+        """
+        Аутентификация и создание токенов
+
+        Возвращает: (access_token, refresh_token) или None при ошибке
+        """
+        # Шаг 1: Аутентификация пользователя
+        user = self.authenticate_user(user_name, password)
+
+        if not user:
+            # Логирование неудачной попытки
+            return None
+
+        # Шаг 2: Создание токенов
+        return self.create_tokens(user)
+
     def authenticate_user(
         self,
         user_name: str,

@@ -1,10 +1,23 @@
-from .register_request import UserCreate, UserBase
-from .register_response import UserResponseDTO
-from .register_dto import UserRegistrationDTO
+from .register import (
+    UserCreate,
+    UserBase,
+    UserResponseDTO,
+    UserRegistrationDTO
+)
+from .auth import (
+    UserLogin,
+    LoginResponseDTO,
+    RefreshTokenRequest,
+    RefreshResponseDTO
+)
 
 __all__ = [
     "UserCreate",
     "UserBase",
     "UserResponseDTO",
-    "UserRegistrationDTO"
+    "UserRegistrationDTO",
+    "UserLogin",
+    "LoginResponseDTO",
+    "RefreshTokenRequest",
+    "RefreshResponseDTO"
 ]

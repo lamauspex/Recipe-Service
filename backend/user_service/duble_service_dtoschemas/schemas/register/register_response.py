@@ -15,4 +15,4 @@ class UserResponseDTO(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True  # Для работы с SQLAlchemy моделями
+        from_attributes = True

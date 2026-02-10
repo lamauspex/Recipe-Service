@@ -12,7 +12,7 @@ from uuid import UUID
 from datetime import datetime
 
 from back.schemas.user_roles import UserRole
-from backend.user_service.src.utils.password_validator import PasswordValidator
+from backend.user_service.duble_service_dtoschemas.core.validator_password import PasswordValidator
 
 
 class UserBase(BaseModel):

@@ -4,9 +4,9 @@ from backend.user_service.duble_service_dtoschemas.schemas import (
     UserCreate,
     UserResponseDTO
 )
-from backend.user_service.duble_service_dtoschemas.core.password_service import PasswordService
+from backend.user_service.duble_service_dtoschemas.core.service_password import PasswordService
 from backend.user_service.duble_service_dtoschemas.service.register_service.mappers import UserRegistrationMapper
-from backend.user_service.duble_service_dtoschemas.core.validators import UserUniquenessValidator
+from backend.user_service.duble_service_dtoschemas.core.validator_name import UserUniquenessValidator
 
 
 class RegisterService:

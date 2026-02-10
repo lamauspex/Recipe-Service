@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from backend.user_service.src.models.role_model import RoleModel
+from backend.user_service.duble_service_dtoschemas.models.role_model import RoleModel
 
 
 class SQLRoleRepository:

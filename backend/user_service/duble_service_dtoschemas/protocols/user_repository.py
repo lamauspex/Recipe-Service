@@ -1,6 +1,7 @@
 
 from typing import Protocol, Optional
-from backend.user_service.src.models.user_models import User
+
+from backend.user_service.duble_service_dtoschemas.models.user_models import User
 
 
 class UserRepositoryProtocol(Protocol):
@@ -35,5 +36,23 @@ class UserRepositoryProtocol(Protocol):
 
         :param email: Email пользователя
         :return: Пользователь или None
+        """
+        ...
+
+    def get_user_by_id(self, user_id: int) -> Optional[User]:
+        """
+        Поиск пользователя по ID
+
+        :param user_id: ID пользователя
+        :return: Пользователь или None
+        """
+        ...
+
+    def get_active_user_by_user_name(self, user_name: str) -> Optional[User]:
+        """
+        Поиск активного пользователя по имени
+
+        :param user_name: Имя пользователя
+        :return: Активный пользователь или None
         """
         ...

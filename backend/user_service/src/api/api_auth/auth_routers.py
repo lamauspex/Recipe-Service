@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from dependency_injector.wiring import inject, Provide
 
-from backend.user_service.src.services_old import AuthService
-from backend.user_service.src.schemas_dto import (
+from backend.user_service.src import AuthService
+from backend.user_service.src import (
     UserLogin,
     PasswordResetConfirm,
     RefreshTokenRequest
