@@ -17,13 +17,6 @@ from sqlalchemy.orm import (
 )
 
 from backend.shared.models.base_models import BaseModel
-from backend.shared.models.role_model import Permission
-
-if t.TYPE_CHECKING:
-    from backend.shared.models.user_models import RoleModel
-
-# Импорт RoleModel убран для устранения циклической зависимости
-# RoleModel используется только в строковых аннотациях типов
 
 
 class User(BaseModel):
@@ -95,6 +88,17 @@ class User(BaseModel):
         comment='Время истечения токена сброса пароля'
     )
 
+    last_login: Mapped[t.Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment='Последний вход в систему'
+    )
+
+    login_count: Mapped[int] = mapped_column(
+        default=0,
+        comment='Количество входов в систему'
+    )
+
     # Связь с refresh токенами
     refresh_tokens = relationship(
         "RefreshToken",
@@ -108,62 +112,3 @@ class User(BaseModel):
         back_populates="user",
         cascade="all, delete-orphan"
     )
-
-    # Связь с ролями (M:N через user_roles table)
-    roles: Mapped[t.List["RoleModel"]] = relationship(
-        "RoleModel",
-        secondary="user_roles",  # Ссылка на таблицу user_roles
-        back_populates="users",
-        lazy="selectin",
-        doc="Роли пользователя"
-    )
-
-    last_login: Mapped[t.Optional[datetime]] = mapped_column(
-        DateTime(timezone=True),
-        nullable=True,
-        comment='Последний вход в систему'
-    )
-
-    login_count: Mapped[int] = mapped_column(
-        default=0,
-        comment='Количество входов в систему'
-    )
-
-    # === CONVENIENCE METHODS ===
-    @property
-    def primary_role(self) -> t.Optional["RoleModel"]:
-        """Получить первую роль (для обратной совместимости)"""
-
-        return self.roles[0] if self.roles else None
-
-    @property
-    def all_permissions(self) -> int:
-        """Получить объединённые разрешения всех ролей"""
-
-        result = Permission.NONE
-        for role in self.roles:
-            result |= role.permissions
-        return result
-
-    def has_permission(self, permission: int) -> bool:
-        """Проверка разрешения (учитывая все роли)"""
-
-        return bool(self.all_permissions & permission)
-
-    def has_role(self, role_name: str) -> bool:
-        """Проверка наличия конкретной роли"""
-
-        return any(r.name == role_name for r in self.roles)
-
-    def add_role(self, role: "RoleModel") -> None:
-        """Добавить роль"""
-        if self.roles is None:
-            self.roles = []
-        if role not in self.roles:
-            self.roles.append(role)
-
-    def remove_role(self, role: "RoleModel") -> None:
-        """Убрать роль"""
-
-        if role in self.roles:
-            self.roles.remove(role)

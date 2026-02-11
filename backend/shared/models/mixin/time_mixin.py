@@ -3,7 +3,7 @@
 
 import typing as t
 from datetime import datetime
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -12,12 +12,12 @@ class TimestampMixin:
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
+        server_default=text("timezone('utc', now())"),
         comment='Время создания записи'
     )
     updated_at: Mapped[t.Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
-        onupdate=func.now(),
-        server_default=func.now(),
+        onupdate=text("timezone('utc', now())"),
+        server_default=text("timezone('utc', now())"),
         comment='Время последнего обновления'
     )

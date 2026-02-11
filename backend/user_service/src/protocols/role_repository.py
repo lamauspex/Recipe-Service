@@ -1,7 +1,7 @@
 
 from typing import Protocol, Optional
 
-from backend.shared.models.role_model import RoleModel
+from back.role_model import RoleModel
 
 
 class RoleRepositoryProtocol(Protocol):

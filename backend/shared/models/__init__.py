@@ -4,11 +4,11 @@ from .base_models import Base, BaseModel
 from .user_models import User
 from .login_attempt import LoginAttempt
 from .token import RefreshToken
-from .role_model import (
+from .model_role import (
     RoleModel,
     Permission,
-    user_roles,
-    DEFAULT_ROLES
+    Role,
+    ROLES
 )
 
 
@@ -23,6 +23,6 @@ __all__ = [
     "LoginAttempt",
     "RoleModel",
     "Permission",
-    "user_roles",
-    "DEFAULT_ROLES",
+    "Role",
+    "ROLES",
 ]
