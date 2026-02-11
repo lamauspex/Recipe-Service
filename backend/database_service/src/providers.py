@@ -7,8 +7,8 @@ from typing import Generator
 from sqlalchemy.orm import Session
 from dependency_injector.wiring import Provide, inject
 
-from backend.database_service.container import Container
-from backend.database_service.database import DataBaseConfig
+from backend.database_service.src.container import Container
+from backend.database_service.src.config.database import DataBaseConfig
 
 
 class DatabaseProviders:

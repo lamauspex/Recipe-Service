@@ -5,7 +5,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from backend.database_service.connection import database
+from backend.database_service.src.connection import database
 
 
 @asynccontextmanager

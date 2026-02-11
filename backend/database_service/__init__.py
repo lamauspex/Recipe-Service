@@ -1,21 +1,23 @@
-"""
-Database пакет
-=====================
-Предоставляет единую точку входа для работы с базой данных
-и DI контейнером для управления зависимостями
 
-"""
-
-from .base import DBBaseConfig
-from .database import DataBaseConfig
-from .connection import DatabaseManager
-from .container import container, Container
-from .providers import (
+from .src.config.base import DBBaseConfig
+from .src.config.database import DataBaseConfig
+from .src.connection import DatabaseManager
+from .src.container import container, Container
+from .src.providers import (
     database_providers,
     get_db_session,
     get_db_context,
     get_db_dependency,
     get_database_config
+)
+from .src.models import (
+    Base,
+    BaseModel,
+    User,
+    RoleModel,
+    Permission,
+    RefreshToken,
+    LoginAttempt
 )
 
 __all__ = [
@@ -36,4 +38,13 @@ __all__ = [
     "get_db_context",
     "get_db_dependency",
     "get_database_config",
+
+    # Модели данных
+    "Base",
+    "BaseModel",
+    "User",
+    "RoleModel",
+    "Permission",
+    "RefreshToken",
+    "LoginAttempt",
 ]

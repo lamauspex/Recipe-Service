@@ -1,17 +1,17 @@
+from alembic import context
+from sqlalchemy import pool
+from sqlalchemy import engine_from_config
+from backend.database_service.src.config.database import DataBaseConfig
+from backend.database_service.src.models.base_models import Base
 from logging.config import fileConfig
 import os
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-from alembic import context
+import sys
+from pathlib import Path
 
-from user_service.config.database import database_config
-from user_service.models.base_models import Base
-from user_service.models import (
-    User,
-    LoginAttempt,
-    RefreshToken,
-    RoleModel,
-)
+# Добавляем путь к backend в sys.path
+backend_path = Path(__file__).parent.parent.parent.parent
+if str(backend_path) not in sys.path:
+    sys.path.insert(0, str(backend_path))
 
 
 config = context.config
@@ -19,7 +19,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-
+database_config = DataBaseConfig()
 target_metadata = Base.metadata
 
 

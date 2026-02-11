@@ -5,7 +5,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from ..connection import database
+from .connection import database
 
 
 @asynccontextmanager

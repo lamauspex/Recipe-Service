@@ -5,7 +5,7 @@ DI контейнер для управления зависимостями
 
 from dependency_injector import containers, providers
 
-from .database import DataBaseConfig
+from .config.database import DataBaseConfig
 from .connection import DatabaseManager
 
 
@@ -35,6 +35,7 @@ class Container(containers.DeclarativeContainer):
 
     database_manager = providers.Singleton(
         DatabaseManager,
+        database_config=database_config,
     )
 
     # Фабрика для создания сессий БД

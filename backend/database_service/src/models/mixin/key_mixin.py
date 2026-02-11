@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid import UUID as UUIDType, uuid4
 
-from backend.user_service.duble_service_dtoschemas.models.decorator import UUIDTypeDecorator
+from backend.database_service.src.models.decorator.type_decorator import UUIDTypeDecorator
 
 
 class UUIDPrimaryKeyMixin:

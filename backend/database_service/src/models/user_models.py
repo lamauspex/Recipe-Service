@@ -16,8 +16,8 @@ from sqlalchemy.orm import (
     relationship
 )
 
-from backend.user_service.src.models.base_models import BaseModel
-from backend.user_service.src.models.role_model import Permission, RoleModel
+from backend.database_service.src.models.base_models import BaseModel
+from backend.database_service.src.models.role_model import Permission, RoleModel
 
 
 class User(BaseModel):
