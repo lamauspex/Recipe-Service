@@ -22,8 +22,8 @@ from backend.user_service.src.service import (
 )
 from backend.user_service.src.repositories import (
     SQLUserRepository,
-    SQLTokenRepository,
-    SQLRoleRepository
+    SQLRoleRepository,
+    SQLTokenRepository
 )
 
 

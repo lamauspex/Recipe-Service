@@ -5,19 +5,22 @@ from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from typing import Dict, Optional
 
-from backend.user_service.src.config import settings
-
 
 class JWTService:
     """Сервис для работы с JWT токенами (без доступа к БД)"""
 
     def __init__(
         self,
-        secret_key: str = None,
-        algorithm: str = None
+        secret_key: str,
+        algorithm: str,
+        access_token_expire_minutes: int,
+        refresh_token_expire_days: int,
     ):
-        self.secret_key = secret_key or settings.SECRET_KEY
-        self.algorithm = algorithm or settings.ALGORITHM
+        self.secret_key = secret_key
+        self.algorithm = algorithm
+        self.access_token_expire_minutes = access_token_expire_minutes
+        self.refresh_token_expire_days = refresh_token_expire_days
+        self.encoder = jwt.algorithms.DefaultAlgorithm()
 
     def create_access_token(
         self,
@@ -30,13 +33,20 @@ class JWTService:
             expire = datetime.now(timezone.utc) + expires_delta
         else:
             expire = datetime.now(timezone.utc) + timedelta(
-                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+                minutes=self.access_token_expire_minutes
             )
 
         to_encode = payload.copy()
-        to_encode.update({"exp": expire, "type": "access"})
+        to_encode.update({
+            "exp": expire,
+            "type": "access"
+        })
 
-        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        return jwt.encode(
+            to_encode,
+            self.secret_key,
+            algorithm=self.algorithm
+        )
 
     def create_refresh_token(
         self,
@@ -49,13 +59,20 @@ class JWTService:
             expire = datetime.now(timezone.utc) + expires_delta
         else:
             expire = datetime.now(timezone.utc) + timedelta(
-                days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+                days=self.refresh_token_expire_days
             )
 
         to_encode = payload.copy()
-        to_encode.update({"exp": expire, "type": "refresh"})
+        to_encode.update({
+            "exp": expire,
+            "type": "refresh"
+        })
 
-        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        return jwt.encode(
+            to_encode,
+            self.secret_key,
+            algorithm=self.algorithm
+        )
 
     def decode_token(self, token: str) -> Optional[Dict]:
         """Декодирование токена"""

@@ -11,8 +11,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 
+from backend.database_service.src.config.database import DataBaseConfig
 from backend.shared.models.base_models import Base
-from .config import DataBaseConfig
 
 
 def create_engine_for_service(database_config_instance):
@@ -23,7 +23,7 @@ def create_engine_for_service(database_config_instance):
     # Для тестового окружения используем SQLite в памяти
     if database_config_instance.TESTING:
 
-        database_url = database_config_instance.get_database_url("sqlite")
+        database_url = database_config_instance.get_database_url()
         engine_kwargs = {
             "connect_args": {"check_same_thread": False},
             "poolclass": StaticPool,
@@ -154,4 +154,4 @@ class DatabaseManager:
 
 
 config = DataBaseConfig()
-database = DatabaseManager(database_config=config)
+database = DatabaseManager(config)

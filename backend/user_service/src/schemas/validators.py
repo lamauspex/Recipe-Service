@@ -3,8 +3,6 @@
 import re
 from typing import List, Tuple
 
-from pydantic import field_validator
-
 
 class PasswordSchemaValidator:
     """ Валидатор сложности пароля для использования в схемах """
@@ -40,19 +38,23 @@ class PasswordSchemaValidator:
 
 
 class NameValidator:
+    """ Валидатор имени пользователя """
 
-    @field_validator('user_name')
     @classmethod
-    def validate_user_name(cls, v):
+    def validate(cls, name: str) -> Tuple[bool, List[str]]:
+        """ Валидация имени, возвращает (is_valid, errors) """
 
-        if not v or len(v.strip()) < 3:
-            raise ValueError(
+        errors = []
+
+        if not name or len(name.strip()) < 3:
+            errors.append(
                 'Имя пользователя должно содержать минимум 3 символа'
             )
 
-        if not v.replace('_', '').replace('-', '').isalnum():
-            raise ValueError(
+        if not name.replace('_', '').replace('-', '').isalnum():
+            errors.append(
                 'Имя пользователя может содержать только буквы, '
                 'цифры, дефис и подчёркивание'
             )
-        return v.strip()
+
+        return len(errors) == 0, errors

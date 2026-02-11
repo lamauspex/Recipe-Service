@@ -17,7 +17,13 @@ from sqlalchemy.orm import (
 )
 
 from backend.shared.models.base_models import BaseModel
-from backend.shared.models.role_model import Permission, RoleModel
+from backend.shared.models.role_model import Permission
+
+if t.TYPE_CHECKING:
+    from backend.shared.models.user_models import RoleModel
+
+# Импорт RoleModel убран для устранения циклической зависимости
+# RoleModel используется только в строковых аннотациях типов
 
 
 class User(BaseModel):

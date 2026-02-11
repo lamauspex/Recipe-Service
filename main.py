@@ -4,10 +4,10 @@
 
 import uvicorn
 
-from backend.user_service.app_users import app_users
+from app_service import app_service
 
 if __name__ == "__main__":
 
     uvicorn.run(
-        app_users
+        app_service
     )

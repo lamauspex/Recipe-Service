@@ -5,8 +5,11 @@ from sqlalchemy.orm import Session
 from dependency_injector.wiring import inject, Provide
 
 from backend.user_service.src.container import container
-from backend.user_service.src.schemas.register.register_request import (
-    UserRegister)
+from backend.user_service.src.service import RegisterService
+from backend.user_service.src.schemas.register import (
+    UserCreate,
+    UserResponseDTO
+)
 
 
 # Создаем router
@@ -18,20 +21,17 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    summary="Регистрация пользователя"
+    summary="Регистрация пользователя",
+    response_model=UserResponseDTO
 )
 @inject
 async def register_user(
-    register_data: UserRegister,
+    register_data: UserCreate,
     db_session: Session = Depends(Provide[container.db_dependency]),
-    register_service=Depends(Provide[container.register_service])
+    register_service: RegisterService = Provide[container.register_service]
 ):
     """Регистрация пользователя"""
 
-    user = register_service.register_user(
-        register_data.user_name,
-        register_data.email,
-        register_data.password
-    )
+    user = register_service.register_user(register_data)
 
-    return user.model_dump()
+    return UserResponseDTO.model_validate(user)

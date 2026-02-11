@@ -1,4 +1,5 @@
 
+from backend.user_service.src.config.config_auth import AuthConfig
 from backend.user_service.src.protocols.user_repository import (
     UserRepositoryProtocol)
 from backend.user_service.src.schemas import (
@@ -18,15 +19,16 @@ class RegisterService:
     def __init__(
         self,
         user_repo: UserRepositoryProtocol,
-        password_service: PasswordService | None = None
+        password_service: PasswordService,
+        auth_config: AuthConfig,
     ):
         self.user_repo = user_repo
+        self.password_service = password_service
+        self.auth_config = auth_config
 
         # Компоненты сервиса
         self.validator = UserUniquenessValidator(user_repo)
-        self.mapper = UserRegistrationMapper(
-            password_service or PasswordService()
-        )
+        self.mapper = UserRegistrationMapper(password_service)
 
     def register_user(self, user_data: UserCreate) -> UserResponseDTO:
         """ Регистрация пользователя """

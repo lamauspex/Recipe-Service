@@ -35,7 +35,7 @@ class Container(containers.DeclarativeContainer):
 
     database_manager = providers.Singleton(
         DatabaseManager,
-        database_config=database_config,
+        database_config_instance=database_config,
     )
 
     # Фабрика для создания сессий БД

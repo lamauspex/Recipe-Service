@@ -33,6 +33,7 @@ async def startup_handler():
         raise Exception("Не удалось подключиться к базе данных")
 
     database.init_db()
+    print("✅ Database initialized successfully")
 
 
 async def shutdown_handler():

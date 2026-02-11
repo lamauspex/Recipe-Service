@@ -6,15 +6,15 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from backend.user_service.src.core.service_jwt import JWTService
-from backend.user_service.src.core.service_password import PasswordService
-from backend.user_service.src.core.validator_auth import AuthValidator
+from backend.user_service.src.config import ApiConfig, AuthConfig
+from backend.user_service.src.core import (
+    PasswordService,
+    JWTService
+)
 from backend.shared.models.user_models import User
 from backend.user_service.src.protocols.user_repository import (
     UserRepositoryProtocol)
 from backend.user_service.src.schemas.auth.auth_dto import TokenPairDTO
-from backend.user_service.src.service.auth_service.mappers import AuthMapper
-from backend.user_service.src.config import settings
 
 
 class AuthService:
@@ -23,14 +23,16 @@ class AuthService:
     def __init__(
         self,
         user_repo: UserRepositoryProtocol,
-        password_service: PasswordService = None,
-        jwt_service: JWTService = None
+        password_service: PasswordService,
+        jwt_service: JWTService,
+        auth_config: AuthConfig,
+        api_config: ApiConfig,
     ):
         self.user_repo = user_repo
-        self.password_service = password_service or PasswordService()
-        self.jwt_service = jwt_service or JWTService()
-        self.auth_validator = AuthValidator()
-        self.mapper = AuthMapper()
+        self.password_service = password_service
+        self.jwt_service = jwt_service
+        self.auth_config = auth_config
+        self.api_config = api_config
 
     def authenticate_and_create_tokens(
         self,
@@ -88,7 +90,7 @@ class AuthService:
             user_id=user.id,
             token=refresh_token,
             expires_at=datetime.now(timezone.utc) + timedelta(
-                days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+                days=self.auth_config.REFRESH_TOKEN_EXPIRE_DAYS
             )
         )
 

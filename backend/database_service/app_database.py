@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from .src.container import container
 from .src.lifespan import lifespan
-from .api import api_router
+from .src.api import api_router
 
 
 def create_app() -> FastAPI:

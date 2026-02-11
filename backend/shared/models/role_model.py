@@ -17,7 +17,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.shared.models.base_models import BaseModel
 from backend.shared.models.decorator import UUIDTypeDecorator
-from backend.shared.models.user_models import User
+
+if t.TYPE_CHECKING:
+    from backend.shared.models.user_models import User
+
+# Импорт User убран для устранения циклической зависимости
+# User используется только в строковых аннотациях типов
 
 
 # === PERMISSIONS SYSTEM ===

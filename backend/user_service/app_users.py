@@ -15,14 +15,14 @@ def create_app() -> FastAPI:
     """
 
     # Получаем настройки из контейнера
-    config = container.config
+    api_config = container.api_config()
 
     app = FastAPI(
-        title=config.api.API_TITLE,
-        description=config.api.API_DESCRIPTION,
-        version=config.api.API_VERSION,
-        docs_url="/docs" if config.monitoring.DEBUG else None,
-        redoc_url="/redoc" if config.monitoring.DEBUG else None,
+        title=api_config.API_TITLE,
+        description=api_config.API_DESCRIPTION,
+        version=api_config.API_VERSION,
+        docs_url="/docs" if api_config.DEBUG else None,
+        redoc_url="/redoc" if api_config.DEBUG else None,
         lifespan=lifespan
     )
 

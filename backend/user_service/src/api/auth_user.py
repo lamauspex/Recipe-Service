@@ -6,6 +6,9 @@ from dependency_injector.wiring import inject, Provide
 
 from backend.user_service.src.container import container
 from backend.user_service.src.schemas.auth.login_request import UserLogin
+from backend.user_service.src.schemas.auth.login_response import (
+    LoginResponseDTO)
+from backend.user_service.src.service.auth_service import AuthService
 
 
 # Создаем router
@@ -17,19 +20,17 @@ router = APIRouter(
 
 @router.post(
     "/login",
-    summary="Аутентификация пользователя"
+    summary="Аутентификация пользователя",
+    response_model=LoginResponseDTO
 )
 @inject
 async def login_user(
     login_data: UserLogin,
     db_session: Session = Depends(Provide[container.db_dependency]),
-    auth_service=Depends(Provide[container.auth_service])
+    auth_service: AuthService = Provide[container.auth_service]
 ):
     """Аутентификация пользователя"""
 
-    token_pair = auth_service.authenticate_and_create_tokens(
-        login_data.user_name,
-        login_data.password
-    )
+    token_pair = auth_service.authenticate_and_create_tokens(login_data)
 
-    return token_pair.model_dump()
+    return LoginResponseDTO.model_validate(token_pair)

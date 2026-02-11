@@ -1,6 +1,5 @@
 from .register import (
     UserCreate,
-    UserBase,
     UserResponseDTO,
     UserRegistrationDTO
 )
@@ -16,7 +15,6 @@ from .base import PasswordValidatedModel, NameValidatedModel
 
 __all__ = [
     "UserCreate",
-    "UserBase",
     "UserResponseDTO",
     "UserRegistrationDTO",
     "UserLogin",
