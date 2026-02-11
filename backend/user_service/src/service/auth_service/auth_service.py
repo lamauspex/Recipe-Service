@@ -9,7 +9,7 @@ from typing import Optional
 from backend.user_service.src.core.service_jwt import JWTService
 from backend.user_service.src.core.service_password import PasswordService
 from backend.user_service.src.core.validator_auth import AuthValidator
-from backend.user_service.src.models.user_models import User
+from backend.shared.models.user_models import User
 from backend.user_service.src.protocols.user_repository import (
     UserRepositoryProtocol)
 from backend.user_service.src.schemas.auth.auth_dto import TokenPairDTO

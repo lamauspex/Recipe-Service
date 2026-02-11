@@ -3,19 +3,18 @@
 """
 
 
-from .settings import settings
-from .api import api_config
-from .auth import auth_config
+from .config_api import ApiConfig
+from .config_auth import AuthConfig
 from .base import BaseConfig
-from .cache import cache_config
-from .monitoring import monitoring_config
+from .config_cache import CacheConfig
+from .config_monitoring import MonitoringConfig
 
 
 __all__ = [
     "settings",
-    "api_config",
-    "auth_config",
+    "ApiConfig",
+    "AuthConfig",
     "BaseConfig",
-    "cache_config",
-    "monitoring_config"
+    "CacheConfig",
+    "MonitoringConfig"
 ]

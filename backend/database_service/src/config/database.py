@@ -21,6 +21,12 @@ class DataBaseConfig(DBBaseConfig):
     TESTING: bool = Field(description="Тестирование")
     DEBUG: bool = Field(description="Режим отладки")
 
+    # API ДОКУМЕНТАЦИЯ
+    API_DOCS_ENABLED: bool = Field(description="Включить документацию API")
+    API_TITLE: str = Field(description="Название API")
+    API_VERSION: str = Field(description="Версия API")
+    API_DESCRIPTION: str = Field(description="Описание API")
+
     def get_database_url(self) -> str:
         """
         Получить URL базы данных с указанным драйвером

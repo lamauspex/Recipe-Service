@@ -29,6 +29,8 @@ def create_app() -> FastAPI:
     # Подключаем API роутеры
     app.include_router(api_router)
 
+    return app
+
 
 # Приложение по умолчанию
 app_users = create_app()

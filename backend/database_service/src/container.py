@@ -5,7 +5,7 @@ DI контейнер для управления зависимостями
 
 from dependency_injector import containers, providers
 
-from .config.database import DataBaseConfig
+from .config import DataBaseConfig
 from .connection import DatabaseManager
 
 

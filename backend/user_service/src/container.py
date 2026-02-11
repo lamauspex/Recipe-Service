@@ -5,14 +5,26 @@ DI контейнер для управления зависимостями use
 
 from dependency_injector import containers, providers
 
-from backend.user_service.src.config.settings import settings
-from backend.user_service.src.core.service_jwt import JWTService
-from backend.user_service.src.core.service_password import PasswordService
-from backend.user_service.src.service.auth_service.auth_service import AuthService
-from backend.user_service.src.service.register_service.register_service import RegisterService
-from backend.user_service.src.repositories.sql_user_repository import SQLUserRepository
-from backend.user_service.src.repositories.sql_role_repository import SQLRoleRepository
-from backend.user_service.src.repositories.sql_token_repository import SQLTokenRepository
+from backend.database_service import get_db_dependency
+from backend.user_service.src.config import (
+    ApiConfig,
+    AuthConfig,
+    CacheConfig,
+    MonitoringConfig
+)
+from backend.user_service.src.core import (
+    JWTService,
+    PasswordService
+)
+from backend.user_service.src.service import (
+    AuthService,
+    RegisterService
+)
+from backend.user_service.src.repositories import (
+    SQLUserRepository,
+    SQLTokenRepository,
+    SQLRoleRepository
+)
 
 
 class Container(containers.DeclarativeContainer):
@@ -22,33 +34,22 @@ class Container(containers.DeclarativeContainer):
     """
 
     # ==========================================
-    # КОНФИГУРАЦИЯ
+    # КОНФИГУРАЦИЯ (через DI)
     # ==========================================
 
-    config = providers.Configuration()
-
-    # Загружаем конфигурацию из settings синглтона
-    config.auth = providers.Object(settings.auth)
-    config.api = providers.Object(settings.api)
-    config.cache = providers.Object(settings.cache)
-    config.monitoring = providers.Object(settings.monitoring)
-
-    # Доступ к настройкам JWT и паролей
-    config.jwt_secret_key = providers.Object(settings.SECRET_KEY)
-    config.jwt_algorithm = providers.Object(settings.ALGORITHM)
-    config.access_token_expire_minutes = providers.Object(
-        settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
-    config.refresh_token_expire_days = providers.Object(
-        settings.REFRESH_TOKEN_EXPIRE_DAYS
-    )
+    # Создаем экземпляры конфигураций через Factory
+    # Factory создает новый экземпляр каждый раз при запросе
+    api_config = providers.Factory(ApiConfig)
+    auth_config = providers.Factory(AuthConfig)
+    cache_config = providers.Factory(CacheConfig)
+    monitoring_config = providers.Factory(MonitoringConfig)
 
     # ==========================================
     # ЗАВИСИМОСТИ ОТ БАЗЫ ДАННЫХ
     # ==========================================
 
     # Зависимость сессии БД будет инжектироваться из FastAPI Depends
-    db_dependency = providers.Dependency()
+    db_dependency = providers.Factory(get_db_dependency)
 
     # ==========================================
     # CORE СЕРВИСЫ
@@ -62,8 +63,10 @@ class Container(containers.DeclarativeContainer):
     # Сервис для работы с JWT токенами (без состояния)
     jwt_service = providers.Singleton(
         JWTService,
-        secret_key=config.jwt_secret_key,
-        algorithm=config.jwt_algorithm
+        secret_key=auth_config.provided.SECRET_KEY,
+        algorithm=auth_config.provided.ALGORITHM,
+        access_token_expire_minutes=auth_config.provided.ACCESS_TOKEN_EXPIRE_MINUTES,
+        refresh_token_expire_days=auth_config.provided.REFRESH_TOKEN_EXPIRE_DAYS,
     )
 
     # ==========================================
@@ -88,18 +91,6 @@ class Container(containers.DeclarativeContainer):
         db=db_dependency
     )
 
-    # Провайдер для получения всех репозиториев одним вызовом
-    repositories = providers.Factory(
-        lambda user_repo, role_repo, token_repo: (
-            user_repo,
-            role_repo,
-            token_repo
-        ),
-        user_repo=user_repository,
-        role_repo=role_repository,
-        token_repo=token_repository
-    )
-
     # ==========================================
     # БИЗНЕС-СЕРВИСЫ
     # ==========================================
@@ -109,34 +100,38 @@ class Container(containers.DeclarativeContainer):
         AuthService,
         user_repo=user_repository,
         password_service=password_service,
-        jwt_service=jwt_service
+        jwt_service=jwt_service,
+        auth_config=auth_config,
+        api_config=api_config,
     )
 
     # Сервис регистрации
     register_service = providers.Factory(
         RegisterService,
         user_repo=user_repository,
-        password_service=password_service
+        password_service=password_service,
+        auth_config=auth_config,
     )
 
     # ==========================================
-    # ФАБРИКИ (для обратной совместимости)
+    # АГРЕГАТОРЫ (для удобства)
     # ==========================================
 
-    # Фабрика для создания репозиториев (сохранена для совместимости)
-    repository_factory = providers.Factory(
-        lambda db: (
-            SQLUserRepository(db),
-            SQLRoleRepository(db),
-            SQLTokenRepository(db)
-        )
+    # Все конфигурации в одном объекте
+    configs = providers.Factory(
+        lambda api, auth, cache, monitoring: type('Configs', (), {
+            'api': api,
+            'auth': auth,
+            'cache': cache,
+            'monitoring': monitoring,
+        })(),
+        api=api_config,
+        auth=auth_config,
+        cache=cache_config,
+        monitoring=monitoring_config,
     )
 
-    # ==========================================
-    # АГРЕГАТОРЫ СЕРВИСОВ
-    # ==========================================
-
-    # Все бизнес-сервисы в одном объекте для удобства
+    # Все бизнес-сервисы в одном объекте
     services = providers.Factory(
         lambda auth, register: type('Services', (), {
             'auth': auth,
@@ -153,11 +148,11 @@ container = Container()
 # Инициализируем ресурсы (если они будут добавлены в будущем)
 container.init_resources()
 
-# Подключаем контейнер к пакетам user_service для использования @inject и Provide
+# Подключаем контейнер к пакетам user_service
+# для использования @inject и Provide
 container.wire(
     packages=[
         "backend.user_service.src.api",
         "backend.user_service.src.service",
-        "backend.user_service.src.factories",
     ]
 )

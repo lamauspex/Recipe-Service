@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from backend.user_service.src.models.user_models import User
+from backend.shared.models.user_models import User
 from backend.user_service.src.schemas.auth.auth_dto import (
     AuthResultDTO,
     TokenPairDTO,

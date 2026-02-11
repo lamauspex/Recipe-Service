@@ -11,8 +11,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 
-from backend.database_service.src.models.base_models import Base
-from backend.database_service.src.config.database import DataBaseConfig
+from backend.shared.models.base_models import Base
+from .config import DataBaseConfig
 
 
 def create_engine_for_service(database_config_instance):

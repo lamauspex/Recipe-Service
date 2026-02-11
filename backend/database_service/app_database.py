@@ -4,6 +4,7 @@
 
 from fastapi import FastAPI
 
+from .src.container import container
 from .src.lifespan import lifespan
 from .api import api_router
 
@@ -12,10 +13,14 @@ def create_app() -> FastAPI:
     """
     Создает и настраивает FastAPI приложение для Database Service
     """
+
+    # Получаем настройки из контейнера
+    config = container.config
+
     app = FastAPI(
-        title="Database Service API",
-        description="Сервис управления базой данных",
-        version="1.0.0",
+        title=config.API_TITLE,
+        description=config.API_DESCRIPTION,
+        version=config.API_VERSION,
         docs_url="/docs",
         redoc_url="/redoc",
         lifespan=lifespan

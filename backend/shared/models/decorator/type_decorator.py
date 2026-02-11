@@ -1,4 +1,4 @@
-
+""" Декоратор """
 
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID

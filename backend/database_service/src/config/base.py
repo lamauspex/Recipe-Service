@@ -10,6 +10,6 @@ class DBBaseConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=r"backend/database_service/.env",
         extra='ignore',
-        env_prefix="DATABASE_SERVICE",
+        env_prefix="DATABASE_SERVICE_",
         validate_assignment=True,
     )

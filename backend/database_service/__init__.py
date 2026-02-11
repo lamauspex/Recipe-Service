@@ -10,7 +10,7 @@ from .src.providers import (
     get_db_dependency,
     get_database_config
 )
-from .src.models import (
+from backend.shared.models import (
     Base,
     BaseModel,
     User,

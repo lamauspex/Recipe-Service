@@ -1,5 +1,9 @@
+""" API Database """
+
 from fastapi import APIRouter
-from backend.database_service.src.container import container
+
+from backend.database_service.src import container
+
 
 router = APIRouter()
 

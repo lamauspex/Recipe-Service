@@ -1,7 +1,9 @@
+""" Миксин """
+
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid import UUID as UUIDType, uuid4
 
-from backend.database_service.src.models.decorator.type_decorator import UUIDTypeDecorator
+from backend.shared.models.decorator.type_decorator import UUIDTypeDecorator
 
 
 class UUIDPrimaryKeyMixin:

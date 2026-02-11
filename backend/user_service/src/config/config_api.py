@@ -19,5 +19,7 @@ class ApiConfig(BaseConfig):
     API_TITLE: str = Field(description="Заголовок API")
     API_VERSION: str = Field(description="Версия API")
 
-
-api_config = ApiConfig()
+    @property
+    def DEBUG(self) -> bool:
+        """Режим отладки"""
+        return self.ENVIRONMENT.lower() in ("development", "dev", "local")

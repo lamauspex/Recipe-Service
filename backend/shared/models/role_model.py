@@ -15,9 +15,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.database_service.src.models.base_models import BaseModel
-from backend.database_service.src.models.decorator import UUIDTypeDecorator
-from backend.database_service.src.models.user_models import User
+from backend.shared.models.base_models import BaseModel
+from backend.shared.models.decorator import UUIDTypeDecorator
+from backend.shared.models.user_models import User
 
 
 # === PERMISSIONS SYSTEM ===

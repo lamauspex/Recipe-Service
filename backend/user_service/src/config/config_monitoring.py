@@ -54,5 +54,7 @@ class MonitoringConfig(BaseConfig):
         description="Для изменения текущего времени access-control-max-age"
     )
 
-
-monitoring_config = MonitoringConfig()
+    @property
+    def DEBUG(self) -> bool:
+        """Режим отладки (для совместимости)"""
+        return self.LOG_LEVEL in ("DEBUG", "debug")

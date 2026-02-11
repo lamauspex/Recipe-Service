@@ -6,7 +6,7 @@ from backend.user_service.src.schemas import (
     UserResponseDTO
 )
 from backend.user_service.src.core.service_password import PasswordService
-from backend.user_service.src.models.user_models import User
+from backend.shared.models.user_models import User
 
 
 class UserRegistrationMapper:

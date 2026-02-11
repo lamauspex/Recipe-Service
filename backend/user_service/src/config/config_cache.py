@@ -15,6 +15,3 @@ class CacheConfig(BaseConfig):
     REDIS_PASSWORD: str = Field(description="Пароль Redis")
     CACHE_TTL: int = Field(description="Время жизни кэша в секундах")
     CACHE_ENABLED: bool = Field(description="Включить кэширование")
-
-
-cache_config = CacheConfig()
