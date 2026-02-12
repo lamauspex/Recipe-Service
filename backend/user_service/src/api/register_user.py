@@ -28,8 +28,9 @@ async def register_user(
     register_data: UserCreate,
     register_service: RegisterService = Provide[container.register_service]
 ):
-    """Регистрация пользователя"""
+    """
+    Регистрация пользователя
+    Сервис возвращает готовый UserResponseDTO
+    """
 
-    user = register_service.register_user(register_data)
-
-    return UserResponseDTO.from_user_model(user)
+    return register_service.register_user(register_data)

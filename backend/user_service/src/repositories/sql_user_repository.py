@@ -2,8 +2,6 @@ from sqlalchemy.orm import Session
 
 from backend.shared.models.identity.user import User
 from backend.user_service.src.exception.base import ConflictException
-from backend.user_service.src.repositories.sql_role_repository import (
-    SQLRoleRepository)
 
 
 class SQLUserRepository:
@@ -18,18 +16,35 @@ class SQLUserRepository:
         self.db = db
 
     def create_user_with_default_role(self, user_data: dict) -> User:
-        """Создание пользователя с ролью по умолчанию"""
+        """
+        Создание пользователя с ролью по умолчанию.
 
-        # Используем существующий RoleRepository
-        role_repo = SQLRoleRepository(self.db)
-        default_role = role_repo.get_role_by_name("user")
+        Роль передаётся в словаре user_data (role_name).
+        Роли теперь статические, не хранятся в БД.
 
-        if not default_role:
-            raise ConflictException("Роль 'user' не найдена")
+        Args:
+            user_data: Словарь с данными пользователя (включая role_name)
+
+        Returns:
+            User: Созданная модель пользователя
+
+        Raises:
+            ConflictException: Если роль не указана или недопустима
+        """
+
+        # Проверяем, что роль указана
+        role_name = user_data.get('role_name', 'user')
+
+        # Проверяем, что роль допустимая
+        from backend.shared.models.identity.role import ROLES
+        if role_name not in ROLES:
+            raise ConflictException(
+                f"Роль '{role_name}' не найдена. "
+                f"Допустимые роли: {', '.join(ROLES.keys())}"
+            )
 
         # Создаём пользователя
         user = User(**user_data)
-        user.roles.append(default_role)
 
         self.db.add(user)
         self.db.commit()

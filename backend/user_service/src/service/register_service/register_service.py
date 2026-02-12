@@ -31,7 +31,11 @@ class RegisterService:
         self.mapper = UserRegistrationMapper(password_service)
 
     def register_user(self, user_data: UserCreate) -> UserResponseDTO:
-        """ Регистрация пользователя """
+        """
+        Регистрация пользователя
+        Returns:
+            UserResponseDTO: Данные созданного пользователя
+        """
 
         # 1. Валидация
         self.validator.validate(user_data.user_name, user_data.email)
@@ -40,7 +44,8 @@ class RegisterService:
         user_dto = self.mapper.api_to_dto(user_data)
 
         # 3. Создание
-        user = self.user_repo.create_user_with_default_role(user_dto.to_dict())
+        user = self.user_repo.create_user_with_default_role(
+            user_dto.to_repository_dict())
 
         # 4. Возврат DTO
         return self.mapper.model_to_response_dto(user)
