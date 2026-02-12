@@ -1,6 +1,7 @@
 """
 Модель для отслеживания попыток входа
-Помогает обеспечить безопасность и предотвратить brute force атаки
+Помогает обеспечить безопасность
+и предотвратить brute force атаки
 """
 
 
@@ -15,14 +16,15 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship
 )
+from uuid import UUID as UUIDType
 
-from backend.shared.models.base_models import BaseModel
+from backend.shared.models.base.base_models import BaseModel
 
 
 class LoginAttempt(BaseModel):
     """Модель для отслеживания попыток входа"""
 
-    user_id: Mapped[str] = mapped_column(
+    user_id: Mapped[UUIDType] = mapped_column(
         ForeignKey(
             "users.id",
             ondelete="CASCADE"
@@ -60,7 +62,7 @@ class LoginAttempt(BaseModel):
     failure_reason: Mapped[t.Optional[str]] = mapped_column(
         String(100),
         nullable=True,
-        comment='Причина неудачи неверный пароль'
+        comment='Причина неудачи'
     )
 
     # Связь с пользователем

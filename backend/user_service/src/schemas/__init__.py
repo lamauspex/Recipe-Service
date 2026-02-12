@@ -10,7 +10,7 @@ from .auth import (
     RefreshResponseDTO
 )
 from .validators import PasswordSchemaValidator, NameValidator
-from .base import PasswordValidatedModel, NameValidatedModel
+from .base.base import PasswordValidatedModel, NameValidatedModel
 
 
 __all__ = [

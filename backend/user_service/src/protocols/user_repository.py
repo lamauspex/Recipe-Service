@@ -1,7 +1,7 @@
 
 from typing import Protocol, Optional
 
-from backend.shared.models.user_models import User
+from backend.shared.models.identity.user import User
 
 
 class UserRepositoryProtocol(Protocol):

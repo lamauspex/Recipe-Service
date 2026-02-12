@@ -1,38 +1,109 @@
-from datetime import datetime, timezone
+""" Внутренний DTO для передачи данных между слоями приложения """
 
-from pydantic import BaseModel
+from pydantic import ConfigDict
+from typing import Optional
+
+from backend.user_service.src.schemas.base import (
+    NameValidatedModel,
+    EmailValidatedModel,
+    HashedPasswordValidatedModel,
+    FullNameValidatedModel,
+    BooleanValidatedModel,
+    DateTimeValidatedModel,
+    RoleNameValidatedModel,
+)
+from backend.user_service.src.schemas.base.mixins import DTOConverterMixin
 
 
-class UserRegistrationDTO(BaseModel):
+class UserRegistrationDTO(
+    DTOConverterMixin,
+    NameValidatedModel,
+    EmailValidatedModel,
+    HashedPasswordValidatedModel,
+    FullNameValidatedModel,
+    BooleanValidatedModel,
+    DateTimeValidatedModel,
+    RoleNameValidatedModel
+):
+    """
+    Внутренний DTO для создания пользователя.
 
-    def __init__(
-        self,
+    Используется для передачи данных от API-слоя к репозиторию.
+    Содержит хешированный пароль и служебные поля.
+
+    Наследует валидацию от базовых схем:
+    - NameValidatedModel: валидация user_name
+    - EmailValidatedModel: валидация и нормализация email
+    - HashedPasswordValidatedModel: проверка хешированного пароля
+    - FullNameValidatedModel: валидация и нормализация full_name
+    - BooleanValidatedModel: валидация is_active, email_verified
+    - DateTimeValidatedModel: валидация created_at, updated_at
+    - RoleNameValidatedModel: валидация role_name
+    """
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        validate_assignment=True,
+        use_enum_values=True
+    )
+
+    # ========== Переопределение значений по умолчанию ==========
+    email_verified: bool = False
+
+    # ========== Методы для работы с DTO ==========
+
+    def to_repository_dict(self) -> dict:
+        """
+        Переопределённый метод для UserRegistrationDTO.
+
+        Автоматически исключает поля,
+        которые не нужны для создания пользователя:
+        - created_at, updated_at - устанавливаются на уровне БД
+        - is_verified - поле из BooleanValidatedModel, не используемое в User
+
+        Returns:
+            dict: Словарь с данными для создания пользователя
+        """
+        return super().to_repository_dict(
+            exclude={'created_at', 'updated_at', 'is_verified'}
+        )
+
+    # ========== Фабричные методы ==========
+
+    @classmethod
+    def from_user_create(
+        cls,
         user_name: str,
         email: str,
-        full_name: str | None,
         hashed_password: str,
+        full_name: Optional[str] = None,
+        role_name: str = "user",
         is_active: bool = True,
-        email_verified: bool = False,
-        created_at: datetime | None = None,
-        updated_at: datetime | None = None
-    ):
-        self.user_name = user_name
-        self.email = email
-        self.full_name = full_name
-        self.hashed_password = hashed_password
-        self.is_active = is_active
-        self.email_verified = email_verified
-        self.created_at = created_at or datetime.now(timezone.utc)
-        self.updated_at = updated_at or datetime.now(timezone.utc)
+        email_verified: bool = False
+    ) -> "UserRegistrationDTO":
+        """
+        Создание DTO из базовых данных регистрации.
 
-    def to_dict(self) -> dict:
-        return {
-            "user_name": self.user_name,
-            "email": self.email,
-            "full_name": self.full_name,
-            "hashed_password": self.hashed_password,
-            "is_active": self.is_active,
-            "email_verified": self.email_verified,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
-        }
+        Удобный фабричный метод для создания DTO после хеширования пароля.
+
+        Args:
+            user_name: Имя пользователя
+            email: Email
+            hashed_password: Хешированный пароль
+            full_name: Полное имя (опционально)
+            role_name: Имя роли (по умолчанию 'user')
+            is_active: Активность пользователя (по умолчанию True)
+            email_verified: Подтверждение email (по умолчанию False)
+
+        Returns:
+            UserRegistrationDTO: Созданный DTO
+        """
+        return cls(
+            user_name=user_name,
+            email=email,
+            hashed_password=hashed_password,
+            full_name=full_name,
+            role_name=role_name,
+            is_active=is_active,
+            email_verified=email_verified
+        )

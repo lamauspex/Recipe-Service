@@ -1,7 +1,6 @@
 """ API Routers Register """
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter
 from dependency_injector.wiring import inject, Provide
 
 from backend.user_service.src.container import container
@@ -27,11 +26,10 @@ router = APIRouter(
 @inject
 async def register_user(
     register_data: UserCreate,
-    db_session: Session = Depends(Provide[container.db_dependency]),
     register_service: RegisterService = Provide[container.register_service]
 ):
     """Регистрация пользователя"""
 
     user = register_service.register_user(register_data)
 
-    return UserResponseDTO.model_validate(user)
+    return UserResponseDTO.from_user_model(user)

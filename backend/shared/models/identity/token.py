@@ -14,14 +14,15 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship
 )
+from uuid import UUID as UUIDType
 
-from backend.shared.models.base_models import BaseModel
+from backend.shared.models.base.base_models import BaseModel
 
 
 class RefreshToken(BaseModel):
     """Модель refresh token для JWT аутентификации"""
 
-    user_id: Mapped[str] = mapped_column(
+    user_id: Mapped[UUIDType] = mapped_column(
         ForeignKey(
             "users.id",
             ondelete="CASCADE"

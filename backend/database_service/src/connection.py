@@ -12,7 +12,7 @@ from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 
 from backend.database_service.src.config.database import DataBaseConfig
-from backend.shared.models.base_models import Base
+from backend.shared.models.base.base_models import Base
 
 
 def create_engine_for_service(database_config_instance):

@@ -16,7 +16,8 @@ from sqlalchemy.orm import (
     relationship
 )
 
-from backend.shared.models.base_models import BaseModel
+from backend.shared.models.base.base_models import BaseModel
+from backend.shared.models.identity.role import ROLES, Permission, Role
 
 
 class User(BaseModel):
@@ -99,6 +100,14 @@ class User(BaseModel):
         comment='Количество входов в систему'
     )
 
+    role_name: Mapped[str] = mapped_column(
+        String(50),
+        default="user",
+        nullable=False,
+        index=True,
+        comment='Роль пользователя'
+    )
+
     # Связь с refresh токенами
     refresh_tokens = relationship(
         "RefreshToken",
@@ -112,3 +121,13 @@ class User(BaseModel):
         back_populates="user",
         cascade="all, delete-orphan"
     )
+
+    @property
+    def role(self) -> Role:
+        """Получить объект роли"""
+        return ROLES[self.role_name]
+
+    @property
+    def permissions(self) -> Permission:
+        """Получить разрешения пользователя"""
+        return self.role.permissions

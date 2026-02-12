@@ -1,6 +1,6 @@
 
 
-from backend.user_service.src.schemas.base import PasswordValidatedModel
+from backend.user_service.src.schemas.base.base import PasswordValidatedModel
 
 
 class PasswordResetConfirm(PasswordValidatedModel):

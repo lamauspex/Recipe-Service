@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.shared.models.user_models import User
+from backend.shared.models.identity.user import User
 from backend.user_service.src.exception.base import ConflictException
 from backend.user_service.src.repositories.sql_role_repository import (
     SQLRoleRepository)

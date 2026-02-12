@@ -11,7 +11,7 @@ from backend.user_service.src.core import (
     PasswordService,
     JWTService
 )
-from backend.shared.models.user_models import User
+from backend.shared.models.identity.user import User
 from backend.user_service.src.protocols.user_repository import (
     UserRepositoryProtocol)
 from backend.user_service.src.schemas.auth.auth_dto import TokenPairDTO

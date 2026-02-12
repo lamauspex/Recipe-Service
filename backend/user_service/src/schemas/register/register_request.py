@@ -1,34 +1,36 @@
-from pydantic import BaseModel, EmailStr, field_validator
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
-from backend.user_service.src.schemas.validators import (
-    NameValidator,
-    PasswordSchemaValidator
+from backend.user_service.src.schemas.base import (
+    PasswordValidatedModel,
+    NameValidatedModel,
+    FullNameValidatedModel
 )
 
 
-class UserCreate(BaseModel):
-    """Схема для регистрации пользователя"""
+class UserCreate(
+        BaseModel,
+        PasswordValidatedModel,
+        NameValidatedModel,
+        FullNameValidatedModel
+):
+    """
+    Схема для регистрации пользователя
+    Наследует валидацию от базовых схем:
+    - PasswordValidatedModel: валидация сложности пароля
+    - NameValidatedModel: валидация имени пользователя
+    - FullNameValidatedModel: валидация и нормализация полного имени
+    """
+    email: str
 
-    user_name: str
-    email: EmailStr
-    password: str
-    full_name: Optional[str] = None
-
-    @field_validator('password')
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        """Валидация сложности пароля"""
-        is_valid, errors = PasswordSchemaValidator.validate(v)
-        if not is_valid:
-            raise ValueError('. '.join(errors))
-        return v
-
-    @field_validator('user_name')
-    @classmethod
-    def validate_user_name(cls, v: str) -> str:
-        """Валидация имени"""
-        is_valid, errors = NameValidator.validate(v)
-        if not is_valid:
-            raise ValueError('. '.join(errors))
-        return v
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "user_name": "john_doe",
+                    "email": "john@example.com",
+                    "password": "SecurePass123!",
+                    "full_name": "John Doe"
+                }
+            ]
+        }
+    )

@@ -5,7 +5,7 @@
 import re
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
-from backend.shared.models.mixin import (
+from backend.shared.models.base.mixin import (
     UUIDPrimaryKeyMixin,
     StatusMixin,
     TimestampMixin
@@ -14,13 +14,15 @@ from backend.shared.models.mixin import (
 
 def _pluralize_table_name(name: str) -> str:
     """
-    Генерация корректного множественного числа для имени таблицы.
+    Генерация корректного множественного числа для имени таблицы
 
     Правила:
     - Если имя уже заканчивается на 's', 'x', 'z', 'ch', 'sh' → добавляем 'es'
-    - Если имя заканчивается на 'y' и предпоследняя буква не гласная → 'y' → 'ies'
+    - Если заканчивается на 'y' и предпоследняя буква не гласная → 'y' → 'ies'
     - Иначе → добавляем 's'
     """
+    name = re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+
     # Слова, оканчивающиеся на s, x, z, ch, sh
     if re.search(r'(s|x|z|ch|sh)$', name):
         return name + 'es'
