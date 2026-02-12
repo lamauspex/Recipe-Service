@@ -5,11 +5,19 @@ from .full_name import FullNameValidator
 from .email import EmailValidator
 from .name import NameValidator
 from .password import PasswordSchemaValidator
+from .common import (
+    RoleNameValidator,
+    BooleanValidator,
+    DateTimeValidator
+)
 
 __all__ = [
     "HashedPasswordValidator",
     "FullNameValidator",
     "EmailValidator",
     "NameValidator",
-    "PasswordSchemaValidator"
+    "PasswordSchemaValidator",
+    "RoleNameValidator",
+    "BooleanValidator",
+    "DateTimeValidator"
 ]

@@ -9,9 +9,7 @@ from .validators import (
     EmailValidator,
     NameValidator,
     PasswordSchemaValidator,
-    RoleNameValidator,
-    BooleanValidator,
-    DateTimeValidator
+    RoleNameValidator
 )
 
 
@@ -108,38 +106,6 @@ class HashedPasswordValidatedModel(BaseModel):
 
 # ========== Общие валидационные модели ==========
 
-class BooleanValidatedModel(BaseModel):
-    """ Базовая схема для валидации boolean полей """
-
-    is_active: bool = True
-    is_verified: bool = False
-
-    @field_validator('is_active', 'is_verified')
-    @classmethod
-    def validate_boolean_fields(cls, v: bool) -> bool:
-        """ Проверка типа boolean полей """
-        return BooleanValidator.validate(v)
-
-
-class DateTimeValidatedModel(BaseModel):
-    """ Базовая схема для валидации datetime полей """
-
-    from datetime import datetime
-
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    deleted_at: Optional[datetime] = None
-
-    @field_validator('created_at', 'updated_at', 'deleted_at')
-    @classmethod
-    def validate_datetime_fields(
-        cls,
-        v: Optional[datetime]
-    ) -> Optional[datetime]:
-        """ Проверка типа datetime полей """
-        return DateTimeValidator.validate(v)
-
-
 class RoleNameValidatedModel(BaseModel):
     """ Базовая схема для валидации имени роли """
 
@@ -150,3 +116,30 @@ class RoleNameValidatedModel(BaseModel):
     def validate_role_name(cls, v: str) -> str:
         """ Валидация имени роли """
         return RoleNameValidator.validate(v)
+
+
+# ========== Специализированные модели для User ==========
+
+class UserStatusModel(BaseModel):
+    """
+    Базовая схема для статуса пользователя.
+
+    Содержит только те поля, которые есть в модели User.
+    """
+
+    is_active: bool = True
+    email_verified: bool = False
+
+
+class UserTimestampsModel(BaseModel):
+    """
+    Базовая схема для временных меток пользователя.
+
+    Содержит только те поля, которые есть в модели User
+    (нет deleted_at).
+    """
+
+    from datetime import datetime
+
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None

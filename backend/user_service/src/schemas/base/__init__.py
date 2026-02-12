@@ -10,9 +10,9 @@ from .base import (
     EmailValidatedModel,
     FullNameValidatedModel,
     HashedPasswordValidatedModel,
-    BooleanValidatedModel,
-    DateTimeValidatedModel,
-    RoleNameValidatedModel
+    RoleNameValidatedModel,
+    UserStatusModel,
+    UserTimestampsModel
 )
 
 # ========== Миксины ==========
@@ -40,9 +40,9 @@ __all__ = [
     "EmailValidatedModel",
     "FullNameValidatedModel",
     "HashedPasswordValidatedModel",
-    "BooleanValidatedModel",
-    "DateTimeValidatedModel",
     "RoleNameValidatedModel",
+    "UserStatusModel",
+    "UserTimestampsModel",
     # Миксины
     "DTOConverterMixin",
     "DTOSerializationMixin",

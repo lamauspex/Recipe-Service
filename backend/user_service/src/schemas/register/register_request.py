@@ -3,7 +3,8 @@ from pydantic import BaseModel, ConfigDict
 from backend.user_service.src.schemas.base import (
     PasswordValidatedModel,
     NameValidatedModel,
-    FullNameValidatedModel
+    FullNameValidatedModel,
+    EmailValidatedModel
 )
 
 
@@ -11,16 +12,18 @@ class UserCreate(
         BaseModel,
         PasswordValidatedModel,
         NameValidatedModel,
-        FullNameValidatedModel
+        FullNameValidatedModel,
+        EmailValidatedModel
 ):
+
     """
     Схема для регистрации пользователя
     Наследует валидацию от базовых схем:
     - PasswordValidatedModel: валидация сложности пароля
     - NameValidatedModel: валидация имени пользователя
     - FullNameValidatedModel: валидация и нормализация полного имени
+    - EmailValidatedModel: валидация email
     """
-    email: str
 
     model_config = ConfigDict(
         json_schema_extra={

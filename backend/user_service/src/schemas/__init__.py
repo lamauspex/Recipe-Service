@@ -9,7 +9,6 @@ from .auth import (
     RefreshTokenRequest,
     RefreshResponseDTO
 )
-from .validators import PasswordSchemaValidator, NameValidator
 from .base.base import PasswordValidatedModel, NameValidatedModel
 
 
