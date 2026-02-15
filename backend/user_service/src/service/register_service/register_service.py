@@ -6,11 +6,12 @@ from backend.user_service.src.schemas import (
     UserCreate,
     UserResponseDTO
 )
-from backend.user_service.src.core.service_password import PasswordService
 from backend.user_service.src.service.register_service.mappers import (
     UserRegistrationMapper)
-from backend.user_service.src.core.validator_name import (
-    UserUniquenessValidator)
+from backend.user_service.src.core import (
+    UserUniquenessValidator,
+    PasswordService
+)
 
 
 class RegisterService:

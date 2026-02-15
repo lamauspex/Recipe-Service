@@ -26,6 +26,7 @@ class UserRegistrationMapper:
             email=user_create.email,
             full_name=user_create.full_name,
             hashed_password=hashed_password,
+            role_name="user",
             is_active=True,
             email_verified=False
         )

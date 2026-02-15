@@ -11,7 +11,6 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 
-from backend.database_service.src.config.database import DataBaseConfig
 from backend.shared.models.base.base_models import Base
 
 
@@ -151,7 +150,3 @@ class DatabaseManager:
 
         Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
-
-
-config = DataBaseConfig()
-database = DatabaseManager(config)

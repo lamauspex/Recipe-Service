@@ -4,10 +4,12 @@ from .mixin import (
     TimestampMixin,
     StatusMixin
 )
+from .base_models import BaseModel
 
 __all__ = [
     "UUIDTypeDecorator",
     "UUIDPrimaryKeyMixin",
     "TimestampMixin",
-    "StatusMixin"
+    "StatusMixin",
+    "BaseModel"
 ]

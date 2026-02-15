@@ -1,5 +1,6 @@
 
-from back.src.exceptions.base import ConflictException
+
+from backend.user_service.src.exception.base import ConflictException
 from backend.user_service.src.protocols.user_repository import (
     UserRepositoryProtocol)
 
