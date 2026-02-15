@@ -1,40 +1,40 @@
 """
-Управление жизненным циклом приложения Database Service
+Lifespan для database_service
+Управляет жизненным циклом приложения
 """
+
 import os
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from fastapi import FastAPI
 
-from .connection import database
+from .container import container
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
-    Управление жизненным циклом приложения
+    Lifespan для FastAPI приложения
+
+    Startup:
+        - Проверка подключения к БД
+        - Применение миграций (если AUTO_MIGRATE=true)
+
+    Shutdown:
+        - Закрытие соединений с БД
     """
-    # Код запуска
-    await startup_handler()
+    # Startup
+    connection_manager = container.connection_manager()
+
+    if not connection_manager.test_connection():
+        raise RuntimeError("Не удалось подключиться к базе данных")
+
+    # Авто-миграции
+    if os.getenv("AUTO_MIGRATE", "false").lower() == "true":
+        container.migration_runner().upgrade()
 
     yield
 
-    # Код завершения
-    await shutdown_handler()
-
-
-async def startup_handler():
-    """Обработчик запуска приложения"""
-
-    if os.environ.get("TESTING") == "1":
-        return
-
-    if not database.test_connection():
-        raise Exception("Не удалось подключиться к базе данных")
-
-    database.init_db()
-
-
-async def shutdown_handler():
-    """Обработчик завершения приложения"""
-
-    print("Database Service процесс завершён")
+    # Shutdown
+    connection_manager.close()

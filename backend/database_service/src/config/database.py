@@ -21,6 +21,10 @@ class DataBaseConfig(DBBaseConfig):
     TESTING: bool = Field(description="Тестирование")
     DEBUG: bool = Field(description="Режим отладки")
 
+    # Настройки пула соединений
+    POOL_SIZE: int = Field(description="Размер пула соединений")
+    MAX_OVERFLOW: int = Field(description="Максимальный перелив")
+
     # API ДОКУМЕНТАЦИЯ
     API_DOCS_ENABLED: bool = Field(description="Включить документацию API")
     API_TITLE: str = Field(description="Название API")
