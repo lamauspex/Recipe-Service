@@ -1,11 +1,18 @@
 """
 DI контейнер для управления зависимостями user_service
 Использует dependency-injector для инверсии управления
+
+ВАЖНО: Контейнер НЕ управляет репозиториями и бизнес-сервисами!
+Репозитории и сервисы создаются через FastAPI Dependencies в dependencies.py
+
+Контейнер управляет только:
+- Конфигурациями
+- Stateless сервисами (PasswordService, JWTService)
+- Ресурсами (если будут добавлены)
 """
 
 from dependency_injector import containers, providers
 
-from backend.database_service.src import get_db_dependency
 from backend.user_service.src.config import (
     ApiConfig,
     AuthConfig,
@@ -16,20 +23,20 @@ from backend.user_service.src.core import (
     JWTService,
     PasswordService
 )
-from backend.user_service.src.service import (
-    AuthService,
-    RegisterService
-)
-from backend.user_service.src.repositories import (
-    SQLUserRepository,
-    SQLTokenRepository
-)
 
 
 class Container(containers.DeclarativeContainer):
     """
     Главный контейнер зависимостей user_service
-    Управляет конфигурацией, репозиториями и сервисами
+
+    Управляет конфигурацией и stateless сервисами.
+    Репозитории и бизнес-сервисы создаются через FastAPI Dependencies
+    в файле dependencies.py для корректной работы с сессиями БД.
+
+    Принципы:
+    - Контейнер независим от других сервисов
+    - Репозитории получают сессию через FastAPI Depends
+    - Stateless сервисы создаются через Singleton
     """
 
     # ==========================================
@@ -44,11 +51,7 @@ class Container(containers.DeclarativeContainer):
     monitoring_config = providers.Factory(MonitoringConfig)
 
     # ==========================================
-    # ЗАВИСИМОСТИ ОТ БАЗЫ ДАННЫХ
-    # ==========================================
-
-    # ==========================================
-    # CORE СЕРВИСЫ
+    # STATELESS CORE СЕРВИСЫ
     # ==========================================
 
     # Сервис для работы с паролями (без состояния)
@@ -63,44 +66,6 @@ class Container(containers.DeclarativeContainer):
         algorithm=auth_config.provided.ALGORITHM,
         access_token_expire_minutes=auth_config.provided.ACCESS_TOKEN_EXPIRE_MINUTES,
         refresh_token_expire_days=auth_config.provided.REFRESH_TOKEN_EXPIRE_DAYS,
-    )
-
-    # ==========================================
-    # РЕПОЗИТОРИИ
-    # ==========================================
-
-    # Репозиторий пользователей
-    user_repository = providers.Factory(
-        SQLUserRepository,
-        db=db_dependency
-    )
-
-    # Репозиторий токенов
-    token_repository = providers.Factory(
-        SQLTokenRepository,
-        db=db_dependency
-    )
-
-    # ==========================================
-    # БИЗНЕС-СЕРВИСЫ
-    # ==========================================
-
-    # Сервис аутентификации
-    auth_service = providers.Factory(
-        AuthService,
-        user_repo=user_repository,
-        password_service=password_service,
-        jwt_service=jwt_service,
-        auth_config=auth_config,
-        api_config=api_config,
-    )
-
-    # Сервис регистрации
-    register_service = providers.Factory(
-        RegisterService,
-        user_repo=user_repository,
-        password_service=password_service,
-        auth_config=auth_config,
     )
 
     # ==========================================
@@ -121,16 +86,6 @@ class Container(containers.DeclarativeContainer):
         monitoring=monitoring_config,
     )
 
-    # Все бизнес-сервисы в одном объекте
-    services = providers.Factory(
-        lambda auth, register: type('Services', (), {
-            'auth': auth,
-            'register': register
-        })(),
-        auth=auth_service,
-        register=register_service
-    )
-
 
 # Создаем глобальный экземпляр контейнера
 container = Container()
@@ -142,6 +97,7 @@ container.init_resources()
 # для использования @inject и Provide
 container.wire(
     packages=[
+        "backend.user_service.src.dependencies",
         "backend.user_service.src.api",
         "backend.user_service.src.service",
     ]

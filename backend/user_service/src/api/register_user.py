@@ -1,9 +1,8 @@
 """ API Routers Register """
 
-from fastapi import APIRouter
-from dependency_injector.wiring import inject, Provide
+from fastapi import APIRouter, Depends
 
-from backend.user_service.src.container import container
+from backend.user_service.src.dependencies import get_register_service
 from backend.user_service.src.service import RegisterService
 from backend.user_service.src.schemas.register import (
     UserCreate,
@@ -23,10 +22,9 @@ router = APIRouter(
     summary="Регистрация пользователя",
     response_model=UserResponseDTO
 )
-@inject
 async def register_user(
     register_data: UserCreate,
-    register_service: RegisterService = Provide[container.register_service]
+    register_service: RegisterService = Depends(get_register_service)
 ):
     """
     Регистрация пользователя

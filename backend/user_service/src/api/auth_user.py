@@ -1,14 +1,13 @@
 """ API Routers Auth  """
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from dependency_injector.wiring import inject, Provide
+from fastapi import APIRouter, Depends, status
 
-from backend.user_service.src.container import container
 from backend.user_service.src.schemas.auth.login_request import UserLogin
 from backend.user_service.src.schemas.auth.login_response import (
-    LoginResponseDTO)
+    LoginResponseDTO
+)
 from backend.user_service.src.service.auth_service import AuthService
+from backend.user_service.src.dependencies import get_auth_service
 
 
 # Создаем router
@@ -21,16 +20,34 @@ router = APIRouter(
 @router.post(
     "/login",
     summary="Аутентификация пользователя",
-    response_model=LoginResponseDTO
+    response_model=LoginResponseDTO,
+    status_code=status.HTTP_200_OK,
+    responses={
+        401: {"description": "Неверные учетные данные"},
+        404: {"description": "Пользователь не найден"},
+        422: {"description": "Ошибка валидации данных"}
+    }
 )
-@inject
 async def login_user(
     login_data: UserLogin,
-    db_session: Session = Depends(Provide[container.db_dependency]),
-    auth_service: AuthService = Provide[container.auth_service]
+    auth_service: AuthService = Depends(get_auth_service)
 ):
-    """Аутентификация пользователя"""
+    """
+    Проверяет учетные данные пользователя и возвращает пару токенов
+    (access + refresh) при успешной аутентификации.
 
-    token_pair = auth_service.authenticate_and_create_tokens(login_data)
+    Args:
+        login_data: Данные для входа (имя пользователя + пароль)
+        auth_service: Сервис аутентификации (внедряется через Depends)
+
+    Returns:
+        LoginResponseDTO: Пара токенов (access + refresh)
+
+    """
+    # Вызываем метод аутентификации с распакованными данными
+    token_pair = auth_service.authenticate_and_create_tokens(
+        user_name=login_data.user_name,
+        password=login_data.password
+    )
 
     return LoginResponseDTO.model_validate(token_pair)
