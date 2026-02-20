@@ -5,7 +5,7 @@ DI контейнер для управления зависимостями use
 
 from dependency_injector import containers, providers
 
-from backend.database_service import db_dependency
+from backend.database_service.src import get_db_dependency
 from backend.user_service.src.config import (
     ApiConfig,
     AuthConfig,
@@ -46,9 +46,6 @@ class Container(containers.DeclarativeContainer):
     # ==========================================
     # ЗАВИСИМОСТИ ОТ БАЗЫ ДАННЫХ
     # ==========================================
-
-    # Зависимость сессии БД будет инжектироваться из FastAPI Depends
-    db_dependency = providers.Factory(db_dependency)
 
     # ==========================================
     # CORE СЕРВИСЫ

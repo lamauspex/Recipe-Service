@@ -8,8 +8,6 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-
-from backend.database_service.src.api import api_router as api_router_database
 from backend.database_service.src.connection import database
 from backend.user_service.src.api import api_router as api_router_users
 from backend.user_service.src.container import container as user_con
@@ -75,7 +73,6 @@ def create_app() -> FastAPI:
     )
 
     # Подключаем API роутеры
-    app.include_router(api_router_database)
     app.include_router(api_router_users)
 
     return app
