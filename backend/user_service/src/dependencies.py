@@ -16,8 +16,8 @@ from sqlalchemy.orm import Session
 
 # Импортируем dependency от database_service
 # Контейнеры не зависят друг от друга напрямую!
+from backend.user_service.src.container import container
 from backend.database_service.src import get_db_dependency
-
 # Импортируем репозитории
 from backend.user_service.src.repositories import (
     SQLUserRepository,
@@ -78,8 +78,6 @@ def get_auth_service(
     Конфигурация берётся из DI контейнера user_service.
 
     """
-    from backend.user_service.src.service import AuthService
-    from backend.user_service.src.container import container
 
     # Получаем конфигурации из DI контейнера user_service
     auth_config = container.auth_config()
@@ -106,8 +104,6 @@ def get_register_service(
     Конфигурация берётся из DI контейнера user_service.
 
     """
-    from backend.user_service.src.service import RegisterService
-    from backend.user_service.src.container import container
 
     # Получаем конфигурации из DI контейнера user_service
     auth_config = container.auth_config()

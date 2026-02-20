@@ -8,7 +8,10 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from backend.database_service.src.connection import database
+from backend.database_service.src import (
+    get_connection_manager,
+    get_migration_runner
+)
 from backend.user_service.src.api import api_router as api_router_users
 from backend.user_service.src.container import container as user_con
 
@@ -31,21 +34,20 @@ async def lifespan(app: FastAPI):
 async def startup_handler():
     """Обработчик запуска приложения"""
 
-    if os.environ.get("TESTING") == "1":
+    # Пропускаем инициализацию в тестах
+    if os.environ.get("TESTING") == "1" or os.environ.get("USER_SERVICE_TESTING") == "1":
         return
 
-    if not database.test_connection():
+    # Получаем connection_manager и migration_runner из database_service
+    connection_manager = get_connection_manager()
+    migration_runner = get_migration_runner()
+
+    # Проверяем подключение к базе данных
+    if not connection_manager.test_connection():
         raise Exception("Не удалось подключиться к базе данных")
 
-    database.init_db()
-
-    if os.environ.get("USER_SERVICE_TESTING") == "1":
-        return
-
-    if not database.test_connection():
-        raise Exception("Не удалось подключиться к базе данных")
-
-    database.init_db()
+    # Применяем миграции
+    migration_runner.upgrade("head")
     print("✅ Database initialized successfully")
 
 

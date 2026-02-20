@@ -7,7 +7,6 @@ DI контейнер для database_service
 from pathlib import Path
 
 from dependency_injector import containers, providers
-from dependency_injector.wiring import Provide
 
 from .config import DataBaseConfig
 from .connection import ConnectionManager, SessionManager
@@ -48,7 +47,7 @@ class Container(containers.DeclarativeContainer):
 
     migration_runner = providers.Factory(
         MigrationRunner,
-        database_url=config.provided.get_database_url,
+        database_url=config().get_database_url,  # ✅ Без скобок!
         migrations_path=providers.Factory(
             lambda: str(Path(__file__).parent.parent / "migrations")
         )
@@ -71,7 +70,7 @@ class Container(containers.DeclarativeContainer):
 
 # ==================== ГЛОБАЛЬНЫЙ ИНСТАНС ====================
 
-container = Container()
+container = Container()  # ✅ ВНЕ класса Container
 
 
 # ==================== УДОБНЫЕ ИМПОРТЫ ====================
@@ -100,7 +99,7 @@ def get_db_dependency():
         def get_users(db: Session = Depends(db_dependency)):
             return db.query(User).all()
     """
-    return container.db_dependency.as_()
+    return container.db_dependency
 
 
 # ==================== ПРЯМОЙ ДОСТУП К МЕНЕДЖЕРАМ ====================
@@ -133,15 +132,3 @@ def get_migration_runner() -> MigrationRunner:
         Экземпляр MigrationRunner
     """
     return container.migration_runner()
-
-
-__all__ = [
-    "Container",
-    "container",
-    "get_container",
-    "get_db_dependency",
-    "get_connection_manager",
-    "get_session_manager",
-    "get_migration_runner",
-    "Provide",
-]

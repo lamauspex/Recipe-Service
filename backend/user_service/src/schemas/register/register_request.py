@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
 
 from backend.user_service.src.schemas.base import (
     PasswordValidatedModel,
@@ -9,7 +9,6 @@ from backend.user_service.src.schemas.base import (
 
 
 class UserCreate(
-        BaseModel,
         PasswordValidatedModel,
         NameValidatedModel,
         FullNameValidatedModel,

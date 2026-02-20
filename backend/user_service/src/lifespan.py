@@ -5,7 +5,9 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from backend.database_service.src.connection import database
+from backend.database_service.src import (
+    get_connection_manager,
+    get_migration_runner)
 
 
 @asynccontextmanager
@@ -29,10 +31,16 @@ async def startup_handler():
     if os.environ.get("USER_SERVICE_TESTING") == "1":
         return
 
-    if not database.test_connection():
+    # Получаем connection_manager
+    connection_manager = get_connection_manager()
+
+    # Проверяем подключение
+    if not connection_manager.test_connection():
         raise Exception("Не удалось подключиться к базе данных")
 
-    database.init_db()
+    # Применяем миграции
+    migration_runner = get_migration_runner()
+    migration_runner.upgrade("head")
     print("✅ Database initialized successfully")
 
 

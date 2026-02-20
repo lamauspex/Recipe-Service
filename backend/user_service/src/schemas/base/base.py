@@ -1,5 +1,6 @@
 """ Базовые схемы для переиспользования """
 
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, field_validator
 
@@ -138,8 +139,6 @@ class UserTimestampsModel(BaseModel):
     Содержит только те поля, которые есть в модели User
     (нет deleted_at).
     """
-
-    from datetime import datetime
 
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

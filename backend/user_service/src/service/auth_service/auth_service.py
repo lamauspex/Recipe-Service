@@ -6,9 +6,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from backend.user_service.src.schemas import TokenPairDTO
-from backend.user_service.src.service import AuthMapper
-from backend.shared.models.identity.user import User
+
+from backend.user_service.src.protocols.token_repository import TokenRepositoryProtocol
+from backend.user_service.src.schemas.auth.auth_dto import TokenPairDTO
+from backend.shared.models import User
 from backend.user_service.src.config import (
     ApiConfig,
     AuthConfig
@@ -19,9 +20,9 @@ from backend.user_service.src.core import (
     AuthValidator
 )
 from backend.user_service.src.protocols import (
-    TokenRepositoryProtocol,
     UserRepositoryProtocol
 )
+from backend.user_service.src.service.auth_service.mappers import AuthMapper
 
 
 class AuthService:

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from backend.shared.models.identity.user import User
+from backend.shared.models import User
 from backend.user_service.src.schemas.auth.auth_dto import (
     AuthResultDTO,
     TokenPairDTO,
@@ -14,6 +14,7 @@ class AuthMapper:
     @staticmethod
     def user_to_auth_result(user: User) -> AuthResultDTO:
         """Конвертация User в AuthResultDTO"""
+
         return AuthResultDTO(
             user_id=user.id,
             user_name=user.user_name,
@@ -26,6 +27,7 @@ class AuthMapper:
         refresh_token: str
     ) -> TokenPairDTO:
         """Конвертация токенов в TokenPairDTO"""
+
         return TokenPairDTO(
             access_token=access_token,
             refresh_token=refresh_token
@@ -38,6 +40,7 @@ class AuthMapper:
         expires_at: datetime
     ) -> RefreshTokenDataDTO:
         """Конвертация данных для refresh токена"""
+
         return RefreshTokenDataDTO(
             user_id=user_id,
             token=token,
