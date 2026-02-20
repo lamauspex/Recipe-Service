@@ -6,15 +6,22 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from backend.user_service.src.config import ApiConfig, AuthConfig
+from backend.user_service.src.schemas import TokenPairDTO
+from backend.user_service.src.service import AuthMapper
+from backend.shared.models.identity.user import User
+from backend.user_service.src.config import (
+    ApiConfig,
+    AuthConfig
+)
 from backend.user_service.src.core import (
     PasswordService,
-    JWTService
+    JWTService,
+    AuthValidator
 )
-from backend.shared.models.identity.user import User
-from backend.user_service.src.protocols.user_repository import (
-    UserRepositoryProtocol)
-from backend.user_service.src.schemas.auth.auth_dto import TokenPairDTO
+from backend.user_service.src.protocols import (
+    TokenRepositoryProtocol,
+    UserRepositoryProtocol
+)
 
 
 class AuthService:
@@ -27,12 +34,18 @@ class AuthService:
         jwt_service: JWTService,
         auth_config: AuthConfig,
         api_config: ApiConfig,
+        auth_validator: AuthValidator,
+        mapper: AuthMapper,
+        token_repo: TokenRepositoryProtocol
     ):
         self.user_repo = user_repo
         self.password_service = password_service
         self.jwt_service = jwt_service
         self.auth_config = auth_config
         self.api_config = api_config
+        self.auth_validator = auth_validator
+        self.mapper = mapper
+        self.token_repo = token_repo
 
     def authenticate_and_create_tokens(
         self,
@@ -64,6 +77,7 @@ class AuthService:
         user: Optional[User]
     ) -> bool:
         """Проверка пароля"""
+
         if not user:
             return False
         return self.password_service.verify_password(
@@ -73,6 +87,7 @@ class AuthService:
 
     def create_tokens(self, user: User) -> TokenPairDTO:
         """Создание пары токенов"""
+
         # Access токен
         access_token = self.jwt_service.create_access_token({
             "sub": str(user.id),
@@ -94,7 +109,7 @@ class AuthService:
             )
         )
 
-        self.user_repo.save_refresh_token(refresh_data)
+        self.token_repo.create_refresh_token(refresh_data)
 
         return self.mapper.to_token_pair(
             access_token,

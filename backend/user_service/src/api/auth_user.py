@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter, Depends, status
 
-from backend.user_service.src.schemas.auth.login_request import UserLogin
-from backend.user_service.src.schemas.auth.login_response import (
+from backend.user_service.src.schemas import (
+    UserLogin,
     LoginResponseDTO
 )
 from backend.user_service.src.service.auth_service import AuthService
