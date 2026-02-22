@@ -99,7 +99,7 @@ def get_db_dependency():
         def get_users(db: Session = Depends(db_dependency)):
             return db.query(User).all()
     """
-    return container.db_dependency
+    return container.db_dependency()
 
 
 # ==================== ПРЯМОЙ ДОСТУП К МЕНЕДЖЕРАМ ====================

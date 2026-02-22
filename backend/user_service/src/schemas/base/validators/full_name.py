@@ -1,4 +1,4 @@
-import re
+import regex as re
 from typing import List, Tuple
 
 
@@ -26,7 +26,11 @@ class FullNameValidator:
             )
 
         # Проверка на допустимые символы (буквы, пробелы, дефисы)
-        if not re.match(r'^[\p{L}\s\-]+$', full_name, flags=re.UNICODE):
+        if not re.match(
+            r'^[\p{L}\s\-]+$',
+            full_name,
+            flags=re.UNICODE
+        ):
             errors.append(
                 'Полное имя может содержать только буквы, пробелы и дефисы'
             )
