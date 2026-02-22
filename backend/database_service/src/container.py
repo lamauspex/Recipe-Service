@@ -47,7 +47,7 @@ class Container(containers.DeclarativeContainer):
 
     migration_runner = providers.Factory(
         MigrationRunner,
-        database_url=config().get_database_url,  # ✅ Без скобок!
+        database_url=config().get_database_url(),
         migrations_path=providers.Factory(
             lambda: str(Path(__file__).parent.parent / "migrations")
         )
