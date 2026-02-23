@@ -40,8 +40,7 @@ def setup_logging(
         # Красивый текстовый формат для консоли
         processors.append(
             structlog.dev.ConsoleRenderer(
-                colors=True,
-                timestamp_format="%Y-%m-%d %H:%M:%S",
+                colors=True
             )
         )
 

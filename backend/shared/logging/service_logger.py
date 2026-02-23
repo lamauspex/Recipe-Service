@@ -173,6 +173,7 @@ class ServiceLogger:
 # Утилита для быстрого создания логгера сервиса
 def create_service_logger(service_name: str, **context) -> ServiceLogger:
     """Создает логгер для сервиса с дополнительным контекстом"""
+
     logger = ServiceLogger(service_name)
     if context:
         logger._base_logger = logger._base_logger.bind(**context)

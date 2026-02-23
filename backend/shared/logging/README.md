@@ -47,8 +47,14 @@ class AuthService:
         pass
     
     def custom_log(self):
-        self.logger.info("Сообщение", user_id=123)
-        self.logger.error("Ошибка", error="details")
+        self.logger.info(
+            "Сообщение", 
+            user_id=123
+            )
+        self.logger.error(
+            "Ошибка", 
+            error="details"
+            )
 ```
 
 ### 3. Ручной логгер
@@ -57,7 +63,10 @@ class AuthService:
 from backend.shared.logging import get_logger
 
 logger = get_logger(__name__).bind(layer="custom")
-logger.info("Сообщение", extra="data")
+logger.info(
+    "Сообщение", 
+    extra="data"
+    )
 ```
 
 ## Уровень логирования
