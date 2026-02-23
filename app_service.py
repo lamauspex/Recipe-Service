@@ -12,6 +12,7 @@ from backend.database_service.src import (
     get_connection_manager,
     get_migration_runner
 )
+from backend.shared.logging import setup_logging, LoggingMiddleware
 from backend.user_service.src.api import api_router as api_router_users
 from backend.user_service.src.container import container as user_con
 
@@ -37,6 +38,9 @@ async def startup_handler():
     # Пропускаем инициализацию в тестах
     if os.environ.get("TESTING") == "1" or os.environ.get("USER_SERVICE_TESTING") == "1":
         return
+
+    # Настройка логирования
+    setup_logging(debug=False)
 
     # Получаем connection_manager и migration_runner из database_service
     connection_manager = get_connection_manager()
@@ -76,6 +80,9 @@ def create_app() -> FastAPI:
 
     # Подключаем API роутеры
     app.include_router(api_router_users)
+
+    # Подключаем middleware логирования
+    app.add_middleware(LoggingMiddleware)
 
     return app
 

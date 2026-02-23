@@ -6,6 +6,7 @@ from .identity import (
     Permission,
     ROLES
 )
+
 __all__ = [
     "User",
     "RefreshToken",
