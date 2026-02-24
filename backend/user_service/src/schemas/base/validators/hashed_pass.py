@@ -12,15 +12,17 @@ class HashedPasswordValidator:
         errors = []
 
         if not hashed_password or not hashed_password.strip():
-            errors.append('Хешированный пароль не может быть пустым')
-
-        # bcrypt хеш всегда начинается с '$2b$', '$2a$', '$2y$' или '$2x$'
-        if not hashed_password.startswith('$2'):
             errors.append(
-                'Пароль должен быть хеширован (bcrypt)'
+                'Хешированный пароль не может быть пустым'
             )
 
-        # Минимальная длина bcrypt хеша - 60 символов
+        # Проверка на хешироверку на argon2
+        if not hashed_password.startswith('$argon2'):
+            errors.append(
+                'Пароль должен быть хеширован (argon2)'
+            )
+
+        # Минимальная длина argon2 хеша - 60 символов
         if len(hashed_password) < 50:
             errors.append(
                 'Хешированный пароль имеет некорректный формат'
