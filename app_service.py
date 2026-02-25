@@ -8,13 +8,13 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from backend.database_service.src import (
+from backend.service_database.src import (
     get_connection_manager,
     get_migration_runner
 )
 from backend.shared.logging import setup_logging, LoggingMiddleware
-from backend.user_service.src.api import api_router as api_router_users
-from backend.user_service.src.container import container as user_con
+from backend.service_user.src.api import api_router as api_router_users
+from backend.service_user.src.container import container as user_con
 
 
 @asynccontextmanager
