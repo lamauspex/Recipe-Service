@@ -21,8 +21,10 @@ from backend.service_user.src.config import (
 )
 from backend.service_user.src.core import (
     JWTService,
-    PasswordService
+    PasswordService,
+    AuthValidator
 )
+from backend.service_user.src.service.auth_service import AuthMapper
 
 
 class Container(containers.DeclarativeContainer):
@@ -67,6 +69,12 @@ class Container(containers.DeclarativeContainer):
         access_token_expire_minutes=auth_config.provided.ACCESS_TOKEN_EXPIRE_MINUTES,
         refresh_token_expire_days=auth_config.provided.REFRESH_TOKEN_EXPIRE_DAYS,
     )
+
+    # Валидатор аутентификации
+    auth_validator = providers.Singleton(AuthValidator)
+
+    # Маппер для аутентификации
+    auth_mapper = providers.Singleton(AuthMapper)
 
     # ==========================================
     # АГРЕГАТОРЫ (для удобства)

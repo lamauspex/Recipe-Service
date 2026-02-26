@@ -22,7 +22,6 @@ class JWTService:
         self.algorithm = algorithm
         self.access_token_expire_minutes = access_token_expire_minutes
         self.refresh_token_expire_days = refresh_token_expire_days
-        self.encoder = jwt.algorithms.DefaultAlgorithm()
 
     def create_access_token(
         self,

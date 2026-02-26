@@ -69,7 +69,8 @@ def get_token_repository(
 # ==========================================
 
 def get_auth_service(
-    user_repo: SQLUserRepository = Depends(get_user_repository)
+    user_repo: SQLUserRepository = Depends(get_user_repository),
+    token_repo: SQLTokenRepository = Depends(get_token_repository)
 ) -> 'AuthService':
     """
     Dependency для получения сервиса аутентификации
@@ -84,13 +85,18 @@ def get_auth_service(
     api_config = container.api_config()
     password_service = container.password_service()
     jwt_service = container.jwt_service()
+    auth_validator = container.auth_validator()
+    mapper = container.auth_mapper()
 
     return AuthService(
         user_repo=user_repo,
+        token_repo=token_repo,
         password_service=password_service,
         jwt_service=jwt_service,
         auth_config=auth_config,
-        api_config=api_config
+        api_config=api_config,
+        auth_validator=auth_validator,
+        mapper=mapper
     )
 
 
