@@ -6,16 +6,13 @@ from .enums import (
     Permission,
     Role
 )
-
+from .base_model import BaseModel
 from .base import (
-    BaseModel,
-    Base,
     UUIDPrimaryKeyMixin,
     TimestampMixin,
     StatusMixin,
     UUIDTypeDecorator,
 )
-
 # Потом зависимые
 from .identity import (
     User,

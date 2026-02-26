@@ -23,7 +23,7 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy import engine_from_config
 from backend.service_database.src.config.database import DataBaseConfig
-from backend.shared.models.base.base_models import Base
+from backend.shared.models.base_model import Base
 from logging.config import fileConfig
 import os
 import sys

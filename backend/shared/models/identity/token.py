@@ -16,7 +16,7 @@ from sqlalchemy.orm import (
 )
 from uuid import UUID as UUIDType
 
-from backend.shared.models.base import BaseModel
+from backend.shared.models.base_model import BaseModel
 
 
 class RefreshToken(BaseModel):

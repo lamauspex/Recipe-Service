@@ -3,7 +3,8 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid import UUID as UUIDType, uuid4
 
-from backend.shared.models.base.decorator.type_decorator import UUIDTypeDecorator
+from backend.shared.models.base.decorator.type_decorator import (
+    UUIDTypeDecorator)
 
 
 class UUIDPrimaryKeyMixin:

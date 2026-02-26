@@ -17,7 +17,7 @@ from sqlalchemy.orm import (
 )
 
 
-from backend.shared.models.base import BaseModel
+from backend.shared.models.base_model import BaseModel
 from backend.shared.models.enums import ROLES, Permission, Role
 
 

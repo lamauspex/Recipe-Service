@@ -1,15 +1,20 @@
+"""
+SQLAlchemy реализация репозитория пользователей
+"""
+
 from sqlalchemy.orm import Session
 
 from backend.shared.models import User
 from backend.service_user.src.exception.base import ConflictException
+from backend.shared.models.enums import ROLES
 
 
 class SQLUserRepository:
     """
-    SQLAlchemy реализация репозитория пользователей.
 
     ВАЖНО: Мы НЕ наследуемся от UserRepositoryProtocol!
     Protocol проверяет только наличие методов с нужными сигнатурами.
+
     """
 
     def __init__(self, db: Session):
@@ -36,7 +41,6 @@ class SQLUserRepository:
         role_name = user_data.get('role_name', 'user')
 
         # Проверяем, что роль допустимая
-        from backend.shared.models.identity.role import ROLES
         if role_name not in ROLES:
             raise ConflictException(
                 f"Роль '{role_name}' не найдена. "

@@ -10,7 +10,7 @@ from sqlalchemy.orm import (
     mapped_column
 )
 
-from backend.shared.models.base import BaseModel
+from backend.shared.models.base_model import BaseModel
 
 
 class Recipe(BaseModel):
