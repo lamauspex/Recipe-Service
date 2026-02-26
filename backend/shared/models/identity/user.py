@@ -16,8 +16,9 @@ from sqlalchemy.orm import (
     relationship
 )
 
-from backend.shared.models.base.base_models import BaseModel
-from backend.shared.models.identity.role import ROLES, Permission, Role
+
+from backend.shared.models.base import BaseModel
+from backend.shared.models.enums import ROLES, Permission, Role
 
 
 class User(BaseModel):

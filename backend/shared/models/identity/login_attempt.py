@@ -18,7 +18,7 @@ from sqlalchemy.orm import (
 )
 from uuid import UUID as UUIDType
 
-from backend.shared.models.base.base_models import BaseModel
+from backend.shared.models.base import BaseModel
 
 
 class LoginAttempt(BaseModel):

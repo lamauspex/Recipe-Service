@@ -21,7 +21,7 @@ class DBBaseConfig(BaseSettings):
     model_config = SettingsConfigDict(
 
         # Путь к .env файлу относительно корня проекта
-        env_file=r"backend/database_service/.env",
+        env_file=r"backend/service_database/.env",
 
         # Игнорировать лишние переменные окружения
         extra='ignore',

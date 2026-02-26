@@ -1,3 +1,7 @@
+"""
+Перечисления и константы — независимый слой (не импортирует ничего!)
+"""
+
 
 from enum import IntFlag
 from dataclasses import dataclass
@@ -5,6 +9,7 @@ from dataclasses import dataclass
 
 class Permission(IntFlag):
     """Разрешения системы (битовая маска)"""
+
     NONE = 0
     READ = 1
     WRITE = 2
@@ -20,6 +25,7 @@ class Permission(IntFlag):
 @dataclass(frozen=True)
 class Role:
     """Статическое описание роли (не хранится в БД)"""
+
     name: str
     display_name: str
     description: str
@@ -29,6 +35,7 @@ class Role:
 
 # Предопределённые роли
 ROLES: dict[str, Role] = {
+
     "user": Role(
         name="user",
         display_name="Пользователь",
@@ -36,6 +43,7 @@ ROLES: dict[str, Role] = {
         permissions=Permission.READ,
         is_system=True,
     ),
+
     "moderator": Role(
         name="moderator",
         display_name="Модератор",
@@ -43,6 +51,7 @@ ROLES: dict[str, Role] = {
         permissions=Permission.READ | Permission.WRITE | Permission.VIEW_STATS,
         is_system=True,
     ),
+
     "admin": Role(
         name="admin",
         display_name="Администратор",
