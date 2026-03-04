@@ -78,7 +78,6 @@ class AuthService:
         user: Optional[User]
     ) -> bool:
         """Проверка пароля"""
-
         if not user:
             return False
         return self.password_service.verify_password(
@@ -88,7 +87,6 @@ class AuthService:
 
     def create_tokens(self, user: User) -> TokenPairDTO:
         """Создание пары токенов"""
-
         # Access токен
         access_token = self.jwt_service.create_access_token({
             "sub": str(user.id),
@@ -122,7 +120,6 @@ class AuthService:
         refresh_token: str
     ) -> Optional[TokenPairDTO]:
         """Обновление токенов"""
-
         valid_token = self.refresh_token_service.get_valid_token(
             refresh_token
         )
