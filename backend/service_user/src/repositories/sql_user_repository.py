@@ -79,7 +79,15 @@ class SQLUserRepository:
 
     def get_active_user_by_email(self, email: str):
         """Поиск активного пользователя по email"""
-        return self.db.query(User).filter(
+        user = self.db.query(User).filter(
             User.email == email,
             User.is_active is True
         ).first()
+
+        return user
+
+    def activate_user(self, user_id: UUID):
+        """Активация пользователя"""
+        user = self.db.query(User).filter(User.id == user_id).first()
+        user.is_active = True
+        self.db.commit()

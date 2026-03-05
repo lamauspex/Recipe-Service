@@ -66,3 +66,12 @@ class UserRepositoryProtocol(Protocol):
         :return: Активный пользователь или None
         """
         ...
+
+    def activate_user(self, user_id: UUID) -> None:
+        """
+        Активация пользователя
+
+        :param user_id: ID пользователя
+        :return: None
+        """
+        ...

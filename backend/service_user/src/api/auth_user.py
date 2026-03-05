@@ -1,6 +1,6 @@
 """ API Routers Auth  """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from backend.service_user.src.schemas.auth.requests import LoginRequest
 from backend.service_user.src.schemas.auth.responses import TokenResponse
@@ -48,11 +48,4 @@ async def login_user(
         password=login_data.password
     )
 
-    if not token_pair:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверные учетные данные",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    return TokenResponse.model_validate(token_pair)
+    return TokenResponse.model_validate(token_pair.to_repository_dict())

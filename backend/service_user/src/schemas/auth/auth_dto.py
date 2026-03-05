@@ -3,15 +3,15 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, BaseModel
 
-from backend.service_user.src.schemas.base import (
-    DTOConverterMixin,
-    UserTimestampsModel
-)
+from backend.service_user.src.schemas.base import DTOConverterMixin
 
 
-class TokenPairDTO(DTOConverterMixin):
+class TokenPairDTO(
+    BaseModel,
+    DTOConverterMixin
+):
 
     """Пара токенов (сервисный слой)"""
 
@@ -21,7 +21,10 @@ class TokenPairDTO(DTOConverterMixin):
     refresh_token: str
 
 
-class AuthResultDTO(DTOConverterMixin):
+class AuthResultDTO(
+    BaseModel,
+    DTOConverterMixin
+):
     """Результат аутентификации"""
 
     model_config = ConfigDict(
@@ -35,8 +38,8 @@ class AuthResultDTO(DTOConverterMixin):
 
 
 class RefreshTokenDataDTO(
-    DTOConverterMixin,
-    UserTimestampsModel
+    BaseModel,
+    DTOConverterMixin
 ):
     """Данные для refresh токена"""
 
