@@ -4,10 +4,9 @@ from .register import (
     UserRegistrationDTO
 )
 from .auth import (
-    UserLogin,
-    LoginResponseDTO,
-    RefreshTokenRequest,
-    RefreshResponseDTO
+    TokenPairDTO, AuthResultDTO, RefreshTokenDataDTO,
+    LoginRequest, RefreshTokenRequest, LogoutRequest,
+    TokenResponse
 )
 from .base.base import PasswordValidatedModel, NameValidatedModel
 
@@ -16,12 +15,13 @@ __all__ = [
     "UserCreate",
     "UserResponseDTO",
     "UserRegistrationDTO",
-    "UserLogin",
-    "LoginResponseDTO",
+    "TokenPairDTO",
+    "AuthResultDTO",
+    "RefreshTokenDataDTO",
+    "LoginRequest",
     "RefreshTokenRequest",
-    "RefreshResponseDTO",
-    "PasswordSchemaValidator",
+    "LogoutRequest",
+    "TokenResponse",
     "PasswordValidatedModel",
-    "NameValidatedModel",
-    "NameValidator"
+    "NameValidatedModel"
 ]

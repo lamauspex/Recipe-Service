@@ -24,11 +24,17 @@ class UserUniquenessValidator:
         if self.user_repo.get_user_by_user_name(user_name):
             raise ConflictException(
                 message="Пользователь с таким именем уже существует",
-                details={"field": "user_name", "value": user_name}
+                details={
+                    "field": "user_name",
+                    "value": user_name
+                }
             )
 
         if self.user_repo.get_user_by_email(email):
             raise ConflictException(
                 message="Пользователь с таким email уже существует",
-                details={"field": "email", "value": email}
+                details={
+                    "field": "email",
+                    "value": email
+                }
             )

@@ -58,7 +58,7 @@ class AuthService:
         Возвращает: TokenPairDTO или None при ошибке
         """
         # Шаг 1: Аутентификация пользователя
-        user = self.user_repo.get_user_by_email(email)
+        user = self.user_repo.get_active_user_by_email(email)
 
         # Шаг 2: Валидация пароля
         if not self._verify_password(password, user):
