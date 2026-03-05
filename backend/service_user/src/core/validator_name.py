@@ -19,7 +19,7 @@ class UserUniquenessValidator:
         user_name: str,
         email: str
     ) -> None:
-        """ Проверка уникальности username и email """
+        """ Проверка уникальности user_name и email """
 
         if self.user_repo.get_user_by_user_name(user_name):
             raise ConflictException(

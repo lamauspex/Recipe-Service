@@ -50,16 +50,15 @@ class AuthService:
 
     def authenticate_and_create_tokens(
         self,
-        user_name: str,
+        email: str,
         password: str
     ) -> Optional[TokenPairDTO]:
         """
         Аутентификация и создание токенов
-
         Возвращает: TokenPairDTO или None при ошибке
         """
         # Шаг 1: Аутентификация пользователя
-        user = self.user_repo.get_user_by_user_name(user_name)
+        user = self.user_repo.get_user_by_email(email)
 
         # Шаг 2: Валидация пароля
         if not self._verify_password(password, user):
@@ -120,15 +119,16 @@ class AuthService:
         refresh_token: str
     ) -> Optional[TokenPairDTO]:
         """Обновление токенов"""
-        valid_token = self.refresh_token_service.get_valid_token(
-            refresh_token
-        )
+
+        valid_token = self.token_repo.get_valid_token(refresh_token)
+
         if not valid_token:
             return None
 
         user = self.user_repo.get_user_by_id(valid_token.user_id)
+
         if not user:
             return None
 
-        self.refresh_token_service.revoke_token(refresh_token)
+        self.token_repo.revoke_token(refresh_token)
         return self.create_tokens(user)

@@ -1,5 +1,6 @@
 
 from typing import Protocol, Optional
+from uuid import UUID
 
 from backend.shared.models.identity.user import User
 
@@ -39,7 +40,7 @@ class UserRepositoryProtocol(Protocol):
         """
         ...
 
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    def get_user_by_id(self, user_id: UUID) -> Optional[User]:
         """
         Поиск пользователя по ID
 
@@ -53,6 +54,15 @@ class UserRepositoryProtocol(Protocol):
         Поиск активного пользователя по имени
 
         :param user_name: Имя пользователя
+        :return: Активный пользователь или None
+        """
+        ...
+
+    def get_active_user_by_email(self, email: str) -> Optional[User]:
+        """
+        Поиск активного пользователя по email
+
+        :param email: Email пользователя
         :return: Активный пользователь или None
         """
         ...

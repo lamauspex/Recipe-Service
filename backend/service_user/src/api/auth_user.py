@@ -44,7 +44,7 @@ async def login_user(
     """
     # Вызываем метод аутентификации с распакованными данными
     token_pair = auth_service.authenticate_and_create_tokens(
-        user_name=login_data.user_name,
+        email=login_data.email,
         password=login_data.password
     )
 

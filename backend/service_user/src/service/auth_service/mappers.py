@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from backend.shared.models import User
 from backend.service_user.src.schemas.auth.auth_dto import (
@@ -35,7 +36,7 @@ class AuthMapper:
 
     @staticmethod
     def to_refresh_token_data(
-        user_id: int,
+        user_id: UUID,
         token: str,
         expires_at: datetime
     ) -> RefreshTokenDataDTO:

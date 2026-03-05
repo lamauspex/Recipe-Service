@@ -2,6 +2,8 @@
 SQLAlchemy реализация репозитория пользователей
 """
 
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 
 from backend.shared.models import User
@@ -12,7 +14,7 @@ from backend.shared.models.enums import ROLES
 class SQLUserRepository:
     """
 
-    ВАЖНО: Мы НЕ наследуемся от UserRepositoryProtocol!
+    НЕ наследуемся от UserRepositoryProtocol!
     Protocol проверяет только наличие методов с нужными сигнатурами.
 
     """
@@ -42,6 +44,7 @@ class SQLUserRepository:
 
         # Проверяем, что роль допустимая
         if role_name not in ROLES:
+
             raise ConflictException(
                 f"Роль '{role_name}' не найдена. "
                 f"Допустимые роли: {', '.join(ROLES.keys())}"
@@ -63,7 +66,7 @@ class SQLUserRepository:
         """Поиск пользователя по email"""
         return self.db.query(User).filter(User.email == email).first()
 
-    def get_user_by_id(self, user_id: int):
+    def get_user_by_id(self, user_id: UUID):
         """Поиск пользователя по ID"""
         return self.db.query(User).filter(User.id == user_id).first()
 
@@ -71,5 +74,12 @@ class SQLUserRepository:
         """Поиск активного пользователя по имени"""
         return self.db.query(User).filter(
             User.user_name == user_name,
+            User.is_active is True
+        ).first()
+
+    def get_active_user_by_email(self, email: str):
+        """Поиск активного пользователя по email"""
+        return self.db.query(User).filter(
+            User.email == email,
             User.is_active is True
         ).first()

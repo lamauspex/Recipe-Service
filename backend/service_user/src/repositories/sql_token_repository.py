@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from backend.shared.models import RefreshToken
+from backend.service_user.src.schemas.auth.auth_dto import RefreshTokenDataDTO
 
 
 class SQLTokenRepository:
@@ -18,19 +19,14 @@ class SQLTokenRepository:
 
     def create_refresh_token(
         self,
-        user_id: UUID,
-        token: str,
-        expires_at
+        token_data: RefreshTokenDataDTO
     ) -> RefreshToken:
         """Создание refresh токена"""
 
-        # Отзываем старые токены пользователя
-        self.revoke_user_tokens(user_id)
-
         refresh_token = RefreshToken(
-            user_id=user_id,
-            token=token,
-            expires_at=expires_at
+            user_id=token_data.user_id,
+            token=token_data.token,
+            expires_at=token_data.expires_at
         )
         self.db.add(refresh_token)
         self.db.commit()
