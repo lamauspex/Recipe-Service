@@ -1,6 +1,6 @@
 from .auth_dto import TokenPairDTO, AuthResultDTO, RefreshTokenDataDTO
 from .requests import LoginRequest, RefreshTokenRequest, LogoutRequest
-from .responses import TokenResponse
+from .responses import TokenResponse, MessageResponse
 
 __all__ = [
     "TokenPairDTO",
@@ -10,4 +10,5 @@ __all__ = [
     "RefreshTokenRequest",
     "LogoutRequest",
     "TokenResponse",
+    "MessageResponse"
 ]

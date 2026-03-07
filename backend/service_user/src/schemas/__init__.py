@@ -6,7 +6,7 @@ from .register import (
 from .auth import (
     TokenPairDTO, AuthResultDTO, RefreshTokenDataDTO,
     LoginRequest, RefreshTokenRequest, LogoutRequest,
-    TokenResponse
+    TokenResponse, MessageResponse
 )
 from .base.base import PasswordValidatedModel, NameValidatedModel
 
@@ -23,5 +23,6 @@ __all__ = [
     "LogoutRequest",
     "TokenResponse",
     "PasswordValidatedModel",
-    "NameValidatedModel"
+    "NameValidatedModel",
+    "MessageResponse"
 ]
