@@ -1,6 +1,8 @@
 """ API Routers Auth  """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi import APIRouter, Depends, status
+
 
 from backend.service_user.src.protocols.token_repository import (
     TokenRepositoryProtocol)
@@ -28,34 +30,14 @@ router = APIRouter(
     "/login",
     summary="Аутентификация пользователя",
     response_model=TokenResponse,
-    status_code=status.HTTP_200_OK,
-    responses={
-        401: {"description": "Неверные учетные данные"},
-        404: {"description": "Пользователь не найден"},
-        422: {"description": "Ошибка валидации данных"}
-    }
+    status_code=status.HTTP_200_OK
 )
 async def login_user(
     login_data: LoginRequest,
     auth_service: AuthService = Depends(get_auth_service)
 ):
-    """
-    Проверяет учетные данные пользователя и возвращает пару токенов
-    (access + refresh) при успешной аутентификации.
+    """ Аутентификация и создание токенов """
 
-    Args:
-        login_data: Данные для входа (имя пользователя + пароль)
-        auth_service: Сервис аутентификации (внедряется через Depends)
-
-    Returns:
-        LoginResponseDTO: Пара токенов (access + refresh)
-        TokenResponse(
-            access_token=token_pair.access_token,
-            refresh_token=token_pair.refresh_token,
-            token_type="bearer"
-        )
-
-    """
     # Вызываем метод аутентификации с распакованными данными
     token_pair = auth_service.authenticate_and_create_tokens(
         email=login_data.email,
@@ -68,7 +50,10 @@ async def login_user(
 @router.post(
     "/refresh",
     summary="Обновление токенов",
-    response_model=TokenResponse
+    response_model=TokenResponse,
+    responses={
+        401: {"description": "Неверный или истёкший токен"}
+    }
 )
 async def refresh_token(
     refresh_data: RefreshTokenRequest,
@@ -79,12 +64,6 @@ async def refresh_token(
     token_pair = auth_service.refresh_access_token(
         refresh_token=refresh_data.refresh_token
     )
-
-    if not token_pair:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверный или истёкший токен"
-        )
 
     return TokenResponse(
         access_token=token_pair.access_token,
@@ -104,5 +83,4 @@ async def logout(
     """Выход из системы (инвалидация refresh токена)"""
 
     token_repo.revoke_token(logout_data.refresh_token)
-
     return MessageResponse(message="Вы успешно вышли из системы")

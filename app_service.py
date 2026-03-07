@@ -7,11 +7,14 @@
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_database.src import (
     get_connection_manager,
     get_migration_runner
 )
+from backend.service_user.src.middleware.exception.exception_auth_middleware import (
+    ExceptionHandlerMiddleware)
 from backend.shared.logging import setup_logging, LoggingMiddleware
 from backend.service_user.src.api import api_router as api_router_users
 from backend.service_user.src.container import container as user_con
@@ -36,7 +39,8 @@ async def startup_handler():
     """Обработчик запуска приложения"""
 
     # Пропускаем инициализацию в тестах
-    if os.environ.get("TESTING") == "1" or os.environ.get("USER_SERVICE_TESTING") == "1":
+    if os.environ.get("TESTING") == "1" or os.environ.get(
+            "USER_SERVICE_TESTING") == "1":
         return
 
     # Настройка логирования
@@ -77,6 +81,18 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if api_config.DEBUG else None,
         lifespan=lifespan
     )
+
+    # CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Exception Handler Middleware
+    app.add_middleware(ExceptionHandlerMiddleware)
 
     # Подключаем API роутеры
     app.include_router(api_router_users)

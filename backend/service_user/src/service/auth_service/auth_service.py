@@ -7,6 +7,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 
+from backend.service_user.src.middleware.exception import (
+    InvalidCredentialsException)
 from backend.shared.models import User
 from backend.service_user.src.config import (
     ApiConfig,
@@ -62,11 +64,11 @@ class AuthService:
 
         # Шаг 2: Валидация пароля
         if not self._verify_password(password, user):
-            return None
+            raise InvalidCredentialsException()
 
         # Шаг 3: Валидация пользователя
         if not self.auth_validator.validate_user_for_auth(user):
-            return None
+            raise InvalidCredentialsException()
 
         # Шаг 4: Создание токенов
         return self.create_tokens(user)
