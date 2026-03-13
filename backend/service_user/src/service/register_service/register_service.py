@@ -39,7 +39,10 @@ class RegisterService:
         """
 
         # 1. Валидация
-        self.validator.validate(user_data.user_name, user_data.email)
+        self.validator.validate(
+            user_data.user_name,
+            user_data.email
+        )
 
         # 2. Маппинг (хеширование пароля)
         user_dto = self.mapper.api_to_dto(user_data)
