@@ -9,12 +9,12 @@ from .base import BaseConfig
 from .config_cache import CacheConfig
 from .config_monitoring import MonitoringConfig
 
-
 __all__ = [
     "settings",
     "ApiConfig",
     "AuthConfig",
     "BaseConfig",
     "CacheConfig",
+    "CORSConfig",
     "MonitoringConfig"
 ]

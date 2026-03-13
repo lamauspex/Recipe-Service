@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 
-from backend.service_user.src.middleware.exception import (
+from backend.service_user.src.exception import (
     InvalidCredentialsException)
 from backend.shared.models import User
 from backend.service_user.src.config import (

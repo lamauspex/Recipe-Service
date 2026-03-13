@@ -1,9 +1,9 @@
 """  Конфигурация мониторинга и логирования """
 
-from typing import List
+
 from pydantic import Field
 
-from .base import BaseConfig
+from backend.service_user.src.config.base import BaseConfig
 
 
 class MonitoringConfig(BaseConfig):
@@ -41,17 +41,6 @@ class MonitoringConfig(BaseConfig):
     )
     PROMETHEUS_METRICS_PATH: str = Field(
         description="путь для Prometheus метрик"
-    )
-
-    # CORS НАСТРОЙКИ
-    CORS_ORIGINS: List[str] = Field(
-        description="URL-адреса для разрешения запросов"
-    )
-    CORS_ALLOW_CREDENTIALS: bool = Field(
-        description="Разрешить запросу запрашивать ключевые данные"
-    )
-    CORS_MAX_AGE: int = Field(
-        description="Для изменения текущего времени access-control-max-age"
     )
 
     @property

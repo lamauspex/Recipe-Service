@@ -41,9 +41,12 @@ class AuthConfig(BaseConfig):
     )
 
     # Токены
-    JTI_LENGTH: int = Field(description="Индивидуальные буковцы")
+    JTI_LENGTH: int = Field(
+        description="Индивидуальные буковцы"
+    )
     TOKEN_LENGTH: int = Field(
-        description="Максимально возможное количество знаков")
+        description="Максимально возможное количество знаков"
+    )
 
     # Пароли
     MIN_PASSWORD_LENGTH: int = Field(

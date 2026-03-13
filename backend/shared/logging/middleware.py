@@ -32,9 +32,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         app: ASGIApp,
         log_request_body: bool = False,
         log_response_body: bool = False,
+        service_name: str = "app",
     ):
         super().__init__(app)
-        self.logger = get_logger(__name__).bind(layer="http")
+        self.logger = get_logger(__name__).bind(
+            layer="http",
+            service=service_name
+        )
         self.log_request_body = log_request_body
         self.log_response_body = log_response_body
 
@@ -43,6 +47,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         request: Request,
         call_next: Callable
     ) -> Response:
+
         # Генерируем уникальный ID запроса
         request_id = str(uuid.uuid4())[:8]
 
