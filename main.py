@@ -6,7 +6,8 @@ import logging
 
 import uvicorn
 
-from app_service import app_service
+from backend.service_user import app_users
+
 
 # Отключаем ВСЕ логи Uvicorn ДО запуска
 for logger_name in [
@@ -20,7 +21,7 @@ for logger_name in [
 
 if __name__ == "__main__":
     uvicorn.run(
-        app_service,
+        app_users,
         log_level="warning",
         access_log=False
     )

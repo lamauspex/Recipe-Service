@@ -39,15 +39,15 @@ async def startup_handler():
             "USER_SERVICE_TESTING") == "1":
         return
 
-    # Получаем connection_manager
+    # Получаем connection_manager и migration_runner из database_service
     connection_manager = get_connection_manager()
+    migration_runner = get_migration_runner()
 
-    # Проверяем подключение
+    # Проверяем подключение к базе данных
     if not connection_manager.test_connection():
         raise Exception("Не удалось подключиться к базе данных")
 
     # Применяем миграции
-    migration_runner = get_migration_runner()
     migration_runner.upgrade("head")
 
     print("✅ Database initialized successfully")
