@@ -11,6 +11,7 @@ from backend.service_database.src import (
     get_connection_manager,
     get_migration_runner
 )
+from backend.service_user.src.container import container
 from backend.shared.logging.config import setup_logging
 
 
@@ -31,7 +32,11 @@ async def lifespan(app: FastAPI):
 async def startup_handler():
     """Обработчик запуска приложения"""
 
-    setup_logging(debug=True)
+    monitoring_config = container.monitoring_config()
+    setup_logging(
+        debug=monitoring_config.DEBUG,
+        json_output=monitoring_config.LOG_FORMAT
+    )
     print("User Service запущен")
 
     # Пропускаем инициализацию в тестах

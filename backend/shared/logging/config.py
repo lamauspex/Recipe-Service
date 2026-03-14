@@ -10,7 +10,7 @@ import structlog
 
 def setup_logging(
     debug: bool = False,
-    json_output: bool = False
+    json_output: bool | str = False
 ) -> None:
     """
     Настраивает structlog для всего приложения
@@ -19,6 +19,9 @@ def setup_logging(
         debug: Включить DEBUG уровень (более подробный вывод)
         json_output: Выводить в JSON формате (для продакшена)
     """
+
+    if isinstance(json_output, str):
+        json_output = json_output.lower() == "json"
 
     # Настройка процессоров в зависимости от режима
     processors = [

@@ -20,6 +20,7 @@ def create_app() -> FastAPI:
 
     # Получаем настройки из контейнера
     api_config = container.api_config()
+    cors_config = container.cors_config()
 
     app = FastAPI(
         title=api_config.API_TITLE,
@@ -33,8 +34,8 @@ def create_app() -> FastAPI:
     # CORS
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
+        allow_origins=cors_config.CORS_ORIGINS,
+        allow_credentials=cors_config.CORS_ALLOW_CREDENTIALS,
         allow_methods=["*"],
         allow_headers=["*"],
     )

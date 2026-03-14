@@ -17,7 +17,8 @@ from backend.service_user.src.config import (
     ApiConfig,
     AuthConfig,
     CacheConfig,
-    MonitoringConfig
+    MonitoringConfig,
+    CORSConfig
 )
 from backend.service_user.src.core import (
     JWTService,
@@ -51,6 +52,7 @@ class Container(containers.DeclarativeContainer):
     auth_config = providers.Factory(AuthConfig)
     cache_config = providers.Factory(CacheConfig)
     monitoring_config = providers.Factory(MonitoringConfig)
+    cors_config = providers.Factory(CORSConfig)
 
     # ==========================================
     # STATELESS CORE СЕРВИСЫ
@@ -82,16 +84,18 @@ class Container(containers.DeclarativeContainer):
 
     # Все конфигурации в одном объекте
     configs = providers.Factory(
-        lambda api, auth, cache, monitoring: type('Configs', (), {
+        lambda api, auth, cache, cors, monitoring: type('Configs', (), {
             'api': api,
             'auth': auth,
             'cache': cache,
             'monitoring': monitoring,
+            'cors': cors
         })(),
         api=api_config,
         auth=auth_config,
         cache=cache_config,
         monitoring=monitoring_config,
+        cors=cors_config
     )
 
 
@@ -100,13 +104,3 @@ container = Container()
 
 # Инициализируем ресурсы (если они будут добавлены в будущем)
 container.init_resources()
-
-# Подключаем контейнер к пакетам user_service
-# для использования @inject и Provide
-# container.wire(
-#     packages=[
-#         "backend.user_service.src.dependencies",
-#         "backend.user_service.src.api",
-#         "backend.user_service.src.service",
-#     ]
-# )

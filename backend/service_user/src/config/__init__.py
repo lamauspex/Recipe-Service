@@ -8,6 +8,7 @@ from .config_auth import AuthConfig
 from .base import BaseConfig
 from .config_cache import CacheConfig
 from .config_monitoring import MonitoringConfig
+from .config_cors import CORSConfig
 
 __all__ = [
     "settings",
@@ -16,5 +17,6 @@ __all__ = [
     "BaseConfig",
     "CacheConfig",
     "CORSConfig",
-    "MonitoringConfig"
+    "MonitoringConfig",
+    "CORSConfig"
 ]

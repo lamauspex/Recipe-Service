@@ -13,7 +13,11 @@ from backend.service_user.src.exception import (
 )
 from backend.shared.logging import get_logger
 
-logger = get_logger(__name__).bind(layer="exception", service="user")
+
+logger = get_logger(__name__).bind(
+    layer="exception",
+    service="user"
+)
 
 
 def _error_response(message: str, status_code: int, code: str) -> dict:
