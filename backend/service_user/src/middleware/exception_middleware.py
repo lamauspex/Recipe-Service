@@ -1,6 +1,6 @@
 """ Middleware для обработки исключений """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -20,13 +20,17 @@ logger = get_logger(__name__).bind(
 )
 
 
-def _error_response(message: str, status_code: int, code: str) -> dict:
+def _error_response(
+    message: str,
+    status_code: int,
+    code: str
+) -> dict:
     return {
         "error": {
             "message": message,
             "code": code,
             "status_code": status_code,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     }
 
@@ -40,31 +44,38 @@ class ExceptionHandlerMiddleware(BaseHTTPMiddleware):
 
         except InvalidCredentialsException:
             return JSONResponse(
-                401,
-                _error_response(
+                status_code=401,
+                content=_error_response(
                     "Неверные учетные данные!",
                     401, "INVALID_CREDENTIALS"
                 ))
 
         except (InvalidTokenException, TokenExpiredException):
             return JSONResponse(
-                401,
-                _error_response(
+                status_code=401,
+                content=_error_response(
                     "Неверный или истёкший токен!",
                     401,
                     "INVALID_TOKEN"
                 ))
 
         except AppException as exc:
+            logger.error(
+                "App exception",
+                message=exc.message,
+                code=exc.code
+            )
             return JSONResponse(exc.status_code, exc.to_dict())
 
-        except AppException as exc:
-            logger.error("App exception", message=exc.message, code=exc.code)
-
-        except Exception:
+        except Exception as exc:
+            logger.exception(
+                "Unhandled exception",
+                error=str(exc),
+                error_type=type(exc).__name__
+            )
             return JSONResponse(
-                500,
-                _error_response(
+                status_code=500,
+                content=_error_response(
                     "Внутренняя ошибка сервера",
                     500,
                     "INTERNAL_ERROR"
