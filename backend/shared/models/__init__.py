@@ -20,7 +20,7 @@ from .identity import (
     LoginAttempt,
 )
 
-from .prodact import Recipe
+from .prodact import Recipe, Ingredient
 
 
 __all__ = [
@@ -41,4 +41,5 @@ __all__ = [
     "LoginAttempt",
     # prodact
     "Recipe",
+    "Ingredient",
 ]
