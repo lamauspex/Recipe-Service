@@ -6,7 +6,8 @@ from uuid import UUID as UUIDType
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import (
     Mapped,
-    mapped_column
+    mapped_column,
+    relationship
 )
 
 from backend.shared.models.base_model import BaseModel
@@ -19,11 +20,11 @@ class Ingredient(BaseModel):
         ForeignKey(
             "recipes.id",
             ondelete="CASCADE"
-        )
-    ),
-    nullable = True,
-    index = True,
-    comment = 'ID рецепта'
+        ),
+        nullable=True,
+        index=True,
+        comment='ID рецепта'
+    )
 
     ingredient: Mapped[str] = mapped_column(
         String(50),
@@ -37,8 +38,13 @@ class Ingredient(BaseModel):
         comment='Количество'
     )
 
-    unit = mapped_column(
+    unit: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
         comment='Единица измерения'
+    )
+
+    recipe = relationship(
+        "Recipe",
+        back_populates="ingredients"
     )

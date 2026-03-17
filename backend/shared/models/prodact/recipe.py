@@ -7,7 +7,8 @@ from uuid import UUID as UUIDType
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import (
     Mapped,
-    mapped_column
+    mapped_column,
+    relationship
 )
 
 from backend.shared.models.base_model import BaseModel
@@ -36,4 +37,10 @@ class Recipe(BaseModel):
         String(50),
         nullable=False,
         comment='Описание рецепта'
+    )
+
+    ingredients = relationship(
+        "Ingredient",
+        back_populates="recipe",
+        cascade="all, delete-orphan"
     )
