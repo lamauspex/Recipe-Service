@@ -59,5 +59,8 @@ class UserRegistrationDTO(
             dict: Словарь с данными для создания пользователя
         """
         return super().to_repository_dict(
-            exclude={'created_at', 'updated_at'}
+            exclude={
+                'created_at',
+                'updated_at'
+            }
         )

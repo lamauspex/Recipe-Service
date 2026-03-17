@@ -1,5 +1,5 @@
 """
-Модели данных для recipe-service
+Модели данных для Recipe_Service
 """
 
 
@@ -30,12 +30,6 @@ class Recipe(BaseModel):
         String(50),
         nullable=False,
         comment='Название рецепта'
-    )
-
-    ingredient: Mapped[str] = mapped_column(
-        String(50),
-        nullable=False,
-        comment='Ингредиенты'
     )
 
     description: Mapped[str] = mapped_column(

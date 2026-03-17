@@ -2,9 +2,13 @@
 API роутеры для работы с рецептами
 """
 
-from fastapi import status
+from fastapi import status, APIRouter
 
-from .base import router
+
+router = APIRouter(
+    prefix="/recipes",
+    tags=["Рецепты"]
+)
 
 
 @router.get(
@@ -17,9 +21,12 @@ from .base import router
 async def create_recipe(
     recipe_data: RecipeCreate,
     recipe_service: RecipeService = Depends(get_recipe_service),
-    current_user=Depends(get_current_active_user)
+
 ):
-    """Создание нового рецепта"""
+    """
+    Создание нового рецепта
+    Сервис возвращает готовый RecipeResponseDTO
+    """
 
     return recipe_service.create_recipe(
         recipe_data,
