@@ -2,7 +2,7 @@
 
 
 import re
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from backend.service_user.src.config import AuthConfig
 

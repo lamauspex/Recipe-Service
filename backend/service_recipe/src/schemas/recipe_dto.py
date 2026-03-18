@@ -1,10 +1,12 @@
-""" DTO для общения между сервисами """
+"""
+DTO для общения между сервисами
+"""
 
 
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RecipeDTO(BaseModel):
@@ -12,9 +14,9 @@ class RecipeDTO(BaseModel):
     Data Transfer Object для передачи данных рецепта между сервисами.
 
     Используется при:
-    - Вызове методов других сервисов
-    - Внутреннем преобразовании данных
-    - Кешировании данных рецепта
+        - Вызове методов других сервисов
+        - Внутреннем преобразовании данных
+        - Кешировании данных рецепта
 
     Attributes:
         id: Уникальный идентификатор рецепта
@@ -39,10 +41,27 @@ class RecipeDTO(BaseModel):
         }
     )
 
-    id: UUID
-    user_id: UUID | None
-    name_recipe: str
-    description: str
-
-    created_at: datetime
-    updated_at: datetime | None
+    id: UUID = Field(
+        ...,
+        description="Уникальный идентификатор"
+    )
+    user_id: UUID | None = Field(
+        default=None,
+        description="ID создателя рецепта"
+    )
+    name_recipe: str = Field(
+        ...,
+        description="Название рецепта"
+    )
+    description: str = Field(
+        ...,
+        description="Описание рецепта"
+    )
+    created_at: datetime = Field(
+        ...,
+        description="Время создания"
+    )
+    updated_at: datetime | None = Field(
+        default=None,
+        description="Время последнего обновления"
+    )

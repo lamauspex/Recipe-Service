@@ -1,7 +1,9 @@
-""" Базовые схемы с валидацией для переиспользования """
+"""
+Базовые схемы с валидацией для переиспользования
+"""
 
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from backend.service_recipe.src.schemas.base.validated import (
     TitleValidator,
@@ -31,7 +33,7 @@ class TitleValidatedModel(BaseModel):
         }
     )
 
-    name_recipe: str
+    name_recipe: str = Field(..., description="Название рецепта")
 
     @field_validator('name_recipe')
     @classmethod
@@ -40,8 +42,8 @@ class TitleValidatedModel(BaseModel):
         Валидация названия рецепта
 
         Проверяет название на соответствие требованиям:
-        - Длина в допустимых пределах
-        - Корректные символы
+            - Длина в допустимых пределах
+            - Корректные символы
 
         Raises:
             ValueError: Если название не прошло валидацию
@@ -75,7 +77,7 @@ class DescriptionValidatedModel(BaseModel):
         }
     )
 
-    description: str
+    description: str = Field(..., description="Описание рецепта")
 
     @field_validator('description')
     @classmethod

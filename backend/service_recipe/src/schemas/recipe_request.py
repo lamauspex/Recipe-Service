@@ -1,7 +1,9 @@
-""" Схемы для входящих запросов """
+"""
+Схемы для входящих запросов API рецептов
+"""
 
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 
 from backend.service_recipe.src.schemas import (
     TitleValidatedModel,
@@ -59,4 +61,7 @@ class RecipeCreate(
         }
     )
 
-    ingredients: list[IngredientSchema]
+    ingredients: list[IngredientSchema] = Field(
+        ...,
+        description="Список ингредиентов рецепта"
+    )

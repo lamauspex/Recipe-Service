@@ -1,5 +1,5 @@
 """
-Схемы для Ingredient
+Схемы для ингредиентов рецептов
 """
 
 from enum import Enum
@@ -10,7 +10,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class MeasurementUnit(str, Enum):
-    """Единицы измерения ингредиентов"""
+    """
+    Единицы измерения ингредиентов
+
+    Используется для стандартизации единиц измерения
+    в ингредиентах рецептов
+    """
 
     GRAM = "г"
     KILOGRAM = "кг"
@@ -40,9 +45,23 @@ class IngredientSchema(BaseModel):
         ... )
     """
 
-    name: str
-    quantity: str
-    unit: Annotated[MeasurementUnit | None, Field(default=None)]
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "name": "Свекла",
+                "quantity": "300",
+                "unit": "г"
+            }
+        }
+    )
+
+    name: str = Field(..., description="Название ингредиента")
+    quantity: str = Field(..., description="Количество")
+    unit: Annotated[MeasurementUnit | None, Field(
+        default=None,
+        description="Единица измерения"
+    )]
 
 
 class IngredientResponse(BaseModel):
@@ -71,7 +90,7 @@ class IngredientResponse(BaseModel):
         }
     )
 
-    id: UUID
-    name: str
-    quantity: str
-    unit: str
+    id: UUID = Field(..., description="Уникальный идентификатор")
+    name: str = Field(..., description="Название ингредиента")
+    quantity: str = Field(..., description="Количество")
+    unit: str = Field(..., description="Единица измерения")

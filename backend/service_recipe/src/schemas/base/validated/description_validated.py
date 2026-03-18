@@ -1,10 +1,27 @@
+"""
+Валидатор описания рецепта
+"""
+
 
 from typing import List, Tuple
 
 
 class DescriptionValidator:
     """
-    Валидатор для проверки описания
+    Валидатор описания рецепта.
+
+    Проверяет:
+        - Минимальная длина: 5 символов
+        - Максимальная длина: 500 символов
+
+    Attributes:
+        MIN_LENGTH: Минимальная длина описания
+        MAX_LENGTH: Максимальная длина описания
+
+    Example:
+        >>> is_valid, errors = DescriptionValidator.validate("Вкусный борщ")
+        >>> is_valid
+        True
     """
 
     MIN_LENGTH = 5
@@ -20,15 +37,16 @@ class DescriptionValidator:
         - Максимальную длину (MAX_LENGTH)
         """
         errors = []
+        description = description.strip()
 
-        if not description or len(description.strip()) < cls.MIN_LENGTH:
+        if len(description) < cls.MIN_LENGTH:
             errors.append(
-                f'Описание должно содержать не менее {cls.MIN_LENGTH} символов'
+                f"Описание должно содержать не менее {cls.MIN_LENGTH} символов"
             )
 
         if len(description) > cls.MAX_LENGTH:
             errors.append(
-                f'Описание не может содержать более {cls.MAX_LENGTH} символов'
+                f"Описание не может содержать более {cls.MAX_LENGTH} символов"
             )
 
         return len(errors) == 0, errors
