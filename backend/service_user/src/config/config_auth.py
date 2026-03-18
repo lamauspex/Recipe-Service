@@ -52,6 +52,9 @@ class AuthConfig(BaseConfig):
     MIN_PASSWORD_LENGTH: int = Field(
         description="Минимальная длина пароля"
     )
+    MAX_PASSWORD_LENGTH: int = Field(
+        description="Максимальная длина пароля"
+    )
     REQUIRE_DIGITS: bool = Field(
         description="Требуются цифры"
     )

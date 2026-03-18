@@ -44,7 +44,7 @@ async def login_user(
         password=login_data.password
     )
 
-    return TokenResponse.model_validate(await token_pair.to_repository_dict())
+    return TokenResponse.model_validate(token_pair.to_repository_dict())
 
 
 @router.post(

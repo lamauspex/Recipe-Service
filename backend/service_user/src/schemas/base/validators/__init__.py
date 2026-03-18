@@ -1,4 +1,14 @@
-""" Валидаторы для Pydantic схем """
+"""
+Валидаторы для Pydantic схем
+
+Содержит классы для валидации:
+- Пароли (password.py)
+- Имена пользователей (name.py)
+- Полные имена (full_name.py)
+- Email (email.py)
+- Хешированные пароли (hashed_pass.py)
+- Общие типы (common.py): role, boolean, datetime
+"""
 
 from .hashed_pass import HashedPasswordValidator
 from .full_name import FullNameValidator

@@ -1,3 +1,6 @@
+""" Схемы для регистрации пользователя """
+
+
 from pydantic import ConfigDict
 
 from backend.service_user.src.schemas.base import (
@@ -17,11 +20,27 @@ class UserCreate(
 
     """
     Схема для регистрации пользователя
+    Используется при регистрации нового пользователя
+
     Наследует валидацию от базовых схем:
     - PasswordValidatedModel: валидация сложности пароля
     - NameValidatedModel: валидация имени пользователя
     - FullNameValidatedModel: валидация и нормализация полного имени
     - EmailValidatedModel: валидация email
+
+    Attributes:
+        user_name: Уникальное имя пользователя (3-50 символов)
+        email: Email пользователя (уникальный, валидный формат)
+        password: Пароль (минимум 8 символов, сложный)
+        full_name: Полное имя пользователя (опционально)
+
+    Example:
+        >>> user = UserCreate(
+        ...     user_name="john_doe",
+        ...     email="john@example.com",
+        ...     password="SecurePass123!",
+        ...     full_name="John Doe"
+        ... )
     """
 
     model_config = ConfigDict(

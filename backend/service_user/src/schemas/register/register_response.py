@@ -1,16 +1,38 @@
 """ Схема ответа с данными пользователя """
 
-from pydantic import BaseModel, ConfigDict, field_serializer
+
 from datetime import datetime
 from typing import List, Optional
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer
+)
 
 
 class UserResponseDTO(BaseModel):
     """
-    Схема ответа с данными пользователя.
+    DTO для ответа с данными пользователя
 
-    Используется для возврата данных из API.
-    Не содержит чувствительной информации (пароль, токены).
+    Используется для возврата данных пользователя из API.
+    Не содержит чувствительной информации (пароли, токены).
+
+    Attributes:
+        id: Уникальный идентификатор пользователя
+        user_name: Имя пользователя (уникальное)
+        email: Email пользователя
+        full_name: Полное имя пользователя (опционально)
+        is_active: Активен ли аккаунт
+        email_verified: Подтверждён ли email
+        role_name: Техническое имя роли
+        role_display_name: Отображаемое имя роли
+        permissions: Список разрешений пользователя
+        login_count: Количество входов
+        last_login: Дата последнего входа
+        created_at: Дата создания аккаунта
+        updated_at: Дата последнего обновления
     """
 
     model_config = ConfigDict(
@@ -37,27 +59,66 @@ class UserResponseDTO(BaseModel):
     )
 
     # ========== Основные данные ==========
-    id: str
-    user_name: str
-    email: str
-    full_name: Optional[str] = None
+    id: str = Field(
+        ...,
+        description="Уникальный идентификатор"
+    )
+    user_name: str = Field(
+        ...,
+        description="Имя пользователя"
+    )
+    email: str = Field(
+        ...,
+        description="Email пользователя"
+    )
+    full_name: Optional[str] = Field(
+        default=None,
+        description="Полное имя"
+    )
 
     # ========== Статус ==========
-    is_active: bool
-    email_verified: bool
+    is_active: bool = Field(
+        ...,
+        description="Активен ли аккаунт"
+    )
+    email_verified: bool = Field(
+        ...,
+        description="Подтверждён ли email"
+    )
 
     # ========== Роль (одна роль) ==========
-    role_name: str
-    role_display_name: str
-    permissions: List[str]
+    role_name: str = Field(
+        ...,
+        description="Техническое имя роли"
+    )
+    role_display_name: str = Field(
+        ...,
+        description="Отображаемое имя роли"
+    )
+    permissions: List[str] = Field(
+        ...,
+        description="Список разрешений"
+    )
 
     # ========== Статистика ==========
-    login_count: int = 0
-    last_login: Optional[datetime] = None
+    login_count: int = Field(
+        default=0,
+        description="Количество входов"
+    )
+    last_login: Optional[datetime] = Field(
+        default=None,
+        description="Дата последнего входа"
+    )
 
     # ========== Временные метки ==========
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime = Field(
+        ...,
+        description="Дата создания"
+    )
+    updated_at: datetime = Field(
+        ...,
+        description="Дата обновления"
+    )
 
     # ========== Сериализаторы ==========
 
@@ -69,7 +130,8 @@ class UserResponseDTO(BaseModel):
     @field_serializer('last_login', 'created_at', 'updated_at')
     def serialize_datetime(
         self,
-        value: Optional[datetime], _info
+        value: Optional[datetime],
+        _info
     ) -> Optional[str]:
         """Сериализация datetime в ISO формат"""
         return value.isoformat() if value else None

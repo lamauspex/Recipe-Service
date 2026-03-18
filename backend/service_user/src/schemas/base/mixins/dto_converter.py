@@ -2,7 +2,8 @@
 Миксины для Pydantic DTO
 """
 
-from typing import Optional, Set, Any
+
+from typing import Dict, Optional, Set, Any
 
 
 class DTOConverterMixin:
@@ -15,7 +16,7 @@ class DTOConverterMixin:
         self,
         exclude: Optional[Set[str]] = None,
         exclude_unset: bool = True
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         Преобразование DTO в словарь для передачи в репозиторий
 
