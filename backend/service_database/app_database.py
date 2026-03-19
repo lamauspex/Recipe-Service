@@ -23,7 +23,7 @@ def create_app() -> FastAPI:
     """
 
     # Получаем настройки из DI контейнера
-    config = container.config
+    config = container.config()
 
     # Создаём FastAPI приложение
     app = FastAPI(

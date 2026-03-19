@@ -40,17 +40,17 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Exception Handler Middleware
-    app.add_middleware(ExceptionHandlerMiddleware)
-
-    # Подключаем API роутеры
-    app.include_router(api_router)
-
     # Подключаем middleware логирования
     app.add_middleware(
         LoggingMiddleware,
         service_name="User_Service"
     )
+
+    # Exception Handler Middleware
+    app.add_middleware(ExceptionHandlerMiddleware)
+
+    # Подключаем API роутеры
+    app.include_router(api_router)
 
     return app
 

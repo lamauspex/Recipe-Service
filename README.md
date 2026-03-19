@@ -109,3 +109,7 @@ http://localhost:8000/redoc       # ReDoc
 **Email**: lamauspex@yandex.ru  
 **Telegram**: @lamauspex  
 **GitHub**: https://github.com/lamauspex
+
+
+
+

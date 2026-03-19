@@ -4,6 +4,11 @@ API роутеры для работы с рецептами
 
 from fastapi import status, APIRouter
 
+from backend.service_recipe.src.schemas import (
+    RecipeCreate,
+    RecipeResponse
+)
+
 
 router = APIRouter(
     prefix="/recipes",
@@ -13,7 +18,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=RecipeResponseDTO,
+    response_model=RecipeResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Создать новый рецепт",
     description="Создание рецепта с указанием автора"

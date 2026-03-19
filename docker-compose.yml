@@ -1,0 +1,74 @@
+
+x-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+# === Все сервисы проекта ===
+services:
+  # --- PostgreSQL ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - backend/service_database/.env
+    # Монтируем папку с данными на хосте
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d recipe_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recipe_network
+  
+
+  # --- RabbitMQ (пока условно) ---
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - recipe_network
+
+  # --- Service Database ---
+  service_database:
+    build:
+      context: .
+      dockerfile: backend/service_database/Dockerfile
+    container_name: service_database
+    restart: unless-stopped
+    env_file:
+      - backend/service_database/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy  # Не запустится пока БД не будет готова
+    networks:
+      - recipe_network
+
+# === Общие volumes для сохранения данных ===
+volumes:
+  postgres_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+# === Общая сеть между сервисами ===
+networks:
+  recipe_network:
+    driver: bridge

@@ -48,6 +48,17 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         call_next: Callable
     ) -> Response:
 
+        path = request.url.path
+
+        excluded_paths = [
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/health"
+        ]
+        if path in excluded_paths:
+            return await call_next(request)
+
         # Генерируем уникальный ID запроса
         request_id = str(uuid.uuid4())[:8]
 
