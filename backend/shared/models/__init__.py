@@ -13,15 +13,6 @@ from .base import (
     StatusMixin,
     UUIDTypeDecorator,
 )
-# Потом зависимые
-from .identity import (
-    User,
-    RefreshToken,
-    LoginAttempt,
-)
-
-from .prodact import Recipe, Ingredient
-
 
 __all__ = [
     # enums
@@ -30,16 +21,8 @@ __all__ = [
     "Role",
     # base
     "BaseModel",
-    "Base",
     "UUIDPrimaryKeyMixin",
     "TimestampMixin",
     "StatusMixin",
-    "UUIDTypeDecorator",
-    # identity
-    "User",
-    "RefreshToken",
-    "LoginAttempt",
-    # prodact
-    "Recipe",
-    "Ingredient",
+    "UUIDTypeDecorator"
 ]

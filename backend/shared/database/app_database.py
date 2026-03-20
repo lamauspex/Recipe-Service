@@ -9,8 +9,8 @@
 
 from fastapi import FastAPI
 
-from .src.container import container
-from .src.lifespan import lifespan
+from .container import container
+from .lifespan import lifespan
 
 
 def create_app() -> FastAPI:

@@ -3,7 +3,7 @@
 from typing import Protocol, Optional
 from uuid import UUID
 
-from backend.shared.models.identity.token import RefreshToken
+from backend.service_user.src.models.token import RefreshToken
 from backend.service_user.src.schemas.auth.auth_dto import RefreshTokenDataDTO
 
 

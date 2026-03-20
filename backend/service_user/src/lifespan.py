@@ -7,9 +7,8 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, logger
 
-from backend.service_database.src import (
-    get_connection_manager,
-    get_migration_runner
+from backend.service_migreation.src import (
+    get_connection_manager
 )
 from backend.service_user.src.container import container
 from backend.shared.logging.config import setup_logging
@@ -52,7 +51,6 @@ async def startup_handler():
 
     # Получаем connection_manager и migration_runner из database_service
     connection_manager = get_connection_manager()
-    migration_runner = get_migration_runner()
 
     # Проверяем подключение к базе данных
     if not connection_manager.test_connection():
@@ -60,12 +58,6 @@ async def startup_handler():
         raise Exception("Не удалось подключиться к базе данных")
 
     logger.info("Database connection successful")
-
-    # Применяем миграции
-    logger.info("Running database migrations...")
-    migration_runner.upgrade("head")
-    logger.info("Migrations completed successfully")
-
     logger.info("Database initialized successfully")
     logger.info(
         "User Service started",

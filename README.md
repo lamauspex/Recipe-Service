@@ -113,3 +113,8 @@ http://localhost:8000/redoc       # ReDoc
 
 
 
+# Собрать все новые (которых нет)
+docker-compose build
+
+# Запустить все (существующие просто стартуют)
+docker-compose up 

@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 # Импортируем dependency от database_service
 # Контейнеры не зависят друг от друга напрямую!
 from backend.service_user.src.container import container
-from backend.service_database.src import get_db_dependency
+from backend.service_migreation.src import get_db_dependency
 # Импортируем репозитории
 from backend.service_user.src.repositories import (
     SQLUserRepository,

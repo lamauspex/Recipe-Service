@@ -2,7 +2,7 @@
 from typing import Protocol, Optional
 from uuid import UUID
 
-from backend.shared.models.identity.user import User
+from backend.service_user.src.models.user import User
 
 
 class UserRepositoryProtocol(Protocol):

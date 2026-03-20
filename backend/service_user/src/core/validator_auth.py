@@ -1,6 +1,6 @@
 from typing import Optional
 
-from backend.shared.models.identity.user import User
+from backend.service_user.src.models.user import User
 
 
 class AuthValidator:

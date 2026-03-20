@@ -10,7 +10,7 @@ from dependency_injector import containers, providers
 
 from .config import DataBaseConfig
 from .connection import ConnectionManager, SessionManager
-from .migration_runner import MigrationRunner
+from ...service_migreation.migration_runner import MigrationRunner
 
 
 class Container(containers.DeclarativeContainer):
