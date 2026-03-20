@@ -8,26 +8,14 @@ from .base import BaseConfig
 class AuthConfig(BaseConfig):
     """ Конфигурация АУТЕНТИФИКАЦИЯ И БЕЗОПАСНОСТЬ """
 
-    ALGORITHM: str = Field(
-        description="Проверка пароля"
-    )
-    SECRET_KEY: str = Field(
-        description="Секретный ключ для JWT"
-    )
+    ALGORITHM: str = Field(description="Проверка пароля")
+    SECRET_KEY: str = Field(description="Секретный ключ для JWT")
 
     # JWT конфигурация
-    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(
-        description="Загузай сюда сон"
-    )
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
-        description="40 кликов"
-    )
-    VERIFICATION_TOKEN_EXPIRE_HOURS: int = Field(
-        description="тут так"
-    )
-    PASSWORD_RESET_TOKEN_EXPIRE_HOURS: int = Field(
-        description="и тут"
-    )
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(description="Загузай сюда сон")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(description="40 кликов")
+    VERIFICATION_TOKEN_EXPIRE_HOURS: int = Field(description="тут так")
+    PASSWORD_RESET_TOKEN_EXPIRE_HOURS: int = Field(description="и тут")
 
     # Безопасность
     MAX_LOGIN_ATTEMPTS: int = Field(

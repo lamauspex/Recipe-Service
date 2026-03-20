@@ -7,7 +7,7 @@ User Service - Сервис управления пользователями
 - Репозитории для работы с БД
 """
 
-from .app_users import app_users, create_app
+from .src.app_users import app_users, create_app
 from .src.container import container, Container
 
 __all__ = [

@@ -8,7 +8,7 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock
 
-from backend.service_user.app_users import create_app
+from backend.service_user.src.app_users import create_app
 
 
 class TestLoginEndpoint:

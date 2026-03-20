@@ -74,25 +74,18 @@
 - **Repository** — работа с БД
 - **Schemas** — валидация и сериализация
 
-## 🟢 Локальный запуск
+## 🟢 Запуск
 
 ```bash
-# Клонирование
 git clone https://github.com/lamauspex/recipes.git
-cd recipes
-
-# Установка зависимостей
-pip install -r requirements.txt
-
-# Запуск
-python main.py
 ```
-
-## 🟢 Запуск в Docker
-
 ```bash
-docker-compose up -d
+docker-compose build
 ```
+```bash
+docker-compose up 
+```
+
 
 ## 🟢 Документация
 
@@ -110,11 +103,3 @@ http://localhost:8000/redoc       # ReDoc
 **Telegram**: @lamauspex  
 **GitHub**: https://github.com/lamauspex
 
-
-
-
-# Собрать все новые (которых нет)
-docker-compose build
-
-# Запустить все (существующие просто стартуют)
-docker-compose up 

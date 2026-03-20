@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.git-rewrite/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.docker/
+
+# Тесты (опционально - если не нужны в образе)
+tests/
+*_test.py
+test_*.py
+
+# Документация
+*.md
+!README.md
+
+# Служебное
+*.log
+*.tmp
+.neten/
+back/
+life_readme.md

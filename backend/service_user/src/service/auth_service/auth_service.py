@@ -9,7 +9,6 @@ from typing import Optional
 
 from backend.service_user.src.exception import (
     InvalidCredentialsException)
-from backend.shared.models import User
 from backend.service_user.src.config import (
     ApiConfig,
     AuthConfig
@@ -19,6 +18,7 @@ from backend.service_user.src.core import (
     JWTService,
     AuthValidator
 )
+from backend.service_user.src.models.user import User
 from backend.service_user.src.protocols import (
     UserRepositoryProtocol,
     TokenRepositoryProtocol

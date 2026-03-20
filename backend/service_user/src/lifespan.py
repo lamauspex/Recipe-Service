@@ -5,11 +5,9 @@
 import os
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, logger
+from fastapi import FastAPI
 
-from backend.service_migreation.src import (
-    get_connection_manager
-)
+from backend.shared.database import ConnectionManager, DataBaseConfig
 from backend.service_user.src.container import container
 from backend.shared.logging.config import setup_logging
 from backend.shared.logging.logger import get_logger
@@ -17,9 +15,7 @@ from backend.shared.logging.logger import get_logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Управление жизненным циклом приложения
-    """
+    """ Управление жизненным циклом приложения """
 
     # Код запуска
     await startup_handler()
@@ -30,7 +26,10 @@ async def lifespan(app: FastAPI):
 
 
 async def startup_handler():
-    """Обработчик запуска приложения"""
+    """ Обработчик запуска приложения """
+
+    config = DataBaseConfig()
+    connection_manager = ConnectionManager(config)
 
     logger = get_logger(__name__).bind(
         layer="lifespan",
@@ -49,9 +48,6 @@ async def startup_handler():
             "USER_SERVICE_TESTING") == "1":
         return
 
-    # Получаем connection_manager и migration_runner из database_service
-    connection_manager = get_connection_manager()
-
     # Проверяем подключение к базе данных
     if not connection_manager.test_connection():
         logger.error("Failed to connect to database")
@@ -60,13 +56,17 @@ async def startup_handler():
     logger.info("Database connection successful")
     logger.info("Database initialized successfully")
     logger.info(
-        "User Service started",
-        docs_url="http://127.0.0.1:8000/docs",
-        redoc_url="http://127.0.0.1:8000/redoc",
-        health_url="http://127.0.0.1:8000/health"
+        "User Service started\n",
+        docs_url="http://127.0.0.1:8000/docs\n",
+        redoc_url="http://127.0.0.1:8000/redoc\n",
+        health_url="http://127.0.0.1:8000/health\n"
     )
 
 
 async def shutdown_handler():
     """Обработчик завершения приложения"""
+    logger = get_logger(__name__).bind(
+        layer="lifespan",
+        service="user"
+    )
     logger.info("User Service процесс завершён")

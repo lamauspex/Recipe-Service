@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import datetime, timezone
 from uuid import UUID
 
-from backend.shared.models import RefreshToken
+from backend.service_user.src.models.token import RefreshToken
 from backend.service_user.src.schemas.auth.auth_dto import RefreshTokenDataDTO
 
 

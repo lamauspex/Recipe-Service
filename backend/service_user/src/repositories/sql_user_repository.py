@@ -6,8 +6,8 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from backend.shared.models import User
 from backend.service_user.src.exception.base import ConflictException
+from backend.service_user.src.models.user import User
 from backend.shared.models.enums import ROLES
 
 
