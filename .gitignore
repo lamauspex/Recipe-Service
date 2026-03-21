@@ -8,3 +8,4 @@ __pycache__/
 .git/
 back/
 life_readme.md
+logs/
