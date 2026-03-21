@@ -13,7 +13,7 @@ services:
     container_name: postgres
     restart: unless-stopped
     env_file:
-      - backend/service_database/.env
+      - backend/service_migreation/.env
     # Монтируем папку с данными на хосте
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -37,29 +37,51 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "5672:5672"   # AMQP
-      - "15672:15672" # Management UI
+      - "5672:5672" 
+      - "15672:15672" 
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - recipe_network
 
-  # --- Service Database ---
-  service_database:
+  # --- Service Migration ---
+  service_migration:
     build:
       context: .
-      dockerfile: backend/service_database/Dockerfile
-    container_name: service_database
-    restart: unless-stopped
+      dockerfile: backend/service_migration/Dockerfile
+    container_name: service_migration
+    restart: no
     env_file:
       - backend/service_database/.env
     ports:
       - "8000:8000"
     depends_on:
       postgres:
-        condition: service_healthy  # Не запустится пока БД не будет готова
+        condition: service_healthy 
     networks:
       - recipe_network
+
+# --- Service User ---
+  service_user:
+    build:
+      contex: .
+      dockerfile: backend/service_user/Dockerfile
+    container_name: service_user
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - recipe_network
+    volumes:
+    - ./logs/service_user:/app/logs
+    
 
 # === Общие volumes для сохранения данных ===
 volumes:

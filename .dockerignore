@@ -5,7 +5,6 @@ __pycache__/
 *.so
 .Python
 .venv/
-venv/
 ENV/
 env/
 .pytest_cache/
@@ -26,7 +25,7 @@ Dockerfile
 docker-compose*.yml
 .docker/
 
-# Тесты (опционально - если не нужны в образе)
+# Тесты
 tests/
 *_test.py
 test_*.py

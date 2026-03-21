@@ -6,6 +6,7 @@ import logging
 import sys
 
 import structlog
+from logging.handlers import RotatingFileHandler
 
 
 def setup_logging(
@@ -62,6 +63,14 @@ def setup_logging(
         stream=sys.stdout,
         level=logging.DEBUG if debug else logging.INFO,
     )
+
+    file_handler = RotatingFileHandler(
+        "logs/app.log",
+        maxBytes=10_000_000,  # 10 MB
+        backupCount=5         # 5 файлов
+    )
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    logging.getLogger().addHandler(file_handler)
 
 
 def get_log_level(debug: bool = False) -> int:
