@@ -2,12 +2,13 @@
 main.py — ПРОСТОЙ ЗАПУСК МИГРАЦИЙ
 """
 
+import os
+import sys
 
 from alembic.config import Config
 from alembic import command
 from sqlalchemy import create_engine, text
-import os
-import sys
+
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -33,6 +34,6 @@ with engine.connect() as conn:
 print("✓ Database connected")
 
 # Миграции
-alembic_cfg = Config("alembic.ini")
+alembic_cfg = Config("backend/service_migration/alembic.ini")
 command.upgrade(alembic_cfg, "head")
 print("✓ Migrations completed")

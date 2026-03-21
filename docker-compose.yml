@@ -13,7 +13,7 @@ services:
     container_name: postgres
     restart: unless-stopped
     env_file:
-      - backend/service_migreation/.env
+      - backend/service_migration/.env
     # Монтируем папку с данными на хосте
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -52,7 +52,7 @@ services:
     container_name: service_migration
     restart: no
     env_file:
-      - backend/service_database/.env
+      - backend/service_migration/.env
     ports:
       - "8000:8000"
     depends_on:
@@ -64,12 +64,12 @@ services:
 # --- Service User ---
   service_user:
     build:
-      contex: .
+      context: .
       dockerfile: backend/service_user/Dockerfile
     container_name: service_user
     restart: unless-stopped
     env_file:
-      - .env
+      - backend/service_user/.env
     ports:
       - "8001:8000"
     depends_on:

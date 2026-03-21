@@ -3,10 +3,16 @@ FROM python:3.12-slim
 # === Рабочая директория ===
 WORKDIR /app
 
+# === Системные зависимости ===
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # === Python зависимости  ===
 COPY backend/service_user/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 # === Код сервиса ===
 COPY backend/service_user/ ./backend/service_user/
 # === Shared (логирование + модели + бд) ===
