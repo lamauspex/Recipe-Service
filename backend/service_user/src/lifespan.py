@@ -3,6 +3,7 @@
 """
 
 import os
+import signal
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -19,20 +20,31 @@ from backend.shared.logging.logger import get_logger
 async def lifespan(app: FastAPI):
     """ Управление жизненным циклом приложения """
 
+    global logger
+    logger = get_logger(__name__).bind(layer="lifespan", service="user")
+
     # Запускаем миграции при старте
     alembic_cfg = Config("backend/service_user/migration/alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
     # Код запуска
     await startup_handler()
+
     yield
 
     # Код завершения
     await shutdown_handler()
 
 
+def handle_shutdown(signum, frame):
+    """Обработчик сигнала завершения"""
+    print("User Service процесс завершён (signal)")
+    exit(0)
+
+
 async def startup_handler():
     """ Обработчик запуска приложения """
+    global logger
 
     config = DataBaseConfig()
     connection_manager = ConnectionManager(config)
@@ -41,6 +53,10 @@ async def startup_handler():
         layer="lifespan",
         service="user"
     )
+
+    # Регистрируем обработчик сигналов
+    signal.signal(signal.SIGTERM, handle_shutdown)
+    signal.signal(signal.SIGINT, handle_shutdown)
 
     monitoring_config = container.monitoring_config()
     setup_logging(
@@ -62,10 +78,10 @@ async def startup_handler():
     logger.info("Database connection successful")
     logger.info("Database initialized successfully")
     logger.info(
-        "User Service started\n",
-        docs_url="http://127.0.0.1:8000/docs\n",
-        redoc_url="http://127.0.0.1:8000/redoc\n",
-        health_url="http://127.0.0.1:8000/health\n"
+        "User Service started",
+        docs_url="http://127.0.0.1:8001/docs",
+        redoc_url="http://127.0.0.1:8001/redoc",
+        health_url="http://127.0.0.1:8001/health"
     )
 
 
