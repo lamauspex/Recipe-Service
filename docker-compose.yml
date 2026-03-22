@@ -5,22 +5,47 @@ x-logging: &logging
     max-size: "10m"
     max-file: "3"
 
-# === Все сервисы проекта ===
+# === Общие настройки ===
+x-common-env: &common-env
+  PYTHONUNBUFFERED: "1"
+
+
+
 services:
-  # --- PostgreSQL ---
-  postgres:
+  # ═══════════════════════════════════════════════════════
+  # БАЗЫ ДАННЫХ
+  # ═══════════════════════════════════════════════════════
+
+  postgres_user:
     image: postgres:15-alpine
-    container_name: postgres
+    container_name: postgres_user
     restart: unless-stopped
     env_file:
-      - backend/service_migration/.env
-    # Монтируем папку с данными на хосте
+      - backend/service_user/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_user_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d recipe_db"]
+      test: ["CMD-SHELL", "pg_isready -U user_service -d users_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recipe_network
+
+  postgres_recipe:
+    image: postgres:15-alpine
+    container_name: postgres_recipe
+    restart: unless-stopped
+    env_file:
+      - backend/service_recipe/.env
+    volumes:
+      - postgres_recipe_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recipe_service -d recipe_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,38 +53,30 @@ services:
       - recipe_network
   
 
-  # --- RabbitMQ (пока условно) ---
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    ports:
-      - "5672:5672" 
-      - "15672:15672" 
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - recipe_network
+  # ═══════════════════════════════════════════════════════
+  # MESSAGE BROKER
+  # ═══════════════════════════════════════════════════════
+  
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: rabbitmq
+  #   restart: unless-stopped
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: guest
+  #     RABBITMQ_DEFAULT_PASS: guest
+  #   ports:
+  #     - "5672:5672" 
+  #     - "15672:15672" 
+  #   volumes:
+  #     - rabbitmq_data:/var/lib/rabbitmq
+  #   networks:
+  #     - recipe_network
 
-  # --- Service Migration ---
-  service_migration:
-    build:
-      context: .
-      dockerfile: backend/service_migration/Dockerfile
-    container_name: service_migration
-    restart: no
-    env_file:
-      - backend/service_migration/.env
-    ports:
-      - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy 
-    networks:
-      - recipe_network
+
+  # ═══════════════════════════════════════════════════════
+  # СЕРВИСЫ
+  # ═══════════════════════════════════════════════════════
+
 
 # --- Service User ---
   service_user:
@@ -81,7 +98,12 @@ services:
       - recipe_network
     volumes:
     - ./logs/service_user:/app/logs
-    
+
+
+
+# ═══════════════════════════════════════════════════════
+# VOLUMES
+# ═══════════════════════════════════════════════════════
 
 # === Общие volumes для сохранения данных ===
 volumes:

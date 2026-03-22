@@ -6,6 +6,8 @@ import os
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from alembic import command
+from alembic.config import Config
 
 from backend.shared.database import ConnectionManager, DataBaseConfig
 from backend.service_user.src.container import container
@@ -16,6 +18,10 @@ from backend.shared.logging.logger import get_logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """ Управление жизненным циклом приложения """
+
+    # Запускаем миграции при старте
+    alembic_cfg = Config("backend/service_user/migration/alembic.ini")
+    command.upgrade(alembic_cfg, "head")
 
     # Код запуска
     await startup_handler()

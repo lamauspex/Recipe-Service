@@ -12,12 +12,6 @@ from backend.shared.models.enums import ROLES
 
 
 class SQLUserRepository:
-    """
-
-    НЕ наследуемся от UserRepositoryProtocol!
-    Protocol проверяет только наличие методов с нужными сигнатурами.
-
-    """
 
     def __init__(self, db: Session):
         self.db = db
