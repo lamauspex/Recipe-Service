@@ -11,6 +11,11 @@ from unittest.mock import AsyncMock
 from backend.service_user.src.app_users import create_app
 
 
+@pytest.fixture
+def app():
+    return create_app()
+
+
 class TestLoginEndpoint:
     """Тесты эндпоинта логина"""
 
@@ -31,7 +36,7 @@ class TestLoginEndpoint:
         """Создание тестового приложения с моком"""
         app = create_app()
 
-        from backend.service_user.src.dependencies import get_auth_service
+        from backend.service_user.src.infrastructure.dependencies import get_auth_service
         app.dependency_overrides[get_auth_service] = lambda: mock_auth_service
 
         return app
@@ -84,7 +89,7 @@ class TestLogoutEndpoint:
         """Создание тестового приложения с моком"""
         app = create_app()
 
-        from backend.service_user.src.dependencies import get_token_repository
+        from backend.service_user.src.infrastructure.dependencies import get_token_repository
         app.dependency_overrides[get_token_repository] = lambda: mock_token_repository
 
         return app
@@ -142,7 +147,7 @@ class TestRefreshEndpoint:
         """Создание тестового приложения с моком"""
         app = create_app()
 
-        from backend.service_user.src.dependencies import get_auth_service
+        from backend.service_user.src.infrastructure.dependencies import get_auth_service
         app.dependency_overrides[get_auth_service] = lambda: mock_auth_service
 
         return app

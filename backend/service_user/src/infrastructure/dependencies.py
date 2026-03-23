@@ -7,15 +7,11 @@ FastAPI Dependencies для User Service
 - Сессия БД создаётся на каждый запрос и закрывается автоматически
 """
 
-from functools import lru_cache
-from typing import Generator
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from backend.service_user.src.container import container
-from backend.shared.database import DataBaseConfig, ConnectionManager
-# Импортируем репозитории
+from backend.service_user.src.infrastructure.container import container
 from backend.service_user.src.repositories import (
     SQLUserRepository,
     SQLTokenRepository
@@ -30,29 +26,13 @@ from backend.service_user.src.service import (
 # ==========================================
 
 
-@lru_cache()
-def get_db_config() -> DataBaseConfig:
-    """Кэшированная конфигурация БД"""
-    return DataBaseConfig()
-
-
-@lru_cache()
-def get_connection_manager() -> ConnectionManager:
-    """Кэшированный менеджер соединений"""
-    return ConnectionManager(get_db_config())
-
-
-def get_db() -> Generator[Session, None, None]:
+def get_db():
     """
-    Dependency для получения сессии БД.
-
-    Сессия создаётся на каждый запрос и автоматически закрывается.
-
-    Yields:
-        Session: Сессия SQLAlchemy
+    Dependency для получения сессии БД
     """
-    conn_manager = get_connection_manager()
-    session = conn_manager.get_session()
+    session_manager = container.session_manager()
+    session = session_manager.SessionLocal()
+
     try:
         yield session
     finally:

@@ -6,8 +6,8 @@ import logging
 
 import uvicorn
 
-from backend.service_user import app_users
-from backend.service_user.src.container import container
+from backend.service_user.src.app_users import create_app
+from backend.service_user.src.infrastructure.container import container
 
 
 # Отключаем ВСЕ логи Uvicorn ДО запуска
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     api_config = container.api_config()
 
     uvicorn.run(
-        app_users,
+        app=create_app(),
         host=api_config.HOST,
         port=api_config.PORT,
         log_level="warning",

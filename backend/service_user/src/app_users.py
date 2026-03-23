@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_user.src.api import api_router
-from backend.service_user.src.container import container
+from backend.service_user.src.infrastructure.container import container
 from backend.service_user.src.lifespan import lifespan
 from backend.shared.logging.middleware import LoggingMiddleware
 from backend.service_user.src.middleware.exception_middleware import (
@@ -53,7 +53,3 @@ def create_app() -> FastAPI:
     app.include_router(api_router)
 
     return app
-
-
-# Приложение по умолчанию
-app_users = create_app()

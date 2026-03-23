@@ -25,6 +25,11 @@ from backend.service_user.src.core import (
     PasswordService,
     AuthValidator
 )
+from backend.shared.database import (
+    DataBaseConfig,
+    ConnectionManager,
+    SessionManager
+)
 from backend.service_user.src.service.auth_service import AuthMapper
 
 
@@ -53,6 +58,23 @@ class Container(containers.DeclarativeContainer):
     cache_config = providers.Factory(CacheConfig)
     monitoring_config = providers.Factory(MonitoringConfig)
     cors_config = providers.Factory(CORSConfig)
+    db_config = providers.Factory(DataBaseConfig)
+
+    # ==========================================
+    # Сессия
+    # ==========================================
+
+    # Один engine на всё приложение
+    connection_manager = providers.Singleton(
+        ConnectionManager,
+        database_config=db_config
+    )
+
+    # Сессии создаются из engine
+    session_manager = providers.Factory(
+        SessionManager,
+        engine=connection_manager.provided.engine
+    )
 
     # ==========================================
     # STATELESS CORE СЕРВИСЫ

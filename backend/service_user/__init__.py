@@ -7,11 +7,10 @@ User Service - Сервис управления пользователями
 - Репозитории для работы с БД
 """
 
-from .src.app_users import app_users, create_app
-from .src.container import container, Container
+from .src.app_users import create_app
+from .src.infrastructure.container import container, Container
 
 __all__ = [
-    "app_users",
     "create_app",
     "container",
     "Container",

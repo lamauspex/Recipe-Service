@@ -11,7 +11,7 @@ from alembic import command
 from alembic.config import Config
 
 from backend.shared.database import ConnectionManager, DataBaseConfig
-from backend.service_user.src.container import container
+from backend.service_user.src.infrastructure.container import container
 from backend.shared.logging.config import setup_logging
 from backend.shared.logging.logger import get_logger
 

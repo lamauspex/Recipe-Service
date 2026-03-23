@@ -14,7 +14,7 @@ from backend.service_user.src.schemas.auth.responses import (
     MessageResponse,
     TokenResponse)
 from backend.service_user.src.service.auth_service import AuthService
-from backend.service_user.src.dependencies import (
+from backend.service_user.src.infrastructure.dependencies import (
     get_auth_service,
     get_token_repository)
 
