@@ -2,7 +2,9 @@
 
 from fastapi import APIRouter, Depends
 
-from backend.service_user.src.infrastructure.dependencies import get_register_service
+from backend.service_user.src.infrastructure.dependencies import (
+    get_register_service
+)
 from backend.service_user.src.service import RegisterService
 from backend.service_user.src.schemas.register import (
     UserCreate,

@@ -45,9 +45,6 @@ class DBBaseConfig(BaseSettings):
         # Игнорировать лишние переменные окружения
         extra='ignore',
 
-        # Префикс для всех переменных окружения
-        env_prefix="DATABASE_SERVICE_",
-
         # Валидировать значения при присваивании атрибутов
         validate_assignment=True,
     )

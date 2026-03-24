@@ -45,8 +45,8 @@ def upgrade() -> None:
                               nullable=False, server_default='true'),
                     sa.Column('created_at', sa.DateTime(timezone=True),
                               server_default=sa.text('now()'), nullable=False),
-                    sa.Column('updated_at', sa.DateTime(
-                        timezone=True), nullable=True),
+                    sa.Column('updated_at', sa.DateTime(timezone=True),
+                              server_default=sa.text('now()'), nullable=True),
                     sa.PrimaryKeyConstraint('id'),
                     sa.UniqueConstraint('user_name'),
                     sa.UniqueConstraint('email')

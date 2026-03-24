@@ -8,11 +8,9 @@ from backend.service_user.src.schemas.base import (
     HashedPasswordValidatedModel,
     RoleNameValidatedModel,
     UserStatusModel,
-    UserTimestampsModel,
     FullNameValidatedModel,
     DTOConverterMixin
 )
-# from backend.service_user.src.schemas.base.mixins import DTOConverterMixin
 
 
 class UserRegistrationDTO(
@@ -22,7 +20,6 @@ class UserRegistrationDTO(
     HashedPasswordValidatedModel,
     FullNameValidatedModel,
     UserStatusModel,
-    UserTimestampsModel,
     RoleNameValidatedModel
 ):
     """

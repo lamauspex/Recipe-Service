@@ -1,7 +1,6 @@
 """ Миксин """
 
 
-import typing as t
 from datetime import datetime
 from sqlalchemy import DateTime, text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,7 +14,7 @@ class TimestampMixin:
         server_default=text("timezone('utc', now())"),
         comment='Время создания записи'
     )
-    updated_at: Mapped[t.Optional[datetime]] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         onupdate=text("timezone('utc', now())"),
         server_default=text("timezone('utc', now())"),
