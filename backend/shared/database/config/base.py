@@ -2,7 +2,6 @@
 Базовый конфигурационный класс для Database Service
 
 Использует pydantic-settings для загрузки конфигурации из переменных окружения.
-Все переменные окружения должны иметь префикс DATABASE_SERVICE_
 
 """
 
@@ -41,10 +40,9 @@ class DBBaseConfig(BaseSettings):
 
         # Путь к .env файлу относительно корня проекта
         env_file=find_env_file(),
-
+        env_file_encoding="utf-8",
         # Игнорировать лишние переменные окружения
         extra='ignore',
-
         # Валидировать значения при присваивании атрибутов
         validate_assignment=True,
     )
