@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r re
 
 # === Код сервиса ===
 COPY backend/service_user/ ./backend/service_user/
+
 # === Shared (логирование + модели + бд) ===
 COPY backend/shared/ ./backend/shared/
 COPY backend/service_user/.env .env

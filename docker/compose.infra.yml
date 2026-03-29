@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_user_data:/var/lib/postgresql/data
     ports:
-      - "5434:5434"
+      - "5434:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user_service -d users_db"]
       interval: 5s
@@ -23,30 +23,12 @@ services:
     networks:
       - recipe_network
 
-  # postgres_recipe:
-  #   image: postgres:15-alpine
-  #   container_name: postgres_recipe
-  #   restart: unless-stopped
-  #   env_file:
-  #     - ../backend/service_recipe/.env
-  #   volumes:
-  #     - postgres_recipe_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5433:5432"
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U recipe_service -d recipe_db"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - recipe_network
 
 
 volumes:
   postgres_user_data:
     driver: local
-  postgres_recipe_data:
-    driver: local
+
 
 networks:
   recipe_network:

@@ -81,9 +81,10 @@ git clone https://github.com/lamauspex/recipes.git
 ```
 ```bash
 # Сборка 
-docker compose -f docker/compose.yaml build
+docker compose -f docker/compose.yaml build --no-cache
 ```
 ```bash
+
 # Запуск
 docker compose -f docker/compose.yaml up -d
 ```
