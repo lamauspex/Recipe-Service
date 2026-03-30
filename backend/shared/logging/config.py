@@ -60,10 +60,11 @@ def setup_logging(
     )
 
     # Настройка стандартного logging для совместимости
+    # Консоль - только важные события (INFO и выше)
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
-        level=logging.DEBUG if debug else logging.INFO,
+        level=logging.INFO,
     )
 
     # Создание директории для логов, если её нет
@@ -71,11 +72,13 @@ def setup_logging(
     if log_dir:
         os.makedirs(log_dir, exist_ok=True)
 
+    # Файл - все события включая DEBUG
     file_handler = RotatingFileHandler(
         log_file,
         maxBytes=10_000_000,  # 10 MB
         backupCount=5         # 5 файлов
     )
+    file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter("%(message)s"))
     logging.getLogger().addHandler(file_handler)
 

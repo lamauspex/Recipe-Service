@@ -62,7 +62,7 @@ async def startup_handler():
     setup_logging(
         debug=monitoring_config.DEBUG,
         json_output=monitoring_config.LOG_FORMAT,
-        log_file="logs/service_user/app.log"
+        log_file="logs/app.log"
     )
     logger.info("User Service запущен")
 
