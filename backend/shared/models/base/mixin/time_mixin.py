@@ -12,11 +12,13 @@ class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=text("timezone('utc', now())"),
+        nullable=False,
         comment='Время создания записи'
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         onupdate=text("timezone('utc', now())"),
         server_default=text("timezone('utc', now())"),
+        nullable=True,
         comment='Время последнего обновления'
     )

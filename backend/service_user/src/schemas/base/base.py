@@ -228,8 +228,7 @@ class UserTimestampsModel(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    created_at: Optional[datetime] = Field(
-        default=None,
+    created_at: datetime = Field(
         description="Время создания записи"
     )
     updated_at: Optional[datetime] = Field(
