@@ -72,7 +72,6 @@ def get_logger(name: Optional[str] = None) -> ContextLogger:
 
     Args:
         name: Имя логгера (обычно __name__)
-
     Returns:
         ContextLogger с настроенным процессором
     """

@@ -50,23 +50,6 @@ def setup_logging(
             )
         )
 
-    # Настройка structlog
-    structlog.configure(
-        processors=processors,
-        wrapper_class=structlog.stdlib.BoundLogger,
-        context_class=dict,
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        cache_logger_on_first_use=True,
-    )
-
-    # Настройка стандартного logging для совместимости
-    # Консоль - только важные события (INFO и выше)
-    logging.basicConfig(
-        format="%(message)s",
-        stream=sys.stdout,
-        level=logging.INFO,
-    )
-
     # Создание директории для логов, если её нет
     log_dir = os.path.dirname(log_file)
     if log_dir:
@@ -80,7 +63,41 @@ def setup_logging(
     )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger().addHandler(file_handler)
+
+    # Консоль - только важные события (INFO и выше)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter("%(message)s"))
+
+    # Настройка стандартного logging
+    # Консоль
+    logging.basicConfig(
+        format="%(message)s",
+        stream=sys.stdout,
+        level=logging.INFO,
+    )
+
+    # Связываем стандартный logging с файлом
+    root_logger = logging.getLogger()
+    root_logger.addHandler(file_handler)
+    root_logger.setLevel(logging.DEBUG)
+
+    # Настройка structlog
+    structlog.configure(
+        processors=processors,
+        wrapper_class=structlog.stdlib.BoundLogger,
+        context_class=dict,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        cache_logger_on_first_use=True,
+    )
+
+    # Привязываем file_handler ко всем логгерам
+    # Это гарантирует, что structlog будет писать в файл
+    for name in logging.Logger.manager.loggerDict:
+        logger = logging.getLogger(name)
+        if not logger.handlers:  # Добавляем только если нет обработчиков
+            logger.addHandler(file_handler)
+            logger.setLevel(logging.DEBUG)
 
 
 def get_log_level(debug: bool = False) -> int:
