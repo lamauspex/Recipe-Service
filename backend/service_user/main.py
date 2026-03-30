@@ -28,6 +28,6 @@ if __name__ == "__main__":
         app=create_app(),
         host=api_config.HOST,
         port=api_config.PORT,
-        log_level="info",
+        log_level="warning",
         access_log=True
     )

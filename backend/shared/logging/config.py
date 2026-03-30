@@ -3,6 +3,7 @@
 """
 
 import logging
+import os
 import sys
 
 import structlog
@@ -11,7 +12,8 @@ from logging.handlers import RotatingFileHandler
 
 def setup_logging(
     debug: bool = False,
-    json_output: bool | str = False
+    json_output: bool | str = False,
+    log_file: str = "logs/app.log"
 ) -> None:
     """
     Настраивает structlog для всего приложения
@@ -64,8 +66,13 @@ def setup_logging(
         level=logging.DEBUG if debug else logging.INFO,
     )
 
+    # Создание директории для логов, если её нет
+    log_dir = os.path.dirname(log_file)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+
     file_handler = RotatingFileHandler(
-        "logs/app.log",
+        log_file,
         maxBytes=10_000_000,  # 10 MB
         backupCount=5         # 5 файлов
     )

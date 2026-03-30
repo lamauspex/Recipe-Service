@@ -61,7 +61,8 @@ async def startup_handler():
     monitoring_config = container.monitoring_config()
     setup_logging(
         debug=monitoring_config.DEBUG,
-        json_output=monitoring_config.LOG_FORMAT
+        json_output=monitoring_config.LOG_FORMAT,
+        log_file="logs/service_user/app.log"
     )
     logger.info("User Service запущен")
 
