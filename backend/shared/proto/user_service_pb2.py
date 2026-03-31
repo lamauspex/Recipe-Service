@@ -22,7 +22,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12user_service.proto\x12\x04user\"%\n\x14ValidateTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"U\n\x15ValidateTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\r\n\x05\x65rror\x18\x04 \x01(\t\"%\n\x12GetUserByIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"B\n\x13GetUserByIdResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x10\n\x08username\x18\x03 \x01(\t2\x9b\x01\n\x0bUserService\x12H\n\rValidateToken\x12\x1a.user.ValidateTokenRequest\x1a\x1b.user.ValidateTokenResponse\x12\x42\n\x0bGetUserById\x12\x18.user.GetUserByIdRequest\x1a\x19.user.GetUserByIdResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12user_service.proto\x12\x04user\"%\n\x14ValidateTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"U\n\x15ValidateTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\r\n\x05\x65rror\x18\x04 \x01(\t\"%\n\x12GetUserByIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"f\n\x13GetUserByIdResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x11\n\tuser_name\x18\x03 \x01(\t\x12\x11\n\tis_active\x18\x04 \x01(\x08\x12\x0e\n\x06\x65xists\x18\x05 \x01(\x08\x32\x9b\x01\n\x0bUserService\x12H\n\rValidateToken\x12\x1a.user.ValidateTokenRequest\x1a\x1b.user.ValidateTokenResponse\x12\x42\n\x0bGetUserById\x12\x18.user.GetUserByIdRequest\x1a\x19.user.GetUserByIdResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,7 +37,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals['_GETUSERBYIDREQUEST']._serialized_start = 154
     _globals['_GETUSERBYIDREQUEST']._serialized_end = 191
     _globals['_GETUSERBYIDRESPONSE']._serialized_start = 193
-    _globals['_GETUSERBYIDRESPONSE']._serialized_end = 259
-    _globals['_USERSERVICE']._serialized_start = 262
-    _globals['_USERSERVICE']._serialized_end = 417
+    _globals['_GETUSERBYIDRESPONSE']._serialized_end = 295
+    _globals['_USERSERVICE']._serialized_start = 298
+    _globals['_USERSERVICE']._serialized_end = 453
 # @@protoc_insertion_point(module_scope)

@@ -38,5 +38,7 @@ message GetUserByIdRequest {
 message GetUserByIdResponse {
     string id = 1;
     string email = 2;
-    string username = 3;
+    string user_name = 3;
+    bool is_active = 4;
+    bool exists = 5;
 }
