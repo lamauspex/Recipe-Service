@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package user;
+
+/*
+Сервис
+*/
+service UserService {
+    // Валидация JWT токена
+    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+    
+    // Получить пользователя по ID
+    rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+}
+
+/*
+Сообщение запроса - ответа
+*/
+message ValidateTokenRequest {
+    string token = 1;
+}
+
+message ValidateTokenResponse {
+    bool valid = 1;
+    string user_id = 2;
+    string email = 3;
+    string error = 4;
+}
+
+
+/*
+Сообщение запроса - ответа
+*/
+message GetUserByIdRequest {
+    string user_id = 1;
+}
+
+message GetUserByIdResponse {
+    string id = 1;
+    string email = 2;
+    string username = 3;
+}
