@@ -1,24 +1,21 @@
-"""Конфигурация для интеграции с user_service"""
-
-from pydantic_settings import BaseSettings, SettingsConfigDict
+""" Конфигурация для интеграции с user_service """
 
 
-class UserServiceConfig(BaseSettings):
+from pydantic import Field
+
+from backend.service_recipe.src.config.base import BaseRConfig
+
+
+class UserServiceConfig(BaseRConfig):
     """Конфигурация для подключения к user_service"""
 
-    model_config = SettingsConfigDict(
-        env_file=r"backend/service_recipe/.env",
-        extra='ignore',
-        env_prefix="USER_SERVICE_",
-        validate_assignment=True,
-    )
-
-    GRPC_HOST: str = "localhost"
-    GRPC_PORT: int = 50051
+    # СЕРВЕР
+    GRPC_HOST: str = Field(description='')
+    GRPC_PORT: int = Field(description='')
 
     # JWT настройки
-    JWT_SECRET_KEY: str
-    JWT_ALGORITHM: str = "HS256"
+    JWT_SECRET_KEY: str = Field(description='')
+    JWT_ALGORITHM: str = Field(description='')
 
 
 def get_settings() -> UserServiceConfig:

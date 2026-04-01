@@ -2,11 +2,11 @@
 
 from pydantic import Field
 
-from .base import BaseConfig
+from backend.service_recipe.src.config.base import BaseRConfig
 
 
-class ApiConfig(BaseConfig):
-    """Конфигурация API"""
+class ApiRConfig(BaseRConfig):
+    """ Конфигурация API """
 
     # СЕРВЕР
     HOST: str = Field(description="Хост для запуска")
@@ -21,7 +21,7 @@ class ApiConfig(BaseConfig):
 
     @property
     def DEBUG(self) -> bool:
-        """Режим отладки"""
+        """ Режим отладки """
         return self.ENVIRONMENT.lower() in (
             "development",
             "dev",

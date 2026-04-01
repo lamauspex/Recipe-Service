@@ -8,7 +8,7 @@ from backend.shared.proto import user_service_pb2, user_service_pb2_grpc
 
 
 class UserServiceClient:
-    """Клиент для взаимодействия с user_service через gRPC"""
+    """ Клиент для взаимодействия с user_service через gRPC """
 
     def __init__(self,
                  host: str = "localhost",
