@@ -81,22 +81,22 @@ async def get_current_user(
 
 
 # ==========================================
+# MESSAGE PUBLISHER
+# ==========================================
+
+# Провайдер создаётся через DI контейнер
+def get_message_publisher() -> MessagePublisher:
+    """
+    Получение publisher из DI контейнера.
+    Создаётся один раз за lifecycle приложения.
+    """
+    return container.message_publisher()
+
+
+# ==========================================
 # СЕРВИСЫ
 # ==========================================
-# Глобальный экземпляр
-# Publisher для отправки событий в RabbitMQ
-_publisher: Optional[MessagePublisher] = None
 
-
-def get_message_publisher() -> MessagePublisher:
-    """Dependency для получения publisher"""
-    global _publisher
-    rebbit_config = container.rebbit_config()
-
-    if _publisher is None:
-        _publisher = MessagePublisher(rebbit_config.RABBITMQ_URL)
-
-    return _publisher
 
 # ==========================================
 # РЕПОЗИТОРИИ

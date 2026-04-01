@@ -28,13 +28,13 @@ class Recipe(BaseModel):
     )
 
     name_recipe: Mapped[str] = mapped_column(
-        String(50),
+        String(150),
         nullable=False,
         comment='Название рецепта'
     )
 
     description: Mapped[str] = mapped_column(
-        String(50),
+        String(500),
         nullable=False,
         comment='Описание рецепта'
     )

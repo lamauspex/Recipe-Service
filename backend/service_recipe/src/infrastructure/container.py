@@ -23,6 +23,9 @@ from backend.shared.database import (
     ConnectionManager,
     SessionManager
 )
+from backend.service_recipe.src.service.message_broker import (
+    MessagePublisher
+)
 
 
 class Container(containers.DeclarativeContainer):
@@ -38,7 +41,7 @@ class Container(containers.DeclarativeContainer):
     """
 
     # ==========================================
-    # КОНФИГУРАЦИЯ (через DI)
+    # КОНФИГУРАЦИЯ
     # ==========================================
     # Создаем экземпляры конфигураций через Factory
     # Factory создает новый экземпляр каждый раз при запросе
@@ -63,7 +66,15 @@ class Container(containers.DeclarativeContainer):
     )
 
     # ==========================================
-    # АГРЕГАТОРЫ
+    # MESSAGE PUBLISHER (теперь управляется через DI)
+    # ==========================================
+    message_publisher = providers.Singleton(
+        MessagePublisher,
+        connection_url=rebbit_config.provided.RABBITMQ_URL
+    )
+
+    # ==========================================
+    # КОНФИГУРАЦИИ АГРЕГАТОР
     # ==========================================
     # Все конфигурации в одном объекте
     configs = providers.Factory(
@@ -83,5 +94,26 @@ class Container(containers.DeclarativeContainer):
 # Создаем глобальный экземпляр контейнера
 container = Container()
 
-# Инициализируем ресурсы (если добавлю их в будущем)
-container.init_resources()
+
+# ==========================================
+# RESOURCE: Подключение к RabbitMQ при старте
+# ==========================================
+async def init_rabbitmq_resources():
+    """Инициализация RabbitMQ при старте приложения"""
+    publisher = container.message_publisher()
+    await publisher.connect()
+    print("✓ RabbitMQ подключен")
+
+
+async def shutdown_rabbitmq_resources():
+    """Закрытие RabbitMQ при завершении приложения"""
+    publisher = container.message_publisher()
+    await publisher.close()
+    print("✓ RabbitMQ отключен")
+
+
+# Регистрируем ресурсы
+container.init_resources(
+    on_startup=[init_rabbitmq_resources],
+    on_shutdown=[shutdown_rabbitmq_resources]
+)
