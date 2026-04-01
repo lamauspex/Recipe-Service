@@ -16,7 +16,3 @@ class UserServiceConfig(BaseRConfig):
     # JWT настройки
     JWT_SECRET_KEY: str = Field(description='')
     JWT_ALGORITHM: str = Field(description='')
-
-
-def get_settings() -> UserServiceConfig:
-    return UserServiceConfig()

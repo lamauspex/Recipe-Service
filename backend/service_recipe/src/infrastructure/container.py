@@ -13,33 +13,23 @@ DI контейнер для управления зависимостями use
 
 from dependency_injector import containers, providers
 
-from backend.service_user.src.config import (
-    ApiConfig,
-    AuthConfig,
-    CacheConfig,
-    MonitoringConfig,
-    CORSConfig
-)
-from backend.service_user.src.core import (
-    JWTService,
-    PasswordService,
-    AuthValidator
+from backend.service_recipe.src.config import (
+    ApiRConfig,
+    UserServiceConfig,
+    RebbitConfig
 )
 from backend.shared.database import (
     DataBaseConfig,
     ConnectionManager,
     SessionManager
 )
-from backend.service_user.src.service.auth_service import AuthMapper
 
 
 class Container(containers.DeclarativeContainer):
     """
-    Главный контейнер зависимостей user_service
+    Главный контейнер зависимостей recipe_service
 
     Управляет конфигурацией и stateless сервисами.
-    Репозитории и бизнес-сервисы создаются через FastAPI Dependencies
-    в файле dependencies.py для корректной работы с сессиями БД.
 
     Принципы:
     - Контейнер независим от других сервисов
@@ -50,20 +40,16 @@ class Container(containers.DeclarativeContainer):
     # ==========================================
     # КОНФИГУРАЦИЯ (через DI)
     # ==========================================
-
     # Создаем экземпляры конфигураций через Factory
     # Factory создает новый экземпляр каждый раз при запросе
-    api_config = providers.Factory(ApiConfig)
-    auth_config = providers.Factory(AuthConfig)
-    cache_config = providers.Factory(CacheConfig)
-    monitoring_config = providers.Factory(MonitoringConfig)
-    cors_config = providers.Factory(CORSConfig)
+    api_config = providers.Factory(ApiRConfig)
+    user_config = providers.Factory(UserServiceConfig)
     db_config = providers.Factory(DataBaseConfig)
+    rebbit_config = providers.Factory(RebbitConfig)
 
     # ==========================================
     # Сессия
     # ==========================================
-
     # Один engine на всё приложение
     connection_manager = providers.Singleton(
         ConnectionManager,
@@ -77,52 +63,25 @@ class Container(containers.DeclarativeContainer):
     )
 
     # ==========================================
-    # STATELESS CORE СЕРВИСЫ
-    # ==========================================
-
-    # Сервис для работы с паролями (без состояния)
-    password_service = providers.Singleton(
-        PasswordService
-    )
-
-    # Сервис для работы с JWT токенами (без состояния)
-    jwt_service = providers.Singleton(
-        JWTService,
-        secret_key=auth_config.provided.SECRET_KEY,
-        algorithm=auth_config.provided.ALGORITHM,
-        access_token_expire_minutes=auth_config.provided.ACCESS_TOKEN_EXPIRE_MINUTES,
-        refresh_token_expire_days=auth_config.provided.REFRESH_TOKEN_EXPIRE_DAYS,
-    )
-
-    # Валидатор аутентификации
-    auth_validator = providers.Singleton(AuthValidator)
-
-    # Маппер для аутентификации
-    auth_mapper = providers.Singleton(AuthMapper)
-
-    # ==========================================
     # АГРЕГАТОРЫ
     # ==========================================
-
     # Все конфигурации в одном объекте
     configs = providers.Factory(
-        lambda api, auth, cache, cors, monitoring: type('Configs', (), {
+        lambda api, user, rebbit, db: type('Configs', (), {
             'api': api,
-            'auth': auth,
-            'cache': cache,
-            'monitoring': monitoring,
-            'cors': cors
+            'user': user,
+            'db': db,
+            'rebbit': rebbit
         })(),
         api=api_config,
-        auth=auth_config,
-        cache=cache_config,
-        monitoring=monitoring_config,
-        cors=cors_config
+        user=user_config,
+        db=db_config,
+        rebbit=rebbit_config
     )
 
 
 # Создаем глобальный экземпляр контейнера
 container = Container()
 
-# Инициализируем ресурсы
+# Инициализируем ресурсы (если добавлю их в будущем)
 container.init_resources()

@@ -1,10 +1,8 @@
-"""Publisher для отправки событий в RabbitMQ"""
+""" Publisher для отправки событий в RabbitMQ """
 
 import json
 import aio_pika
 from typing import Optional
-
-from backend.service_recipe.src.config.config_grpc import get_settings
 
 
 class MessagePublisher:
@@ -46,18 +44,3 @@ class MessagePublisher:
             message,
             routing_key="recipe.created"
         )
-
-
-# Глобальный экземпляр
-_publisher: Optional[MessagePublisher] = None
-
-
-def get_message_publisher() -> MessagePublisher:
-    """Dependency для получения publisher"""
-    global _publisher
-    settings = get_settings()
-
-    if _publisher is None:
-        _publisher = MessagePublisher(settings.RABBITMQ_URL)
-
-    return _publisher
