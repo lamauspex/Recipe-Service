@@ -29,7 +29,8 @@ import sys
 from pathlib import Path
 
 from backend.shared.models.base_model import Base
-from backend.service_user.src.models import User, RefreshToken, LoginAttempt
+from backend.service_recipe.src.models import Ingredient, Recipe
+
 
 # Добавляем путь к backend в sys.path для импортов моделей
 backend_path = Path(__file__).parent.parent.parent.parent
@@ -59,13 +60,15 @@ os.environ["DATABASE_URL"] = database_url
 # МЕТАДАННЫЕ МОДЕЛЕЙ
 # ==========================================
 
-# Base.metadata содержит все модели, которые наследуются от Base
-# При добавлении новых моделей просто импортируйте их выше
-# и они автоматически попадут в metadata
+"""
+Base.metadata содержит все модели, которые наследуются от Base
+При добавлении новых моделей просто импортируйте их выше
+и они автоматически попадут в metadata
 
-# Пример импорта моделей из других сервисов:
-# from backend.user_service.models import User
-# from backend.auth_service.models import Role, Permission
+Пример импорта моделей из других сервисов:
+from backend.user_service.models import User
+from backend.auth_service.models import Role, Permission 
+"""
 
 target_metadata = Base.metadata
 
