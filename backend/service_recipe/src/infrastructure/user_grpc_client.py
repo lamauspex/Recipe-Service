@@ -3,8 +3,10 @@
 import grpc
 from typing import Optional
 
-from backend.service_recipe.src.config.config_grpc import get_settings
-from backend.shared.proto import user_service_pb2, user_service_pb2_grpc
+from backend.shared.proto import (
+    user_service_pb2,
+    user_service_pb2_grpc
+)
 
 
 class UserServiceClient:
@@ -66,21 +68,3 @@ class UserServiceClient:
             }
         except grpc.RpcError as e:
             return {"exists": False, "error": str(e)}
-
-
-# Глобальный экземпляр клиента
-_user_service_client: Optional[UserServiceClient] = None
-
-
-def get_user_service_client() -> UserServiceClient:
-    """Dependency для получения gRPC клиента"""
-    global _user_service_client
-    settings = get_settings()
-
-    if _user_service_client is None:
-        _user_service_client = UserServiceClient(
-            host=settings.USER_SERVICE_GRPC_HOST,
-            port=settings.USER_SERVICE_GRPC_PORT
-        )
-
-    return _user_service_client

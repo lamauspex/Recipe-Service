@@ -4,22 +4,24 @@ API роутеры для работы с рецептами
 
 from fastapi import status, APIRouter, Depends
 
+from backend.service_recipe.src.infrastructure import get_message_publisher
+from backend.service_recipe.src.service import (
+    MessagePublisher,
+    RecipeService
+)
 from backend.service_recipe.src.schemas import (
     RecipeCreate,
     RecipeResponse
 )
-from backend.service_recipe.src.infrastructure.dependencies import (
+from backend.service_recipe.src.infrastructure import (
     get_current_user,
     get_recipe_service
 )
-from backend.service_recipe.src.service.message_broker import (
-    MessagePublisher,
-    get_message_publisher)
 
 
 router = APIRouter(
     prefix="/recipes",
-    tags=["Рецепты"]
+    tags=["Recipe_Service"]
 )
 
 
@@ -33,7 +35,7 @@ router = APIRouter(
 async def create_recipe(
     recipe_data: RecipeCreate,
     current_user: dict = Depends(get_current_user),
-    recipe_service=Depends(get_recipe_service),
+    recipe_service: RecipeService = Depends(get_recipe_service),
     publisher: MessagePublisher = Depends(get_message_publisher)
 ):
     """

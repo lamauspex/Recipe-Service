@@ -13,6 +13,7 @@ DI контейнер для управления зависимостями use
 
 from dependency_injector import containers, providers
 
+from backend.service_recipe.src.infrastructure.user_grpc_client import UserServiceClient
 from backend.service_recipe.src.config import (
     ApiRConfig,
     UserServiceConfig,
@@ -23,7 +24,7 @@ from backend.shared.database import (
     ConnectionManager,
     SessionManager
 )
-from backend.service_recipe.src.service.message_broker import (
+from backend.service_recipe.src.service import (
     MessagePublisher
 )
 
@@ -74,6 +75,15 @@ class Container(containers.DeclarativeContainer):
     )
 
     # ==========================================
+    # gRPC КЛИЕНТЫ
+    # ==========================================
+    user_service_client = providers.Singleton(
+        UserServiceClient,
+        host=user_config.provided.GRPC_HOST,
+        port=user_config.provided.GRPC_PORT
+    )
+
+    # ==========================================
     # КОНФИГУРАЦИИ АГРЕГАТОР
     # ==========================================
     # Все конфигурации в одном объекте
@@ -102,18 +112,29 @@ async def init_rabbitmq_resources():
     """Инициализация RabbitMQ при старте приложения"""
     publisher = container.message_publisher()
     await publisher.connect()
-    print("✓ RabbitMQ подключен")
+    print("✓ RabbitMQ Подключен")
 
 
 async def shutdown_rabbitmq_resources():
     """Закрытие RabbitMQ при завершении приложения"""
     publisher = container.message_publisher()
     await publisher.close()
-    print("✓ RabbitMQ отключен")
+    print("✓ RabbitMQ Отключен")
 
 
-# Регистрируем ресурсы
-container.init_resources(
-    on_startup=[init_rabbitmq_resources],
-    on_shutdown=[shutdown_rabbitmq_resources]
-)
+async def init_grpc_resources():
+    """Инициализация gRPC клиентов при старте"""
+    client = container.user_service_client()
+    await client.connect()
+    print("✓ gRPC клиент Подключен")
+
+
+async def shutdown_grpc_resources():
+    """Закрытие gRPC клиентов при завершении"""
+    client = container.user_service_client()
+    await client.close()
+    print("✓ gRPC клиент Отключен")
+
+
+# Инициализируем ресурсы контейнера
+container.init_resources()

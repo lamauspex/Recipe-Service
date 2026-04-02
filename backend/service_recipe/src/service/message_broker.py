@@ -48,7 +48,7 @@ class MessagePublisher:
         message = aio_pika.Message(
             body=json.dumps(recipe_data).encode(),
             content_type="application/json",
-            delivery_mode=aio_pika.DeliveryMode.PERSISTENT  # важно для durability
+            delivery_mode=aio_pika.DeliveryMode.PERSISTENT
         )
 
         await exchange.publish(

@@ -5,11 +5,8 @@
 
 from pydantic import ConfigDict, Field
 
-from backend.service_recipe.src.schemas import (
-    TitleValidatedModel,
-    IngredientSchema,
-    DescriptionValidatedModel
-)
+from backend.service_recipe.src.schemas.base import TitleValidatedModel, DescriptionValidatedModel
+from backend.service_recipe.src.schemas.ingredient_schema import IngredientSchema
 
 
 class RecipeCreate(

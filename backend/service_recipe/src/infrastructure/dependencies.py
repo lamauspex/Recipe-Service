@@ -7,15 +7,21 @@ Dependencies для recipe_service
 - Сессия БД создаётся на каждый запрос и закрывается автоматически
 """
 
-from fastapi import Depends, HTTPException, status, Header
+
 from typing import Optional
 
+from fastapi import Depends, HTTPException, status, Header
+from sqlalchemy.orm import Session
+
 from backend.service_recipe.src.infrastructure import (
-    UserServiceClient,
-    get_user_service_client,
     container
 )
-from backend.service_recipe.src.service import MessagePublisher
+from backend.service_recipe.src.infrastructure.user_grpc_client import UserServiceClient
+from backend.service_recipe.src.repositories import SQLRecipeRepository
+from backend.service_recipe.src.service import (
+    MessagePublisher,
+    RecipeService
+)
 
 
 # ==========================================
@@ -38,6 +44,11 @@ def get_db():
 # ==========================================
 # АВТОРИЗАЦИЯ
 # ==========================================
+
+def get_user_service_client() -> UserServiceClient:
+    """Получение gRPC клиента из контейнера"""
+    return container.user_service_client()
+
 
 async def get_current_user(
     authorization: Optional[str] = Header(None),
@@ -93,10 +104,22 @@ def get_message_publisher() -> MessagePublisher:
 
 
 # ==========================================
+# РЕПОЗИТОРИИ
+# ==========================================
+
+def get_recipe_repository(
+    db: Session = Depends(get_db)
+) -> SQLRecipeRepository:
+    """Dependency для получения репозитория рецептов"""
+    return SQLRecipeRepository(db)
+
+
+# ==========================================
 # СЕРВИСЫ
 # ==========================================
 
-
-# ==========================================
-# РЕПОЗИТОРИИ
-# ==========================================
+def get_recipe_service(
+    recipe_repo: SQLRecipeRepository = Depends(get_recipe_repository)
+) -> RecipeService:
+    """ Dependency для получения сервиса рецептов """
+    return RecipeService(recipe_repo=recipe_repo)
