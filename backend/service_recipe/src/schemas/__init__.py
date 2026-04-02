@@ -13,6 +13,8 @@ from .ingredient_schema import IngredientSchema, IngredientResponse
 from .recipe_request import RecipeCreate
 from .recipe_response import RecipeResponse
 from .base import TitleValidatedModel, DescriptionValidatedModel
+from .recipe_dto import RecipeDTO
+
 
 __all__ = [
     "IngredientSchema",
@@ -20,5 +22,6 @@ __all__ = [
     "RecipeCreate",
     "RecipeResponse",
     "TitleValidatedModel",
-    "DescriptionValidatedModel"
+    "DescriptionValidatedModel",
+    "RecipeDTO"
 ]

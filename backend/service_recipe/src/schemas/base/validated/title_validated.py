@@ -26,8 +26,8 @@ class TitleValidator:
         True
     """
 
-    MIN_LENGTH = 2
-    MAX_LENGTH = 50
+    MIN_LENGTH = 5
+    MAX_LENGTH = 150
     ALLOWED_CHARS = r'^[a-zA-Zа-яА-ЯёЁ0-9_\-]+$'
 
     @classmethod

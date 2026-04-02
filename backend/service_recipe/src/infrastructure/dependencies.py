@@ -9,14 +9,13 @@ Dependencies для recipe_service
 
 from fastapi import Depends, HTTPException, status, Header
 from typing import Optional
-# from sqlalchemy.orm import Session
 
-from backend.service_recipe.src.infrastructure.container import container
-from backend.service_recipe.src.infrastructure.grpc_client import (
+from backend.service_recipe.src.infrastructure import (
     UserServiceClient,
-    get_user_service_client
+    get_user_service_client,
+    container
 )
-from backend.service_recipe.src.service.message_broker import MessagePublisher
+from backend.service_recipe.src.service import MessagePublisher
 
 
 # ==========================================
@@ -37,7 +36,7 @@ def get_db():
 
 
 # ==========================================
-# ПОДКЛЮЧЕНИЕ К USER_SERVICE
+# АВТОРИЗАЦИЯ
 # ==========================================
 
 async def get_current_user(

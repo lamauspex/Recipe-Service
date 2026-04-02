@@ -9,7 +9,9 @@ from backend.service_recipe.src.schemas import (
     RecipeResponse
 )
 from backend.service_recipe.src.infrastructure.dependencies import (
-    get_current_user)
+    get_current_user,
+    get_recipe_service
+)
 from backend.service_recipe.src.service.message_broker import (
     MessagePublisher,
     get_message_publisher)
@@ -31,19 +33,18 @@ router = APIRouter(
 async def create_recipe(
     recipe_data: RecipeCreate,
     current_user: dict = Depends(get_current_user),
-    recipe_service: RecipeService = Depends(get_recipe_service),
+    recipe_service=Depends(get_recipe_service),
     publisher: MessagePublisher = Depends(get_message_publisher)
 ):
     """
     Создание нового рецепта
     Требует JWT токен в заголовке Authorization: Bearer <token>
-    Сервис возвращает готовый RecipeResponseDTO
+    Возвращает созданный рецепт
     """
-
-    # Создаём рецепт в БД
+    # Создаём рецепт через сервис
     recipe = recipe_service.create_recipe(
-        recipe_data,
-        current_user.id
+        recipe_data=recipe_data,
+        user_id=current_user["user_id"]
     )
 
     # Публикуем событие в RabbitMQ
@@ -53,6 +54,4 @@ async def create_recipe(
         "event": "recipe_created"
     })
 
-    return {
-        "message": "Recipe created"
-    }
+    return recipe

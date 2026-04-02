@@ -56,7 +56,7 @@ class IngredientSchema(BaseModel):
         }
     )
 
-    name: str = Field(..., description="Название ингредиента")
+    ingredient: str = Field(..., description="Название ингредиента")
     quantity: str = Field(..., description="Количество")
     unit: Annotated[MeasurementUnit | None, Field(
         default=None,
@@ -91,6 +91,6 @@ class IngredientResponse(BaseModel):
     )
 
     id: UUID = Field(..., description="Уникальный идентификатор")
-    name: str = Field(..., description="Название ингредиента")
+    ingredient: str = Field(..., description="Название ингредиента")
     quantity: str = Field(..., description="Количество")
     unit: str = Field(..., description="Единица измерения")
