@@ -3,6 +3,7 @@
 """
 
 
+import re
 from typing import List, Tuple
 
 
@@ -11,7 +12,7 @@ class DescriptionValidator:
     Валидатор описания рецепта.
 
     Проверяет:
-        - Минимальная длина: 5 символов
+        - Минимальная длина: 2 символов
         - Максимальная длина: 500 символов
 
     Attributes:
@@ -24,8 +25,9 @@ class DescriptionValidator:
         True
     """
 
-    MIN_LENGTH = 5
+    MIN_LENGTH = 2
     MAX_LENGTH = 500
+    ALLOWED_CHARS = r'^[a-zA-Zа-яА-ЯёЁ0-9_\-\s]+$'
 
     @classmethod
     def validate(cls, description: str) -> Tuple[bool, List[str]]:
@@ -47,6 +49,13 @@ class DescriptionValidator:
         if len(description) > cls.MAX_LENGTH:
             errors.append(
                 f"Описание не может содержать более {cls.MAX_LENGTH} символов"
+            )
+
+        # Используем регулярное выражение
+        if not re.match(cls.ALLOWED_CHARS, description):
+            errors.append(
+                "Название может содержать только буквы, "
+                "цифры, дефис и подчёркивание"
             )
 
         return len(errors) == 0, errors

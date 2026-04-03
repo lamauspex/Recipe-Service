@@ -38,7 +38,7 @@ class TestTitleValidator:
         assert is_valid is False
 
     def test_title_exactly_min_length_returns_true(self):
-        """Название ровно минимальной длины (5) должно проходить"""
+        """Название ровно минимальной длины (2) должно проходить"""
         is_valid, errors = TitleValidator.validate("Борщ")
 
         assert is_valid is True

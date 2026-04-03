@@ -12,7 +12,7 @@ def valid_title() -> str:
 
 @pytest.fixture
 def short_title() -> str:
-    return "Бор"
+    return "Б"
 
 
 @pytest.fixture
