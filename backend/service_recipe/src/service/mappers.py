@@ -24,7 +24,7 @@ class RecipeMapper:
             ingredients=[
                 {
                     "id": ingredient.id,
-                    "name": ingredient.ingredient,
+                    "ingredient": ingredient.ingredient,
                     "quantity": ingredient.quantity,
                     "unit": ingredient.unit
                 }

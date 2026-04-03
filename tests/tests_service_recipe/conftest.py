@@ -27,7 +27,7 @@ def valid_description() -> str:
 
 @pytest.fixture
 def short_description() -> str:
-    return "Вкусно"
+    return "Так"
 
 
 @pytest.fixture

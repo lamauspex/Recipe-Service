@@ -12,7 +12,7 @@ class DescriptionValidator:
     Валидатор описания рецепта.
 
     Проверяет:
-        - Минимальная длина: 2 символов
+        - Минимальная длина: 10 символов
         - Максимальная длина: 500 символов
 
     Attributes:
@@ -25,7 +25,7 @@ class DescriptionValidator:
         True
     """
 
-    MIN_LENGTH = 2
+    MIN_LENGTH = 10
     MAX_LENGTH = 500
     ALLOWED_CHARS = r'^[a-zA-Zа-яА-ЯёЁ0-9_\-\s]+$'
 

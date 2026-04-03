@@ -35,7 +35,7 @@ class RecipeService:
         # Преобразуем ингредиенты в формат для репозитория
         ingredients_data = [
             {
-                "ingredient": ing.name,
+                "ingredient": ing.ingredient,
                 "quantity": ing.quantity,
                 "unit": ing.unit
             }

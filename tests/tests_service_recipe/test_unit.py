@@ -74,7 +74,7 @@ class TestDescriptionValidator:
 
     def test_description_exactly_min_length_returns_true(self):
         """Описание ровно минимальной длины (5) должно проходить"""
-        is_valid, errors = DescriptionValidator.validate("А" * 5)
+        is_valid, errors = DescriptionValidator.validate("А" * 10)
 
         assert is_valid is True
 
