@@ -1,5 +1,5 @@
 """
-Управление жизненным циклом приложения User Service
+Управление жизненным циклом приложения Recipe Service
 """
 
 import os
@@ -10,10 +10,9 @@ from fastapi import FastAPI
 from alembic import command
 from alembic.config import Config
 
+from backend.service_recipe.src.infrastructure import container
 from backend.shared.database import ConnectionManager, DataBaseConfig
-from backend.service_user.src.infrastructure.container import container
-from backend.shared.logging.config import setup_logging
-from backend.shared.logging.logger import get_logger
+from backend.shared.logging import setup_logging, get_logger
 
 
 @asynccontextmanager
@@ -21,10 +20,13 @@ async def lifespan(app: FastAPI):
     """ Управление жизненным циклом приложения """
 
     global logger
-    logger = get_logger(__name__).bind(layer="lifespan", service="user")
+    logger = get_logger(__name__).bind(
+        layer="lifespan",
+        service="recipe"
+    )
 
     # Запускаем миграции при старте
-    alembic_cfg = Config("backend/service_user/migration/alembic.ini")
+    alembic_cfg = Config("backend/service_recipe/migration/alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
     # Код запуска
@@ -38,6 +40,7 @@ async def lifespan(app: FastAPI):
 
 def handle_shutdown(signum, frame):
     """Обработчик сигнала завершения"""
+
     exit(0)
 
 
@@ -63,11 +66,11 @@ async def startup_handler():
         json_output=monitoring_config.LOG_FORMAT,
         log_file="logs/app.log"
     )
-    logger.info("User Service запущен")
+    logger.info("Recipe Service запущен")
 
     # Пропускаем инициализацию в тестах
     if os.environ.get("TESTING") == "1" or os.environ.get(
-            "USER_SERVICE_TESTING") == "1":
+            "RECIPE_SERVICE_TESTING") == "1":
         return
 
     # Проверяем подключение к базе данных
@@ -78,7 +81,7 @@ async def startup_handler():
     logger.info("Database connection successful")
     logger.info("Database initialized successfully")
     logger.info(
-        "User Service started",
+        "Recipe Service started",
         docs_url="http://127.0.0.1:8001/docs",
         redoc_url="http://127.0.0.1:8001/redoc",
         health_url="http://127.0.0.1:8001/health"
@@ -89,6 +92,6 @@ async def shutdown_handler():
     """Обработчик завершения приложения"""
     logger = get_logger(__name__).bind(
         layer="lifespan",
-        service="user"
+        service="recipe"
     )
-    logger.info("User Service процесс завершён")
+    logger.info("Recipe Service процесс завершён")
