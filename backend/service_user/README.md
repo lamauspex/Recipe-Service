@@ -47,15 +47,17 @@ User Service
 
 | Метод | Endpoint | Описание |
 |-------|----------|----------|
-| `POST` | `/api/v1/auth/register` | Регистрация нового пользователя |
+| `POST` | `api/v1/auth/register_users/register` | Регистрация нового пользователя |
 
 **Request:**
 ```json
 {
-    "email": "user@example.com",
-    "password": "securepassword",
-    "full_name": "Иван Иванов"
+  "email": "user@example.com",
+  "full_name": "Иван Иванов",
+  "password": "password",
+  "user_name": "user"
 }
+
 ```
 
 **Response:**
