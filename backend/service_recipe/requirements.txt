@@ -26,3 +26,4 @@ structlog==25.5.0
 regex==2024.7.24
 alembic==1.13.1
 aio-pika==9.4.0
+protobuf>=4.21.0

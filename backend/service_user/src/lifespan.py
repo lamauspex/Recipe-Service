@@ -11,7 +11,8 @@ from alembic import command
 from alembic.config import Config
 
 from backend.shared.database import ConnectionManager, DataBaseConfig
-from backend.service_user.src.infrastructure.container import container
+from backend.service_user.src.infrastructure import (
+    container, serve_grpc)
 from backend.shared.logging.config import setup_logging
 from backend.shared.logging.logger import get_logger
 
@@ -52,6 +53,9 @@ async def startup_handler():
         layer="lifespan",
         service="user"
     )
+
+    grpc_server = await serve_grpc(50051)
+    await grpc_server.start()
 
     # Регистрируем обработчик сигналов
     signal.signal(signal.SIGTERM, handle_shutdown)
