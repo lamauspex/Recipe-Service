@@ -19,6 +19,7 @@ email-validator
 # gRPC (ДЛЯ ИНТЕГРАЦИИ С USER_SERVICE)
 grpcio
 grpcio-tools
+protobuf
 
 
 # Utils

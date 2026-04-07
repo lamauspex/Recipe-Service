@@ -91,9 +91,9 @@ async def startup_handler():
     logger.info("Database initialized successfully")
     logger.info(
         "User Service started",
-        docs_url="http://127.0.0.1:8001/docs",
-        redoc_url="http://127.0.0.1:8001/redoc",
-        health_url="http://127.0.0.1:8001/health"
+        docs_url="http://127.0.0.1:8000/docs",
+        redoc_url="http://127.0.0.1:8000/redoc",
+        health_url="http://127.0.0.1:8000/health"
     )
 
 

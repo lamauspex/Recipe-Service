@@ -31,4 +31,5 @@ alembic
 # gRPC
 grpcio
 grpcio-tools
+protobuf
 

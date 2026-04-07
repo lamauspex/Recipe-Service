@@ -11,6 +11,12 @@ from alembic import command
 from alembic.config import Config
 
 from backend.service_recipe.src.infrastructure import container
+from backend.service_recipe.src.infrastructure import (
+    init_grpc_resources,
+    init_rabbitmq_resources,
+    shutdown_grpc_resources,
+    shutdown_rabbitmq_resources
+)
 from backend.shared.database import ConnectionManager, DataBaseConfig
 from backend.shared.logging import setup_logging, get_logger
 
@@ -82,6 +88,17 @@ async def startup_handler():
 
     logger.info("Database connection successful")
     logger.info("Database initialized successfully")
+
+    # Инициализируем gRPC клиент для связи с user_service
+    print(">>> [startup_handler] Initializing gRPC client...")
+    await init_grpc_resources()
+    print(">>> [startup_handler] gRPC client initialized")
+
+    # Инициализируем RabbitMQ
+    print(">>> [startup_handler] Initializing RabbitMQ...")
+    await init_rabbitmq_resources()
+    print(">>> [startup_handler] RabbitMQ initialized")
+
     logger.info(
         "Recipe Service started",
         docs_url="http://127.0.0.1:8001/docs",
@@ -96,4 +113,13 @@ async def shutdown_handler():
         layer="lifespan",
         service="recipe"
     )
+
+    # Закрываем gRPC клиент
+    print(">>> [shutdown_handler] Closing gRPC client...")
+    await shutdown_grpc_resources()
+
+    # Закрываем RabbitMQ
+    print(">>> [shutdown_handler] Closing RabbitMQ...")
+    await shutdown_rabbitmq_resources()
+
     logger.info("Recipe Service процесс завершён")

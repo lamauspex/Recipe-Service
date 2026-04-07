@@ -8,7 +8,7 @@ services:
     env_file:
       - ../backend/service_user/.env
     ports:
-      - "8001:8000"
+      - "8000:8000"
     depends_on:
       postgres_user:
         condition: service_healthy
@@ -18,6 +18,12 @@ services:
       - recipe_network
     volumes:
       - ../logs/service_user:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   service_recipe:
     build:
@@ -28,7 +34,7 @@ services:
     env_file:
       - ../backend/service_recipe/.env
     ports:
-      - "8002:8000"
+      - "8001:8000"
     depends_on:
       postgres_recipe:
         condition: service_healthy
@@ -38,3 +44,9 @@ services:
       - recipe_network
     volumes:
       - ../logs/service_recipe:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

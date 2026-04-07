@@ -8,11 +8,10 @@ RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # === Python зависимости  ===
-# === Установка google-protobuf без зеркала ===
-RUN pip install --no-cache-dir google-protobuf>=4.21.0
 COPY backend/service_user/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
