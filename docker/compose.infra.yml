@@ -5,6 +5,26 @@ x-logging: &logging
     max-file: "3"
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: rabbitmq-password
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recipe_network
+
   postgres_user:
     image: postgres:15-alpine
     container_name: postgres_user
@@ -22,7 +42,7 @@ services:
       retries: 5
     networks:
       - recipe_network
-  
+
   postgres_recipe:
     image: postgres:15-alpine
     container_name: postgres_recipe
@@ -44,6 +64,8 @@ services:
 
 
 volumes:
+  rabbitmq_data:
+    driver: local
   postgres_user_data:
     driver: local
   postgres_recipe_data:

@@ -12,6 +12,8 @@ services:
     depends_on:
       postgres_user:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - recipe_network
     volumes:
@@ -29,6 +31,8 @@ services:
       - "8002:8000"
     depends_on:
       postgres_recipe:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - recipe_network

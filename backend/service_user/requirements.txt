@@ -1,34 +1,33 @@
 # Web Framework
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-python-multipart==0.0.6
+fastapi
+uvicorn[standard]
+python-multipart
 
 # Database
-sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
-python-dotenv==1.0.0
+sqlalchemy
+psycopg2-binary
+python-dotenv
 
 # DI Container
-dependency-injector==4.43.0
+dependency-injector
 
 # Validation & Serialization
-pydantic==2.5.3
-pydantic-settings==2.1.0
-email-validator==2.1.0
+pydantic
+pydantic-settings
+email-validator
 
 # Security
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-bcrypt==4.1.2
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
 argon2-cffi
 
 # Utils
-python-dateutil==2.8.2
-structlog==25.5.0
-regex==2024.7.24
-alembic==1.13.1
+python-dateutil
+structlog
+regex
+alembic
 
 # gRPC
-grpcio==1.60.0
-grpcio-tools==1.60.0
-protobuf>=4.21.0
+grpcio
+grpcio-tools

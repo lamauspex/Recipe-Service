@@ -4,7 +4,7 @@
 
 from fastapi import FastAPI
 
-from backend.service_recipe.src import lifespan
+from backend.service_recipe.src.lifespan import lifespan
 from backend.service_recipe.src.infrastructure import container
 from backend.shared.logging.middleware import LoggingMiddleware
 from backend.service_recipe.src.api import api_router
