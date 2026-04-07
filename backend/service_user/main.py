@@ -2,7 +2,7 @@
 Главный файл запуска сервиса USER_SERVICE
 """
 
-import logging
+# import logging
 
 import uvicorn
 
@@ -10,14 +10,14 @@ from backend.service_user.src.app_users import create_app
 from backend.service_user.src.infrastructure.container import container
 
 
-# Отключаем ВСЕ логи Uvicorn ДО запуска
-for logger_name in [
-    "uvicorn",
-    "uvicorn.access",
-    "uvicorn.error",
-    "uvicorn.asgi"
-]:
-    logging.getLogger(logger_name).setLevel(logging.WARNING)
+# # Отключаем ВСЕ логи Uvicorn ДО запуска
+# for logger_name in [
+#     "uvicorn",
+#     "uvicorn.access",
+#     "uvicorn.error",
+#     "uvicorn.asgi"
+# ]:
+#     logging.getLogger(logger_name).setLevel(logging.WARNING)
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ async def lifespan(app: FastAPI):
     # Запускаем миграции при старте
     alembic_cfg = Config("backend/service_recipe/migration/alembic.ini")
     command.upgrade(alembic_cfg, "head")
+    print(">>> Migration Recipe_service успех")
 
     # Код запуска
     await startup_handler()
@@ -50,6 +51,7 @@ async def startup_handler():
 
     config = DataBaseConfig()
     connection_manager = ConnectionManager(config)
+    print(">>> [startup_handler] DB config created Recipe_service <<<")
 
     logger = get_logger(__name__).bind(
         layer="lifespan",

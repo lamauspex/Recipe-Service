@@ -24,12 +24,14 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if api_config.DEBUG else None,
         lifespan=lifespan
     )
+    print(">>> app Recipe_Service готов ")
 
     # Подключаем middleware логирования
     app.add_middleware(
         LoggingMiddleware,
         service_name="Recipe_Service"
     )
+    print(">>> app Recipe_Service middleware логирования готов ")
 
     # Подключаем API роутеры
     app.include_router(api_router)

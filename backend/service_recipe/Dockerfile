@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y \
 # === Python зависимости  ===
 COPY backend/service_recipe/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
-
+# === Установка google-protobuf без зеркала ===
+RUN pip install --no-cache-dir google-protobuf>=4.21.0
 
 # === Код сервиса ===
 COPY backend/service_recipe/ ./backend/service_recipe/

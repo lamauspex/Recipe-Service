@@ -23,13 +23,16 @@ async def lifespan(app: FastAPI):
 
     global logger
     logger = get_logger(__name__).bind(layer="lifespan", service="user")
+    print(">>> logger настроен")
 
     # Запускаем миграции при старте
     alembic_cfg = Config("backend/service_user/migration/alembic.ini")
     command.upgrade(alembic_cfg, "head")
+    print(">>> Миграции выполнены")
 
     # Код запуска
     await startup_handler()
+    print(">>> Запущен")
 
     yield
 
@@ -44,18 +47,23 @@ def handle_shutdown(signum, frame):
 
 async def startup_handler():
     """ Обработчик запуска приложения """
+    print(">>> [startup_handler] START")
     global logger
 
     config = DataBaseConfig()
     connection_manager = ConnectionManager(config)
+    print(">>> [startup_handler] DB config created")
 
     logger = get_logger(__name__).bind(
         layer="lifespan",
         service="user"
     )
 
+    print(">>> [startup_handler] Creating gRPC server...")
     grpc_server = await serve_grpc(50051)
+    print(">>> [startup_handler] gRPC server created")
     await grpc_server.start()
+    print(">>> [startup_handler] gRPC server started")
 
     # Регистрируем обработчик сигналов
     signal.signal(signal.SIGTERM, handle_shutdown)
