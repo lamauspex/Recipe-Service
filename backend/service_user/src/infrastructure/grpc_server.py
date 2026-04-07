@@ -1,6 +1,5 @@
 """ gRPC сервер для user_service """
 
-
 import grpc
 from uuid import UUID
 from concurrent import futures
@@ -15,9 +14,7 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
     """Реализация gRPC сервиса UserService"""
 
     def __init__(self):
-        print(">>> [grpc_server] UserServiceServicer init start")
         self.jwt_service = container.jwt_service()
-        print(">>> [grpc_server] UserServiceServicer init done")
 
     def ValidateToken(self, request, context):
         """Валидация JWT токена"""
@@ -78,13 +75,9 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
 
 def serve_grpc(port=50051):
     """Запуск gRPC сервера"""
-    print(">>> [grpc_server] serve_grpc start")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    print(">>> [grpc_server] server created")
     user_service_pb2_grpc.add_UserServiceServicer_to_server(
         UserServiceServicer(), server
     )
-    print(">>> [grpc_server] servicer added")
     server.add_insecure_port(f'[::]:{port}')
-    print(">>> [grpc_server] port added")
     return server

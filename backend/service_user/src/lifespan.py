@@ -4,6 +4,7 @@
 
 import os
 import signal
+import threading
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -22,7 +23,10 @@ async def lifespan(app: FastAPI):
     """ Управление жизненным циклом приложения """
 
     global logger
-    logger = get_logger(__name__).bind(layer="lifespan", service="user")
+    logger = get_logger(__name__).bind(
+        layer="lifespan",
+        service="user"
+    )
     print(">>> logger настроен")
 
     # Запускаем миграции при старте
@@ -45,6 +49,16 @@ def handle_shutdown(signum, frame):
     exit(0)
 
 
+def start_grpc_server():
+    """Запуск gRPC сервера в отдельном потоке"""
+    print(">>> [grpc_thread] Starting gRPC server...")
+    grpc_server = serve_grpc(50051)
+    print(">>> [grpc_thread] gRPC server created")
+    grpc_server.start()
+    print(">>> [grpc_thread] gRPC server started")
+    grpc_server.wait_for_termination()
+
+
 async def startup_handler():
     """ Обработчик запуска приложения """
     print(">>> [startup_handler] START")
@@ -59,11 +73,10 @@ async def startup_handler():
         service="user"
     )
 
-    print(">>> [startup_handler] Creating gRPC server...")
-    grpc_server = await serve_grpc(50051)
-    print(">>> [startup_handler] gRPC server created")
-    await grpc_server.start()
-    print(">>> [startup_handler] gRPC server started")
+    print(">>> [startup_handler] Creating gRPC server in background thread...")
+    grpc_thread = threading.Thread(target=start_grpc_server, daemon=True)
+    grpc_thread.start()
+    print(">>> [startup_handler] gRPC thread started")
 
     # Регистрируем обработчик сигналов
     signal.signal(signal.SIGTERM, handle_shutdown)
