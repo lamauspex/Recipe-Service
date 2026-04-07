@@ -1,8 +1,8 @@
 """ gRPC сервер для user_service """
 
-from uuid import UUID
 
 import grpc
+from uuid import UUID
 from concurrent import futures
 
 from backend.service_user.src.repositories.sql_user_repository import (
@@ -15,9 +15,11 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
     """Реализация gRPC сервиса UserService"""
 
     def __init__(self):
+        print(">>> [grpc_server] UserServiceServicer init start")
         self.jwt_service = container.jwt_service()
+        print(">>> [grpc_server] UserServiceServicer init done")
 
-    async def ValidateToken(self, request, context):
+    def ValidateToken(self, request, context):
         """Валидация JWT токена"""
         token = request.token
 
@@ -41,7 +43,7 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
             email=payload.get("email", "")
         )
 
-    async def GetUserById(self, request, context):
+    def GetUserById(self, request, context):
         """Получение пользователя по ID"""
 
         # Создаём сессию БД
@@ -76,9 +78,13 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
 
 def serve_grpc(port=50051):
     """Запуск gRPC сервера"""
-    server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
+    print(">>> [grpc_server] serve_grpc start")
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    print(">>> [grpc_server] server created")
     user_service_pb2_grpc.add_UserServiceServicer_to_server(
         UserServiceServicer(), server
     )
+    print(">>> [grpc_server] servicer added")
     server.add_insecure_port(f'[::]:{port}')
+    print(">>> [grpc_server] port added")
     return server
