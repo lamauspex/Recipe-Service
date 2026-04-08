@@ -2,43 +2,32 @@ syntax = "proto3";
 
 package user;
 
-/*
-Сервис
-*/
+import "google/rpc/status.proto";
+
 service UserService {
-    // Валидация JWT токена
-    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
-    
-    // Получить пользователя по ID
-    rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
 }
 
-/*
-Сообщение запроса - ответа
-*/
 message ValidateTokenRequest {
-    string token = 1;
+  string token = 1; // JWT-токен для валидации
 }
 
 message ValidateTokenResponse {
-    bool valid = 1;
-    string user_id = 2;
-    string email = 3;
-    string error = 4;
+  bool valid = 1; // Флаг валидности токена
+  string user_id = 2; // ID пользователя (только если valid = true)
+  string email = 3; // Email пользователя (только если valid = true)
+  google.rpc.Status error = 4; // Статус ошибки (если valid = false)
 }
 
-
-/*
-Сообщение запроса - ответа
-*/
 message GetUserByIdRequest {
-    string user_id = 1;
+  string user_id = 1; // ID запрашиваемого пользователя
 }
 
 message GetUserByIdResponse {
-    string id = 1;
-    string email = 2;
-    string user_name = 3;
-    bool is_active = 4;
-    bool exists = 5;
+  string id = 1; // Уникальный ID пользователя
+  string email = 2; // Email пользователя
+  string user_name = 3; // Отображаемое имя пользователя
+  bool is_active = 4; // Флаг активности аккаунта
+  bool exists = 5; // Флаг существования пользователя в системе
 }
