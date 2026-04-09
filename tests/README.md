@@ -18,10 +18,13 @@ pytest tests/service_recipe/
 
 ```bash
 # Терминал 1: сервер
-python tests/tests_grpc_server/server.py
+python -m backend.service_user.src.infrastructure.grpc_server
 
 # Терминал 2: клиент
-python tests/tests_grpc_server/client.py
+python -m tests.tests_grpc_server.client
+
+# Терминал 3: интеграционные тесты
+python -m tests.tests_grpc_server.integration_test
 ```
 
 ## Требования
