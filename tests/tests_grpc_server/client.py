@@ -1,6 +1,7 @@
 import grpc
 
-from backend.shared.proto import user_service_pb2, user_service_pb2_grpc
+from backend.shared import user_service_pb2
+from backend.shared import user_service_pb2_grpc
 
 
 def run():

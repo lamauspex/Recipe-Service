@@ -1,12 +1,15 @@
-import grpc
+
 import logging
+
+import grpc
 from uuid import UUID
 from concurrent import futures
 
 from backend.service_user.src.repositories.sql_user_repository import (
     SQLUserRepository)
-from backend.shared.proto import user_service_pb2, user_service_pb2_grpc
 from backend.service_user.src.infrastructure.container import container
+from backend.shared.proto import user_service_pb2, user_service_pb2_grpc
+
 
 logger = logging.getLogger(__name__)
 

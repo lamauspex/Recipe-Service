@@ -4,7 +4,7 @@
 
 import os
 import signal
-import threading
+import multiprocessing
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -12,10 +12,12 @@ from alembic import command
 from alembic.config import Config
 
 from backend.shared.database import ConnectionManager, DataBaseConfig
-from backend.service_user.src.infrastructure import (
-    container, serve_grpc)
+from backend.service_user.src.infrastructure import container
 from backend.shared.logging.config import setup_logging
 from backend.shared.logging.logger import get_logger
+
+# Глобальная ссылка на процесс для управления
+_grpc_process = None
 
 
 @asynccontextmanager
@@ -49,14 +51,10 @@ def handle_shutdown(signum, frame):
     exit(0)
 
 
-def start_grpc_server():
-    """Запуск gRPC сервера в отдельном потоке"""
-    print(">>> [grpc_thread] Starting gRPC server...")
-    grpc_server = serve_grpc(50051)
-    print(">>> [grpc_thread] gRPC server created")
-    grpc_server.start()
-    print(">>> [grpc_thread] gRPC server started")
-    grpc_server.wait_for_termination()
+def _run_grpc_in_process(port: int):
+    """Обёртка для запуска в отдельном процессе"""
+    from backend.service_user.src.infrastructure.grpc_process import main
+    main(port)
 
 
 async def startup_handler():
@@ -73,10 +71,32 @@ async def startup_handler():
         service="user"
     )
 
-    print(">>> [startup_handler] Creating gRPC server in background thread...")
-    grpc_thread = threading.Thread(target=start_grpc_server, daemon=True)
-    grpc_thread.start()
-    print(">>> [startup_handler] gRPC thread started")
+    # === gRPC в отдельном процессе ===
+    global _grpc_process
+    print(">>> [startup_handler] Starting gRPC server in separate process...")
+
+    grpc_port = 50051  # TODO: брать из конфига
+
+    _grpc_process = multiprocessing.Process(
+        target=_run_grpc_in_process,
+        args=(grpc_port,),
+        name="grpc-server"
+    )
+    _grpc_process.start()
+
+    print(
+        f">>> [startup_handler] gRPC process started, PID: {_grpc_process.pid}"
+    )
+
+    # Даём время процессу запуститься
+    import time
+    time.sleep(2)
+
+    # Проверяем что процесс жив
+    if _grpc_process.is_alive():
+        print(">>> [startup_handler] gRPC process is alive")
+    else:
+        print(">>> [startup_handler] WARNING: gRPC process died!")
 
     # Регистрируем обработчик сигналов
     signal.signal(signal.SIGTERM, handle_shutdown)
@@ -112,8 +132,29 @@ async def startup_handler():
 
 async def shutdown_handler():
     """Обработчик завершения приложения"""
+    global _grpc_process
     logger = get_logger(__name__).bind(
         layer="lifespan",
         service="user"
     )
+
+    print(">>> [shutdown_handler] Starting shutdown...")
+
+    # Останавливаем gRPC процесс
+    if _grpc_process and _grpc_process.is_alive():
+        print(
+            f">>> [shutdown_handler] Stopping gRPC process (PID: "
+            f"{_grpc_process.pid})..."
+        )
+        _grpc_process.terminate()
+        _grpc_process.join(timeout=5)
+
+        if _grpc_process.is_alive():
+            print(">>> [shutdown_handler] Force killing gRPC process...")
+            _grpc_process.kill()
+            _grpc_process.join()
+
+        print(">>> [shutdown_handler] gRPC process stopped")
+
+    print(">>> [shutdown_handler] Cleanup complete")
     logger.info("User Service процесс завершён")

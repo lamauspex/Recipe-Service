@@ -22,22 +22,24 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12user_service.proto\x12\x04user\"%\n\x14ValidateTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"U\n\x15ValidateTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\r\n\x05\x65rror\x18\x04 \x01(\t\"%\n\x12GetUserByIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"f\n\x13GetUserByIdResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x11\n\tuser_name\x18\x03 \x01(\t\x12\x11\n\tis_active\x18\x04 \x01(\x08\x12\x0e\n\x06\x65xists\x18\x05 \x01(\x08\x32\x9b\x01\n\x0bUserService\x12H\n\rValidateToken\x12\x1a.user.ValidateTokenRequest\x1a\x1b.user.ValidateTokenResponse\x12\x42\n\x0bGetUserById\x12\x18.user.GetUserByIdRequest\x1a\x19.user.GetUserByIdResponseb\x06proto3')
+from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
+
+
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12user_service.proto\x12\x04user\x1a\x17google/rpc/status.proto\"%\n\x14ValidateTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"i\n\x15ValidateTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12!\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x12.google.rpc.Status\"%\n\x12GetUserByIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"f\n\x13GetUserByIdResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x11\n\tuser_name\x18\x03 \x01(\t\x12\x11\n\tis_active\x18\x04 \x01(\x08\x12\x0e\n\x06\x65xists\x18\x05 \x01(\x08\x32\x9b\x01\n\x0bUserService\x12H\n\rValidateToken\x12\x1a.user.ValidateTokenRequest\x1a\x1b.user.ValidateTokenResponse\x12\x42\n\x0bGetUserById\x12\x18.user.GetUserByIdRequest\x1a\x19.user.GetUserByIdResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(
-    DESCRIPTOR, 'user_service_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'user_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    DESCRIPTOR._loaded_options = None
-    _globals['_VALIDATETOKENREQUEST']._serialized_start = 28
-    _globals['_VALIDATETOKENREQUEST']._serialized_end = 65
-    _globals['_VALIDATETOKENRESPONSE']._serialized_start = 67
-    _globals['_VALIDATETOKENRESPONSE']._serialized_end = 152
-    _globals['_GETUSERBYIDREQUEST']._serialized_start = 154
-    _globals['_GETUSERBYIDREQUEST']._serialized_end = 191
-    _globals['_GETUSERBYIDRESPONSE']._serialized_start = 193
-    _globals['_GETUSERBYIDRESPONSE']._serialized_end = 295
-    _globals['_USERSERVICE']._serialized_start = 298
-    _globals['_USERSERVICE']._serialized_end = 453
+  DESCRIPTOR._loaded_options = None
+  _globals['_VALIDATETOKENREQUEST']._serialized_start=53
+  _globals['_VALIDATETOKENREQUEST']._serialized_end=90
+  _globals['_VALIDATETOKENRESPONSE']._serialized_start=92
+  _globals['_VALIDATETOKENRESPONSE']._serialized_end=197
+  _globals['_GETUSERBYIDREQUEST']._serialized_start=199
+  _globals['_GETUSERBYIDREQUEST']._serialized_end=236
+  _globals['_GETUSERBYIDRESPONSE']._serialized_start=238
+  _globals['_GETUSERBYIDRESPONSE']._serialized_end=340
+  _globals['_USERSERVICE']._serialized_start=343
+  _globals['_USERSERVICE']._serialized_end=498
 # @@protoc_insertion_point(module_scope)
