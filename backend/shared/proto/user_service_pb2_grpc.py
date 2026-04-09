@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import user_service_pb2 as user__service__pb2
+from backend.shared.proto import user_service_pb2 as backend_dot_shared_dot_proto_dot_user__service__pb2
 
 GRPC_GENERATED_VERSION = '1.80.0'
 GRPC_VERSION = grpc.__version__
@@ -11,15 +11,14 @@ _version_not_supported = False
 
 try:
     from grpc._utilities import first_version_is_lower
-    _version_not_supported = first_version_is_lower(
-        GRPC_VERSION, GRPC_GENERATED_VERSION)
+    _version_not_supported = first_version_is_lower(GRPC_VERSION, GRPC_GENERATED_VERSION)
 except ImportError:
     _version_not_supported = True
 
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in user_service_pb2_grpc.py depends on'
+        + ' but the generated code in backend/shared/proto/user_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,15 +35,15 @@ class UserServiceStub(object):
             channel: A grpc.Channel.
         """
         self.ValidateToken = channel.unary_unary(
-            '/user.UserService/ValidateToken',
-            request_serializer=user__service__pb2.ValidateTokenRequest.SerializeToString,
-            response_deserializer=user__service__pb2.ValidateTokenResponse.FromString,
-            _registered_method=True)
+                '/user.UserService/ValidateToken',
+                request_serializer=backend_dot_shared_dot_proto_dot_user__service__pb2.ValidateTokenRequest.SerializeToString,
+                response_deserializer=backend_dot_shared_dot_proto_dot_user__service__pb2.ValidateTokenResponse.FromString,
+                _registered_method=True)
         self.GetUserById = channel.unary_unary(
-            '/user.UserService/GetUserById',
-            request_serializer=user__service__pb2.GetUserByIdRequest.SerializeToString,
-            response_deserializer=user__service__pb2.GetUserByIdResponse.FromString,
-            _registered_method=True)
+                '/user.UserService/GetUserById',
+                request_serializer=backend_dot_shared_dot_proto_dot_user__service__pb2.GetUserByIdRequest.SerializeToString,
+                response_deserializer=backend_dot_shared_dot_proto_dot_user__service__pb2.GetUserByIdResponse.FromString,
+                _registered_method=True)
 
 
 class UserServiceServicer(object):
@@ -65,46 +64,44 @@ class UserServiceServicer(object):
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        'ValidateToken': grpc.unary_unary_rpc_method_handler(
-            servicer.ValidateToken,
-            request_deserializer=user__service__pb2.ValidateTokenRequest.FromString,
-            response_serializer=user__service__pb2.ValidateTokenResponse.SerializeToString,
-        ),
-        'GetUserById': grpc.unary_unary_rpc_method_handler(
-            servicer.GetUserById,
-            request_deserializer=user__service__pb2.GetUserByIdRequest.FromString,
-            response_serializer=user__service__pb2.GetUserByIdResponse.SerializeToString,
-        ),
+            'ValidateToken': grpc.unary_unary_rpc_method_handler(
+                    servicer.ValidateToken,
+                    request_deserializer=backend_dot_shared_dot_proto_dot_user__service__pb2.ValidateTokenRequest.FromString,
+                    response_serializer=backend_dot_shared_dot_proto_dot_user__service__pb2.ValidateTokenResponse.SerializeToString,
+            ),
+            'GetUserById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserById,
+                    request_deserializer=backend_dot_shared_dot_proto_dot_user__service__pb2.GetUserByIdRequest.FromString,
+                    response_serializer=backend_dot_shared_dot_proto_dot_user__service__pb2.GetUserByIdResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        'user.UserService', rpc_method_handlers)
+            'user.UserService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers(
-        'user.UserService', rpc_method_handlers)
+    server.add_registered_method_handlers('user.UserService', rpc_method_handlers)
+
 
  # This class is part of an EXPERIMENTAL API.
-
-
 class UserService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def ValidateToken(request,
-                      target,
-                      options=(),
-                      channel_credentials=None,
-                      call_credentials=None,
-                      insecure=False,
-                      compression=None,
-                      wait_for_ready=None,
-                      timeout=None,
-                      metadata=None):
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
         return grpc.experimental.unary_unary(
             request,
             target,
             '/user.UserService/ValidateToken',
-            user__service__pb2.ValidateTokenRequest.SerializeToString,
-            user__service__pb2.ValidateTokenResponse.FromString,
+            backend_dot_shared_dot_proto_dot_user__service__pb2.ValidateTokenRequest.SerializeToString,
+            backend_dot_shared_dot_proto_dot_user__service__pb2.ValidateTokenResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -117,21 +114,21 @@ class UserService(object):
 
     @staticmethod
     def GetUserById(request,
-                    target,
-                    options=(),
-                    channel_credentials=None,
-                    call_credentials=None,
-                    insecure=False,
-                    compression=None,
-                    wait_for_ready=None,
-                    timeout=None,
-                    metadata=None):
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
         return grpc.experimental.unary_unary(
             request,
             target,
             '/user.UserService/GetUserById',
-            user__service__pb2.GetUserByIdRequest.SerializeToString,
-            user__service__pb2.GetUserByIdResponse.FromString,
+            backend_dot_shared_dot_proto_dot_user__service__pb2.GetUserByIdRequest.SerializeToString,
+            backend_dot_shared_dot_proto_dot_user__service__pb2.GetUserByIdResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -31,5 +31,5 @@ alembic
 # gRPC
 grpcio==1.80.0
 grpcio-tools==1.80.0
-protobuf
+protobuf==6.33.6
 
