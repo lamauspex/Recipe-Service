@@ -62,10 +62,6 @@ class GrpcRunner:
 
         self._server.add_insecure_port(f'[::]:{self.port}')
 
-        # Регистрируем обработчики сигналов
-        signal.signal(signal.SIGTERM, self._signal_handler)
-        signal.signal(signal.SIGINT, self._signal_handler)
-
         # Запускаем
         self._server.start()
         self._running = True

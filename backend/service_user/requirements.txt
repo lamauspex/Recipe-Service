@@ -32,5 +32,6 @@ alembic
 grpcio==1.80.0
 grpcio-tools==1.80.0
 grpcio-health-checking==1.80.0
+googleapis-common-protos[grpc]>=1.56.0
 protobuf==6.33.6
 

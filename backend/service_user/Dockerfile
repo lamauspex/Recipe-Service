@@ -23,17 +23,6 @@ COPY backend/service_user/ ./backend/service_user/
 COPY backend/shared/ ./backend/shared/
 COPY backend/service_user/.env .env
 
-# === Генерация proto файлов ===
-RUN which git || echo "git not found"
-RUN git clone --depth 1 https://github.com/googleapis/googleapis.git /tmp/googleapis && \
-    python -m grpc_tools.protoc \
-    -I/app \
-    -I/tmp/googleapis \
-    --python_out=/app/backend/shared/proto \
-    --grpc_python_out=/app/backend/shared/proto \
-    /app/backend/shared/proto/user_service.proto && \
-    rm -rf /tmp/googleapis
-
 # === Переменные окружения ===
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
