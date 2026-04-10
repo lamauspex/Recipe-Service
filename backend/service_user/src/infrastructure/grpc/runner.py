@@ -78,6 +78,13 @@ class GrpcRunner:
         """Запуск в синхронном режиме (для потока)"""
         self.run()
 
+    def run_in_background(self):
+        """Запуск gRPC в фоновом потоке"""
+        import threading
+        thread = threading.Thread(target=self.run_sync, daemon=True)
+        thread.start()
+        logger.info(f"gRPC server started in background on port {self.port}")
+
     def stop(self, grace: int = 5):
         """Остановка сервера"""
         if self._server and self._running:

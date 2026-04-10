@@ -9,7 +9,7 @@ services:
       - ../backend/service_user/.env
     ports:
       - "8000:8000"
-      - "5051:5051"
+      - "50051:50051"
     environment:
       - GRPC_PORT=50051
     depends_on:
