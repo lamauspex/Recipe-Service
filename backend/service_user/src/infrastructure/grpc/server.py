@@ -1,17 +1,23 @@
+"""
+Реализация gRPC сервиса UserService
+"""
 
-import logging
 
 import grpc
 from uuid import UUID
-from concurrent import futures
 
+from grpc_health.v1 import health_pb2
 from backend.service_user.src.repositories.sql_user_repository import (
     SQLUserRepository)
 from backend.service_user.src.infrastructure.container import container
+from backend.shared.logging.logger import get_logger
 from backend.shared.proto import user_service_pb2, user_service_pb2_grpc
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__).bind(
+    layer="grpc",
+    service="user"
+)
 
 
 class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
@@ -19,6 +25,12 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
 
     def __init__(self):
         self.jwt_service = container.jwt_service()
+
+    def CheckHealth(self, request, context):
+        """Проверка здоровья gRPC сервера"""
+        return health_pb2.HealthCheckResponse(
+            status=health_pb2.HealthCheckResponse.SERVING
+        )
 
     def ValidateToken(self, request, context):
         """Валидация JWT токена"""
@@ -106,25 +118,3 @@ class UserServiceServicer(user_service_pb2_grpc.UserServiceServicer):
                     is_active=False,
                     exists=False
                 )
-
-
-def serve_grpc(port=50051):
-    """Запуск gRPC сервера"""
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    user_service_pb2_grpc.add_UserServiceServicer_to_server(
-        UserServiceServicer(), server
-    )
-    server.add_insecure_port(f'[::]:{port}')
-    server.start()
-    logger.info(f"gRPC Server started on port {port}")
-    return server
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    server = serve_grpc(50051)
-    try:
-        server.wait_for_termination()
-    except KeyboardInterrupt:
-        logger.info("Shutting down gRPC server...")
-        server.stop(0)

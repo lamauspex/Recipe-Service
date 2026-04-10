@@ -9,6 +9,9 @@ services:
       - ../backend/service_user/.env
     ports:
       - "8000:8000"
+      - "5051:5051"
+    environment:
+      - GRPC_PORT=50051
     depends_on:
       postgres_user:
         condition: service_healthy
@@ -35,6 +38,9 @@ services:
       - ../backend/service_recipe/.env
     ports:
       - "8001:8000"
+    environment:
+      - USER_SERVICE_HOST=user_service
+      - USER_SERVICE_PORT=50051
     depends_on:
       postgres_recipe:
         condition: service_healthy

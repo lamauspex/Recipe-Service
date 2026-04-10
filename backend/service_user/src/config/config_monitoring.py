@@ -3,7 +3,7 @@
 
 from pydantic import Field
 
-from backend.service_user.src.config.base import BaseConfig
+from .base import BaseConfig
 
 
 class MonitoringConfig(BaseConfig):

@@ -18,7 +18,8 @@ from backend.service_user.src.config import (
     AuthConfig,
     CacheConfig,
     MonitoringConfig,
-    CORSConfig
+    CORSConfig,
+    GrpcConfig
 )
 from backend.service_user.src.core import (
     JWTService,
@@ -59,6 +60,7 @@ class Container(containers.DeclarativeContainer):
     monitoring_config = providers.Factory(MonitoringConfig)
     cors_config = providers.Factory(CORSConfig)
     db_config = providers.Factory(DataBaseConfig)
+    grpc_config = providers.Factory(GrpcConfig)
 
     # ==========================================
     # Сессия
@@ -106,18 +108,20 @@ class Container(containers.DeclarativeContainer):
 
     # Все конфигурации в одном объекте
     configs = providers.Factory(
-        lambda api, auth, cache, cors, monitoring: type('Configs', (), {
+        lambda api, auth, cache, cors, monitoring, grpc: type('Configs', (), {
             'api': api,
             'auth': auth,
             'cache': cache,
             'monitoring': monitoring,
-            'cors': cors
+            'cors': cors,
+            'grpc': grpc
         })(),
         api=api_config,
         auth=auth_config,
         cache=cache_config,
         monitoring=monitoring_config,
-        cors=cors_config
+        cors=cors_config,
+        grpc=grpc_config
     )
 
 
