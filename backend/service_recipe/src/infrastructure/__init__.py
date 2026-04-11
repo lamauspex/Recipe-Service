@@ -1,9 +1,5 @@
 from .container import (
-    container,
-    init_grpc_resources,
-    init_rabbitmq_resources,
-    shutdown_grpc_resources,
-    shutdown_rabbitmq_resources
+    container
 )
 from .dependencies import (
     get_db,
@@ -24,10 +20,6 @@ def __getattr__(name: str):
 
 __all__ = [
     "container",
-    "init_grpc_resources",
-    "init_rabbitmq_resources",
-    "shutdown_grpc_resources",
-    "shutdown_rabbitmq_resources",
     "get_db",
     "get_current_user",
     "get_message_publisher",

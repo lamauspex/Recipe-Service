@@ -70,7 +70,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     # ==========================================
-    # MESSAGE PUBLISHER (теперь управляется через DI)
+    # MESSAGE PUBLISHER (RabbitMQ)
     # ==========================================
     message_publisher = providers.Singleton(
         MessagePublisher,
@@ -108,38 +108,3 @@ class Container(containers.DeclarativeContainer):
 
 # Создаем глобальный экземпляр контейнера
 container = Container()
-
-
-# ==========================================
-# RESOURCE: Подключение к RabbitMQ при старте
-# ==========================================
-async def init_rabbitmq_resources():
-    """Инициализация RabbitMQ при старте приложения"""
-    publisher = container.message_publisher()
-    await publisher.connect()
-    print("✓ RabbitMQ Подключен")
-
-
-async def shutdown_rabbitmq_resources():
-    """Закрытие RabbitMQ при завершении приложения"""
-    publisher = container.message_publisher()
-    await publisher.close()
-    print("✓ RabbitMQ Отключен")
-
-
-async def init_grpc_resources():
-    """Инициализация gRPC клиентов при старте"""
-    client = container.user_service_client()
-    await client.connect()
-    print("✓ gRPC клиент Подключен")
-
-
-async def shutdown_grpc_resources():
-    """Закрытие gRPC клиентов при завершении"""
-    client = container.user_service_client()
-    await client.close()
-    print("✓ gRPC клиент Отключен")
-
-
-# Инициализируем ресурсы контейнера
-container.init_resources()

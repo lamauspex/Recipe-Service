@@ -1,11 +1,14 @@
 """
-Главный файл приложения Recipe Service
+FastAPI application factory
+
+Создаёт и настраивает FastAPI приложение
 """
 
 from fastapi import FastAPI
 
 from backend.service_recipe.src.lifespan import lifespan
 from backend.service_recipe.src.infrastructure import container
+from backend.shared.logging.config import setup_logging
 from backend.shared.logging.middleware import LoggingMiddleware
 from backend.service_recipe.src.api import api_router
 
@@ -14,7 +17,15 @@ def create_app() -> FastAPI:
     """
     Создает и настраивает FastAPI приложение
     """
+
     api_config = container.api_config()
+
+    monitoring_config = container.monitoring_config()
+    setup_logging(
+        debug=monitoring_config.DEBUG,
+        json_output=monitoring_config.LOG_FORMAT,
+        log_file="logs/app.log"
+    )
 
     app = FastAPI(
         title=api_config.API_TITLE,
@@ -24,14 +35,12 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if api_config.DEBUG else None,
         lifespan=lifespan
     )
-    print(">>> app Recipe_Service готов ")
 
     # Подключаем middleware логирования
     app.add_middleware(
         LoggingMiddleware,
         service_name="Recipe_Service"
     )
-    print(">>> app Recipe_Service middleware логирования готов ")
 
     # Подключаем API роутеры
     app.include_router(api_router)

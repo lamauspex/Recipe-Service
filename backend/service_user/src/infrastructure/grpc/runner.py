@@ -9,7 +9,6 @@
 
 
 import sys
-import signal
 import socket
 from typing import Optional
 
