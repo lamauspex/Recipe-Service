@@ -2,8 +2,6 @@
 Сервис запуска User Service
 """
 
-import signal
-import sys
 import uvicorn
 
 from backend.service_user.src.app_users import create_app
@@ -40,14 +38,6 @@ class ServiceRunner:
             )
         finally:
             self._shutdown()
-
-    def _setup_signal_handlers(self):
-        def signal_handler(signum, frame):
-            self._shutdown()
-            sys.exit(0)
-
-        signal.signal(signal.SIGTERM, signal_handler)
-        signal.signal(signal.SIGINT, signal_handler)
 
     def _shutdown(self):
         if self.grpc_runner:

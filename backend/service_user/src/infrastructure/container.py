@@ -127,6 +127,3 @@ class Container(containers.DeclarativeContainer):
 
 # Создаем глобальный экземпляр контейнера
 container = Container()
-
-# Инициализируем ресурсы
-container.init_resources()
