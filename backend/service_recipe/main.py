@@ -3,22 +3,10 @@
 """
 
 
-# import logging
-
 import uvicorn
 
 from backend.service_recipe.src.application import create_app
 from backend.service_recipe.src.infrastructure import container
-
-
-# Отключаем ВСЕ логи Uvicorn ДО запуска
-# for logger_name in [
-#     "uvicorn",
-#     "uvicorn.access",
-#     "uvicorn.error",
-#     "uvicorn.asgi"
-# ]:
-#     logging.getLogger(logger_name).setLevel(logging.WARNING)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,8 @@ from sqlalchemy.orm import Session
 from backend.service_recipe.src.infrastructure import (
     container
 )
-from backend.service_recipe.src.infrastructure.user_grpc_client import UserServiceClient
+from backend.service_recipe.src.infrastructure.grpc.client import (
+    UserServiceClient)
 from backend.service_recipe.src.repositories import SQLRecipeRepository
 from backend.service_recipe.src.service import (
     MessagePublisher,

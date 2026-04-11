@@ -17,7 +17,7 @@ from .dependencies import (
 # __getattr__ для ленивого импорта UserServiceClient
 def __getattr__(name: str):
     if name == "UserServiceClient":
-        from .user_grpc_client import UserServiceClient
+        from .grpc.client import UserServiceClient
         return UserServiceClient
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 

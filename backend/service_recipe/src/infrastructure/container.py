@@ -13,7 +13,7 @@ DI контейнер для управления зависимостями use
 
 from dependency_injector import containers, providers
 
-from backend.service_recipe.src.infrastructure.user_grpc_client import (
+from backend.service_recipe.src.infrastructure.grpc.client import (
     UserServiceClient)
 from backend.service_recipe.src.config import (
     ApiRConfig,
