@@ -19,8 +19,8 @@ def create_app() -> FastAPI:
     """
 
     api_config = container.api_config()
-
     monitoring_config = container.monitoring_config()
+
     setup_logging(
         debug=monitoring_config.DEBUG,
         json_output=monitoring_config.LOG_FORMAT,

@@ -28,3 +28,8 @@ class MonitoringConfig(BaseRConfig):
     ENABLE_BUSINESS_LOGGING: bool = Field(
         description="Включить логи бизнес-логики"
     )
+
+    @property
+    def DEBUG(self) -> bool:
+        """Режим отладки (для совместимости)"""
+        return self.LOG_LEVEL in ("DEBUG", "debug")
