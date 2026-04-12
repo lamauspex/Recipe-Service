@@ -21,14 +21,14 @@ RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r re
 
 # === Код сервиса ===
 COPY backend/service_recipe/ ./backend/service_recipe/
+
 # === Shared ===
 COPY backend/shared/ ./backend/shared/
-
+COPY backend/service_recipe/.env .env
 
 # === Переменные окружения ===
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
-
 
 # === Запуск ===
 CMD ["python", "backend/service_recipe/main.py"]

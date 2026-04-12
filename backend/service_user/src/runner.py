@@ -26,8 +26,6 @@ class ServiceRunner:
             self.grpc_runner = GrpcRunner(port=grpc_config.GRPC_PORT)
             self.grpc_runner.run_in_background()
 
-        self._setup_signal_handlers()
-
         try:
             uvicorn.run(
                 app=app,
