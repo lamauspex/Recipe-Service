@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 
 
 # === Python зависимости  ===
-COPY backend/service_recipe/requirements.txt ./requirements.txt
+COPY backend/service_recipe/requirements-recipe.txt ./requirements.txt
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
 
