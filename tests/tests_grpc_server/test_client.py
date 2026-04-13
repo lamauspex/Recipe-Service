@@ -25,13 +25,15 @@ class TestUserServiceClient:
     @pytest.mark.asyncio
     async def test_close_closes_channel(self, client):
         """Закрытие закрывает channel"""
-        with patch('grpc.aio.insecure_channel') as mock_channel:
+        with patch(
+            'backend.service_recipe.src.infrastructure.grpc.client.grpc.aio.insecure_channel'
+        ) as mock_channel:
             await client.connect()
             mock_channel_instance = client._channel
 
             await client.close()
 
-            mock_channel_instance.close.assert_called_once()
+            mock_channel_instance.close.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_validate_token_returns_correct_format(self, client):
@@ -57,10 +59,12 @@ class TestUserServiceClient:
     @pytest.mark.asyncio
     async def test_validate_token_handles_grpc_error(self, client):
         """validate_token обрабатывает gRPC ошибки"""
-        with patch.object(client, '_stub') as mock_stub:
-            from grpc import RpcError, StatusCode
+        # Создаем мок ошибки с методом code()
+        mock_error = MagicMock()
+        mock_error.code.return_value = "StatusCode.UNAVAILABLE"
 
-            mock_stub.ValidateToken = AsyncMock(side_effect=RpcError())
+        with patch.object(client, '_stub') as mock_stub:
+            mock_stub.ValidateToken = AsyncMock(side_effect=mock_error)
 
             result = await client.validate_token("test_token")
 

@@ -5,7 +5,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from backend.shared.proto import user_service_pb2
-from backend.service_user.src.infrastructure.grpc.server import UserServiceServicer
+from backend.service_user.src.infrastructure.grpc.server import (
+    UserServiceServicer)
 
 
 # Загрузить .env.test перед импортом container
@@ -26,7 +27,9 @@ class TestUserServiceServicer:
 
     def test_validate_token_success(self, context):
         """Валидация успешного токена"""
-        with patch('backend.service_user.src.infrastructure.grpc.server.container') as mock_container:
+        with patch(
+            'backend.service_user.src.infrastructure.grpc.server.container'
+        ) as mock_container:
             mock_jwt = MagicMock()
             mock_jwt.decode_token = MagicMock(return_value={
                 "sub": "123",
@@ -45,7 +48,9 @@ class TestUserServiceServicer:
 
     def test_validate_token_invalid(self, context):
         """Валидация невалидного токена"""
-        with patch('backend.service_user.src.infrastructure.grpc.server.container') as mock_container:
+        with patch(
+            'backend.service_user.src.infrastructure.grpc.server.container'
+        ) as mock_container:
             mock_jwt = MagicMock()
             mock_jwt.decode_token = MagicMock(return_value=None)
             mock_container.jwt_service.return_value = mock_jwt
@@ -62,8 +67,11 @@ class TestUserServiceServicer:
 
     def test_get_user_by_id_exists(self, context):
         """Получение существующего пользователя"""
+        # Используем валидный UUID формат
+        VALID_USER_ID = "550e8400-e29b-41d4-a716-446655440000"
+
         mock_user = MagicMock()
-        mock_user.id = "123"
+        mock_user.id = VALID_USER_ID  # UUID объект или строка в UUID формате
         mock_user.email = "test@example.com"
         mock_user.user_name = "Test User"
         mock_user.is_active = True
@@ -78,18 +86,22 @@ class TestUserServiceServicer:
         mock_repo_instance = MagicMock()
         mock_repo_instance.get_user_by_id = MagicMock(return_value=mock_user)
 
-        with patch('backend.service_user.src.infrastructure.container.container') as mock_container:
+        with patch(
+            'backend.service_user.src.infrastructure.grpc.server.container'
+        ) as mock_container:
             mock_container.session_manager.return_value = mock_session_manager
+            # Добавлен мок sql_user_repository
             mock_container.sql_user_repository.return_value = MagicMock(
                 return_value=mock_repo_instance)
 
             servicer = UserServiceServicer()
-            request = user_service_pb2.GetUserByIdRequest(user_id="123")
+            request = user_service_pb2.GetUserByIdRequest(
+                user_id=VALID_USER_ID)
 
             response = servicer.GetUserById(request, context)
 
             assert response.exists is True
-            assert response.id == "123"
+            assert response.id == VALID_USER_ID
             assert response.email == "test@example.com"
             assert response.user_name == "Test User"
             assert response.is_active is True
@@ -103,7 +115,9 @@ class TestUserServiceServicer:
         mock_session_manager.SessionLocal.__exit__ = MagicMock(
             return_value=False)
 
-        with patch('backend.service_user.src.infrastructure.grpc.server.container') as mock_container:
+        with patch(
+            'backend.service_user.src.infrastructure.grpc.server.container'
+        ) as mock_container:
             mock_container.session_manager.return_value = mock_session_manager
 
             servicer = UserServiceServicer()
