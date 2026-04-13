@@ -28,8 +28,10 @@ class TestUserServiceClient:
         with patch(
             'backend.service_recipe.src.infrastructure.grpc.client.grpc.aio.insecure_channel'
         ) as mock_channel:
+            mock_channel_instance = AsyncMock()
+            mock_channel.return_value = mock_channel_instance
+
             await client.connect()
-            mock_channel_instance = client._channel
 
             await client.close()
 
@@ -59,14 +61,24 @@ class TestUserServiceClient:
     @pytest.mark.asyncio
     async def test_validate_token_handles_grpc_error(self, client):
         """validate_token обрабатывает gRPC ошибки"""
-        # Создаем мок ошибки с методом code()
-        mock_error = MagicMock()
-        mock_error.code.return_value = "StatusCode.UNAVAILABLE"
+        import grpc
+        from grpc import StatusCode
 
-        with patch.object(client, '_stub') as mock_stub:
-            mock_stub.ValidateToken = AsyncMock(side_effect=mock_error)
+        mock_stub = MagicMock()
+        client._stub = mock_stub
+        client._channel = AsyncMock()
 
-            result = await client.validate_token("test_token")
+        # AioRpcError требует больше параметров
+        mock_error = grpc.aio.AioRpcError(
+            code=StatusCode.UNAVAILABLE,
+            initial_metadata=None,
+            trailing_metadata=None,
+            details="Service unavailable"
+        )
 
-            assert result["valid"] is False
-            assert "gRPC error" in result["error"]
+        mock_stub.ValidateToken = AsyncMock(side_effect=mock_error)
+
+        result = await client.validate_token("test_token")
+
+        assert result["valid"] is False
+        assert "gRPC error" in result["error"]
