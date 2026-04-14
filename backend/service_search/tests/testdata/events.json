@@ -1,0 +1,45 @@
+{
+  "recipe_created_event": {
+    "type": "recipe.created",
+    "recipe_id": "recipe-001",
+    "payload": {
+      "id": "recipe-001",
+      "title": "Паста Карбонара",
+      "description": "Классическая итальянская паста",
+      "cuisine": "итальянская",
+      "prep_time": 30,
+      "difficulty": "easy",
+      "ingredients": ["паста", "бекон", "яйца"],
+      "tags": ["обед", "ужин"],
+      "instructions": "Приготовить пасту",
+      "author_id": "user-001",
+      "rating": 4.8,
+      "reviews_count": 150
+    },
+    "timestamp": "2024-01-15T10:30:00Z"
+  },
+  "recipe_updated_event": {
+    "type": "recipe.updated",
+    "recipe_id": "recipe-001",
+    "payload": {
+      "id": "recipe-001",
+      "title": "Паста Карбонара (Обновлённая)",
+      "description": "Улучшенный рецепт",
+      "cuisine": "итальянская",
+      "prep_time": 25,
+      "difficulty": "easy",
+      "ingredients": ["паста", "бекон", "яйца", "пармезан"],
+      "tags": ["обед", "ужин", "быстро"],
+      "instructions": "Улучшенные инструкции",
+      "author_id": "user-001",
+      "rating": 4.9,
+      "reviews_count": 160
+    },
+    "timestamp": "2024-01-15T12:00:00Z"
+  },
+  "recipe_deleted_event": {
+    "type": "recipe.deleted",
+    "recipe_id": "recipe-001",
+    "timestamp": "2024-01-15T14:00:00Z"
+  }
+}
