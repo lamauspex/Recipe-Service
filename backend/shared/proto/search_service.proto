@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package search;
+
+option go_package = "github.com/lamauspex/recipes/backend/shared/proto";
+
+import "google/protobuf/empty.proto";
+
+// Search Service gRPC интерфейс
+service SearchService {
+  // Поиск рецептов с фильтрами
+  rpc SearchRecipes (SearchRequest) returns (SearchResponse);
+  
+  // Получить рецепт по ID
+  rpc GetRecipe (GetRecipeRequest) returns (RecipeResponse);
+  
+  // Автодополнение (suggestions)
+  rpc GetSuggestions (SuggestionsRequest) returns (SuggestionsResponse);
+  
+  // Health check
+  rpc Health (google.protobuf.Empty) returns (HealthResponse);
+}
+
+// Запрос на поиск
+message SearchRequest {
+  string query = 1;           // Полнотекстовый запрос
+  int32 page = 2;             // Номер страницы (начинается с 1)
+  int32 page_size = 3;        // Размер страницы (макс. 100)
+  
+  // Фильтры
+  optional string cuisine = 4;              // Кухня (итальянская, азиатская и т.д.)
+  optional int32 max_prep_time = 5;         // Макс. время приготовления (минуты)
+  optional string difficulty = 6;           // Сложность (easy, medium, hard)
+  repeated string ingredients = 7;          // Ингредиенты (должны присутствовать)
+  repeated string tags = 8;                 // Теги
+}
+
+// Ответ на поиск
+message SearchResponse {
+  repeated RecipeResult results = 1;
+  int32 total = 2;              // Общее количество результатов
+  int32 page = 3;               // Текущая страница
+  int32 page_size = 4;          // Размер страницы
+  int32 total_pages = 5;        // Всего страниц
+}
+
+// Результат поиска
+message RecipeResult {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string cuisine = 4;
+  int32 prep_time = 5;
+  string difficulty = 6;
+  repeated string tags = 7;
+  double rating = 8;
+  int32 reviews_count = 9;
+}
+
+// Запрос на получение рецепта по ID
+message GetRecipeRequest {
+  string id = 1;
+}
+
+// Полный ответ с рецептом
+message RecipeResponse {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string cuisine = 4;
+  int32 prep_time = 5;
+  string difficulty = 6;
+  repeated string ingredients = 7;
+  repeated string tags = 8;
+  string instructions = 9;
+  double rating = 10;
+  int32 reviews_count = 11;
+  string author_id = 12;
+}
+
+// Запрос на автодополнение
+message SuggestionsRequest {
+  string query = 1;           // Частичный запрос
+  optional string type = 2;   // Тип: "title", "ingredients", "tags", "cuisine"
+  int32 limit = 3;            // Макс. количество предложений (по умолчанию 10)
+}
+
+// Ответ с автодополнением
+message SuggestionsResponse {
+  repeated string suggestions = 1;
+  string type = 2;            // Тип предложений
+}
+
+// Health check ответ
+message HealthResponse {
+  string status = 1;          // "ok", "degraded", "error"
+  string version = 2;         // Версия сервиса
+  int64 uptime_seconds = 3;   // Время работы в секундах
+  string meilisearch_status = 4;  // Статус подключения к MeiliSearch
+}
