@@ -7,11 +7,12 @@
 package proto
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -587,13 +588,13 @@ func (x *SuggestionsResponse) GetType() string {
 }
 
 type HealthResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Status          string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	Version         string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	UptimeSeconds   int64                  `protobuf:"varint,3,opt,name=uptime_seconds,json=uptimeSeconds,proto3" json:"uptime_seconds,omitempty"`
-	MeilisearchStatus string               `protobuf:"bytes,4,opt,name=meilisearch_status,json=meilisearchStatus,proto3" json:"meilisearch_status,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Status            string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Version           string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	UptimeSeconds     int64                  `protobuf:"varint,3,opt,name=uptime_seconds,json=uptimeSeconds,proto3" json:"uptime_seconds,omitempty"`
+	MeilisearchStatus string                 `protobuf:"bytes,4,opt,name=meilisearch_status,json=meilisearchStatus,proto3" json:"meilisearch_status,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *HealthResponse) Reset() {
@@ -794,6 +795,6 @@ func file_search_service_proto_init() {
 		MessageInfos:      file_search_service_proto_msgTypes,
 	}.Build()
 	File_search_service_proto = out.File
-	file_search_service_proto_goTypes = nil
-	file_search_service_proto_depIdxs = nil
+	// file_search_service_proto_goTypes = nil  // Cleared after init
+	// file_search_service_proto_depIdxs = nil  // Cleared after init
 }

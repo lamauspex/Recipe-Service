@@ -7,38 +7,38 @@ import (
 	"time"
 
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
-	"github.com/lamauspex/recipes/backend/service_search/pkg/proto"
+	"github.com/lamauspex/recipes/backend/service_search/proto"
 	"github.com/meilisearch/meilisearch-go"
 )
 
 type RecipeDocument struct {
-	ID          string   `json:"id"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Cuisine     string   `json:"cuisine"`
-	PrepTime    int      `json:"prep_time"`
-	Difficulty  string   `json:"difficulty"`
-	Ingredients []string `json:"ingredients"`
-	Tags        []string `json:"tags"`
-	Instructions string  `json:"instructions"`
-	AuthorID    string   `json:"author_id"`
-	Rating      float64  `json:"rating"`
-	ReviewsCount int     `json:"reviews_count"`
-	CreatedAt   string   `json:"created_at"`
-	UpdatedAt   string   `json:"updated_at"`
+	ID           string   `json:"id"`
+	Title        string   `json:"title"`
+	Description  string   `json:"description"`
+	Cuisine      string   `json:"cuisine"`
+	PrepTime     int      `json:"prep_time"`
+	Difficulty   string   `json:"difficulty"`
+	Ingredients  []string `json:"ingredients"`
+	Tags         []string `json:"tags"`
+	Instructions string   `json:"instructions"`
+	AuthorID     string   `json:"author_id"`
+	Rating       float64  `json:"rating"`
+	ReviewsCount int      `json:"reviews_count"`
+	CreatedAt    string   `json:"created_at"`
+	UpdatedAt    string   `json:"updated_at"`
 }
 
 type MeiliSearchRepository struct {
-	client   *meilisearch.Client
-	index    *meilisearch.Index
+	client    *meilisearch.Client
+	index     *meilisearch.Index
 	indexName string
-	logger   *slog.Logger
+	logger    *slog.Logger
 }
 
 func NewMeiliSearchRepository(cfg *config.MeiliSearchConfig, logger *slog.Logger) (*MeiliSearchRepository, error) {
 	client := meilisearch.New(meilisearch.Config{
-		Host:   cfg.Host,
-		APIKey: cfg.APIKey,
+		Host:    cfg.Host,
+		APIKey:  cfg.APIKey,
 		Timeout: cfg.Timeout,
 	})
 
@@ -162,11 +162,11 @@ func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filter
 	}
 
 	return &SearchResult{
-		Recipes:     recipes,
-		Total:       int32(result.HitsPerPage),
-		Page:        int32(page),
-		PageSize:    int32(pageSize),
-		TotalPages:  int32(totalPages),
+		Recipes:    recipes,
+		Total:      int32(result.HitsPerPage),
+		Page:       int32(page),
+		PageSize:   int32(pageSize),
+		TotalPages: int32(totalPages),
 	}, nil
 }
 
@@ -185,8 +185,8 @@ func (r *MeiliSearchRepository) GetSuggestions(ctx context.Context, query string
 	}
 
 	searchRequest := meilisearch.SearchRequest{
-		Query:  query,
-		Limit:  int64(limit),
+		Query:                query,
+		Limit:                int64(limit),
 		AttributesToRetrieve: []string{fieldType},
 	}
 

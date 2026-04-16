@@ -14,7 +14,7 @@ import (
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
 	"github.com/lamauspex/recipes/backend/service_search/internal/consumer"
 	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
-	"github.com/lamauspex/recipes/backend/service_search/pkg/proto"
+	"github.com/lamauspex/recipes/backend/service_search/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -22,19 +22,19 @@ import (
 
 type SearchServer struct {
 	proto.UnimplementedSearchServiceServer
-	cfg        *config.Config
-	repo       *repository.MeiliSearchRepository
-	consumer   *consumer.RabbitMQConsumer
-	logger     *slog.Logger
-	startTime  time.Time
+	cfg       *config.Config
+	repo      *repository.MeiliSearchRepository
+	consumer  *consumer.RabbitMQConsumer
+	logger    *slog.Logger
+	startTime time.Time
 }
 
 func NewSearchServer(cfg *config.Config, repo *repository.MeiliSearchRepository, consumer *consumer.RabbitMQConsumer, logger *slog.Logger) *SearchServer {
 	return &SearchServer{
-		cfg:      cfg,
-		repo:     repo,
-		consumer: consumer,
-		logger:   logger,
+		cfg:       cfg,
+		repo:      repo,
+		consumer:  consumer,
+		logger:    logger,
 		startTime: time.Now(),
 	}
 }
@@ -114,11 +114,11 @@ func (s *SearchServer) SearchRecipes(ctx context.Context, req *proto.SearchReque
 	}
 
 	return &proto.SearchResponse{
-		Results:     result.Recipes,
-		Total:       result.Total,
-		Page:        result.Page,
-		PageSize:    result.PageSize,
-		TotalPages:  result.TotalPages,
+		Results:    result.Recipes,
+		Total:      result.Total,
+		Page:       result.Page,
+		PageSize:   result.PageSize,
+		TotalPages: result.TotalPages,
 	}, nil
 }
 

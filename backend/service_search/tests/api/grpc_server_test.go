@@ -2,26 +2,28 @@ package api
 
 import (
 	"context"
+	"net"
 	"os"
 	"testing"
 	"time"
+
+	"log/slog"
 
 	"github.com/lamauspex/recipes/backend/service_search/internal/api"
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
 	"github.com/lamauspex/recipes/backend/service_search/internal/consumer"
 	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
-	"github.com/lamauspex/recipes/backend/service_search/pkg/proto"
+	"github.com/lamauspex/recipes/backend/service_search/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	"log/slog"
 )
 
 const bufSize = 1024 * 1024
 
 var (
-	lis   *bufconn.Listener
+	lis    *bufconn.Listener
 	server *api.SearchServer
 )
 
@@ -96,16 +98,16 @@ func TestMain(m *testing.M) {
 func TestSearchRecipes(t *testing.T) {
 	// Индексировать тестовый рецепт
 	doc := &repository.RecipeDocument{
-		ID:          "grpc-test-1",
-		Title:       "Паста Карбонара",
-		Description: "Итальянская паста с беконом",
-		Cuisine:     "итальянская",
-		PrepTime:    30,
-		Difficulty:  "easy",
-		Ingredients: []string{"паста", "бекон", "яйца"},
-		Tags:        []string{"обед", "ужин"},
-		AuthorID:    "user-123",
-		Rating:      4.8,
+		ID:           "grpc-test-1",
+		Title:        "Паста Карбонара",
+		Description:  "Итальянская паста с беконом",
+		Cuisine:      "итальянская",
+		PrepTime:     30,
+		Difficulty:   "easy",
+		Ingredients:  []string{"паста", "бекон", "яйца"},
+		Tags:         []string{"обед", "ужин"},
+		AuthorID:     "user-123",
+		Rating:       4.8,
 		ReviewsCount: 150,
 	}
 
@@ -127,8 +129,8 @@ func TestSearchRecipes(t *testing.T) {
 
 	// Тест: поиск с запросом
 	searchReq := &proto.SearchRequest{
-		Query: "паста",
-		Page:  1,
+		Query:    "паста",
+		Page:     1,
 		PageSize: 10,
 	}
 
@@ -147,10 +149,10 @@ func TestSearchRecipes(t *testing.T) {
 
 	// Тест: поиск с фильтрами
 	filterReq := &proto.SearchRequest{
-		Query: "",
-		Page:  1,
-		PageSize: 10,
-		Cuisine: stringPtr("итальянская"),
+		Query:      "",
+		Page:       1,
+		PageSize:   10,
+		Cuisine:    stringPtr("итальянская"),
 		Difficulty: stringPtr("easy"),
 	}
 
@@ -170,8 +172,8 @@ func TestSearchRecipes(t *testing.T) {
 
 	// Тест: пагинация
 	paginatedReq := &proto.SearchRequest{
-		Query: "",
-		Page:  2,
+		Query:    "",
+		Page:     2,
 		PageSize: 1,
 	}
 
@@ -250,16 +252,16 @@ func TestGetRecipe(t *testing.T) {
 func TestGetSuggestions(t *testing.T) {
 	// Индексировать рецепт
 	doc := &repository.RecipeDocument{
-		ID:          "grpc-suggestion-test",
-		Title:       "Паста Карбонара",
-		Description: "Итальянская паста",
-		Cuisine:     "итальянская",
-		PrepTime:    30,
-		Difficulty:  "easy",
-		Ingredients: []string{"паста", "бекон"},
-		Tags:        []string{"обед"},
-		AuthorID:    "user-123",
-		Rating:      4.5,
+		ID:           "grpc-suggestion-test",
+		Title:        "Паста Карбонара",
+		Description:  "Итальянская паста",
+		Cuisine:      "итальянская",
+		PrepTime:     30,
+		Difficulty:   "easy",
+		Ingredients:  []string{"паста", "бекон"},
+		Tags:         []string{"обед"},
+		AuthorID:     "user-123",
+		Rating:       4.5,
 		ReviewsCount: 10,
 	}
 

@@ -3,19 +3,21 @@ package e2e
 import (
 	"context"
 	"encoding/json"
+	"net"
 	"os"
 	"testing"
 	"time"
 
+	"log/slog"
+
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
 	"github.com/lamauspex/recipes/backend/service_search/internal/consumer"
 	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
-	"github.com/lamauspex/recipes/backend/service_search/pkg/proto"
+	"github.com/lamauspex/recipes/backend/service_search/proto"
 	"github.com/rabbitmq/amqp091-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
-	"log/slog"
 )
 
 // E2E тест: Полный цикл создания рецепта → индексация → поиск
@@ -189,9 +191,9 @@ func TestFullRecipeSearchFlow(t *testing.T) {
 
 	// Поиск по названию
 	searchResp, err := client.SearchRecipes(context.Background(), &proto.SearchRequest{
-		Query:     "пицца",
-		Page:      1,
-		PageSize:  10,
+		Query:    "пицца",
+		Page:     1,
+		PageSize: 10,
 	})
 	if err != nil {
 		t.Fatalf("Search failed: %v", err)
