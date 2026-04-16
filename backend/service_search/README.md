@@ -106,7 +106,7 @@ LOG_FORMAT=json
 
 ```bash
 # Установка зависимостей
-go mod download
+go mod download -C backend/service_search
 
 # Запуск
 go run ./cmd/server/main.go
