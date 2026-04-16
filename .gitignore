@@ -5,7 +5,6 @@ __pycache__/
 -p/
 .venv/
 .git-rewrite/
-.git/
 back/
 life_readme.md
 logs/

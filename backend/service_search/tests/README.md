@@ -10,7 +10,11 @@
 
 **Запуск:**
 ```bash
-go test -v ./tests/unit/...
+# 1. Обновить go.sum всеми зависимостями (включая тестовые)
+go mod tidy -C backend/service_search
+
+# 2. Запустить тесты
+go test -C backend/service_search -v ./tests/...
 ```
 
 ### Integration тесты
