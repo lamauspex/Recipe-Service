@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
@@ -29,18 +30,14 @@ type RecipeDocument struct {
 }
 
 type MeiliSearchRepository struct {
-	client    *meilisearch.Client
-	index     *meilisearch.Index
+	client    meilisearch.ServiceManager
 	indexName string
 	logger    *slog.Logger
 }
 
 func NewMeiliSearchRepository(cfg *config.MeiliSearchConfig, logger *slog.Logger) (*MeiliSearchRepository, error) {
-	client := meilisearch.New(meilisearch.Config{
-		Host:    cfg.Host,
-		APIKey:  cfg.APIKey,
-		Timeout: cfg.Timeout,
-	})
+	// New API: meilisearch.New(host, options...)
+	client := meilisearch.New(cfg.Host, meilisearch.WithAPIKey(cfg.APIKey))
 
 	// Проверка подключения
 	health, err := client.Health()
@@ -50,11 +47,8 @@ func NewMeiliSearchRepository(cfg *config.MeiliSearchConfig, logger *slog.Logger
 
 	logger.Info("MeiliSearch connected", slog.String("status", health.Status))
 
-	index := client.Index(cfg.IndexName)
-
 	return &MeiliSearchRepository{
 		client:    client,
-		index:     index,
 		indexName: cfg.IndexName,
 		logger:    logger,
 	}, nil
@@ -63,7 +57,7 @@ func NewMeiliSearchRepository(cfg *config.MeiliSearchConfig, logger *slog.Logger
 func (r *MeiliSearchRepository) IndexRecipe(ctx context.Context, doc *RecipeDocument) error {
 	start := time.Now()
 
-	task, err := r.index.AddDocuments([]RecipeDocument{*doc}, "id")
+	task, err := r.client.Index(r.indexName).AddDocuments([]RecipeDocument{*doc}, nil)
 	if err != nil {
 		return fmt.Errorf("failed to index recipe: %w", err)
 	}
@@ -77,7 +71,7 @@ func (r *MeiliSearchRepository) IndexRecipe(ctx context.Context, doc *RecipeDocu
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-ticker.C:
-			status, err := r.client.Task(task.TaskUID)
+			status, err := r.client.GetTask(task.TaskUID)
 			if err != nil {
 				continue
 			}
@@ -86,7 +80,7 @@ func (r *MeiliSearchRepository) IndexRecipe(ctx context.Context, doc *RecipeDocu
 				return nil
 			}
 			if status.Status == "failed" {
-				return fmt.Errorf("indexing task failed: %s", status.Error)
+				return fmt.Errorf("indexing task failed: %v", status.Error)
 			}
 		}
 	}
@@ -95,7 +89,7 @@ func (r *MeiliSearchRepository) IndexRecipe(ctx context.Context, doc *RecipeDocu
 func (r *MeiliSearchRepository) DeleteRecipe(ctx context.Context, id string) error {
 	start := time.Now()
 
-	task, err := r.index.DeleteDocument(id)
+	task, err := r.client.Index(r.indexName).DeleteDocument(id)
 	if err != nil {
 		return fmt.Errorf("failed to delete recipe: %w", err)
 	}
@@ -109,7 +103,7 @@ func (r *MeiliSearchRepository) DeleteRecipe(ctx context.Context, id string) err
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-ticker.C:
-			status, err := r.client.Task(task.TaskUID)
+			status, err := r.client.GetTask(task.TaskUID)
 			if err != nil {
 				continue
 			}
@@ -118,21 +112,24 @@ func (r *MeiliSearchRepository) DeleteRecipe(ctx context.Context, id string) err
 				return nil
 			}
 			if status.Status == "failed" {
-				return fmt.Errorf("deletion task failed: %s", status.Error)
+				return fmt.Errorf("deletion task failed: %v", status.Error)
 			}
 		}
 	}
 }
 
 func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filters *SearchFilters, page, pageSize int) (*SearchResult, error) {
-	searchRequest := meilisearch.SearchRequest{
-		Query:   query,
-		Offset:  (page - 1) * pageSize,
-		Limit:   pageSize,
-		Filters: r.buildFilters(filters),
+	// Фильтры в виде строки
+	filterStr := r.buildFilters(filters)
+
+	searchRequest := &meilisearch.SearchRequest{
+		Query:  query,
+		Offset: int64((page - 1) * pageSize),
+		Limit:  int64(pageSize),
+		Filter: filterStr,
 	}
 
-	result, err := r.index.Search(query, &searchRequest)
+	result, err := r.client.Index(r.indexName).Search(query, searchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("search failed: %w", err)
 	}
@@ -156,14 +153,14 @@ func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filter
 		})
 	}
 
-	totalPages := int(result.HitsPerPage) / pageSize
-	if int(result.HitsPerPage)%pageSize > 0 {
+	totalPages := int(result.EstimatedTotalHits) / pageSize
+	if int(result.EstimatedTotalHits)%pageSize > 0 {
 		totalPages++
 	}
 
 	return &SearchResult{
 		Recipes:    recipes,
-		Total:      int32(result.HitsPerPage),
+		Total:      int32(result.EstimatedTotalHits),
 		Page:       int32(page),
 		PageSize:   int32(pageSize),
 		TotalPages: int32(totalPages),
@@ -172,7 +169,7 @@ func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filter
 
 func (r *MeiliSearchRepository) GetRecipeByID(ctx context.Context, id string) (*RecipeDocument, error) {
 	var doc RecipeDocument
-	err := r.index.GetDocument(id, &doc)
+	err := r.client.Index(r.indexName).GetDocument(id, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get recipe: %w", err)
 	}
@@ -184,13 +181,13 @@ func (r *MeiliSearchRepository) GetSuggestions(ctx context.Context, query string
 		limit = 10
 	}
 
-	searchRequest := meilisearch.SearchRequest{
+	searchRequest := &meilisearch.SearchRequest{
 		Query:                query,
 		Limit:                int64(limit),
 		AttributesToRetrieve: []string{fieldType},
 	}
 
-	result, err := r.index.Search(query, &searchRequest)
+	result, err := r.client.Index(r.indexName).Search(query, searchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("suggestions failed: %w", err)
 	}
@@ -222,7 +219,7 @@ func (r *MeiliSearchRepository) Health(ctx context.Context) (*HealthStatus, erro
 	}, nil
 }
 
-func (r *MeiliSearchRepository) buildFilters(filters *SearchFilters) []string {
+func (r *MeiliSearchRepository) buildFilters(filters *SearchFilters) string {
 	var filterStrings []string
 
 	if filters != nil {
@@ -247,7 +244,7 @@ func (r *MeiliSearchRepository) buildFilters(filters *SearchFilters) []string {
 		}
 	}
 
-	return filterStrings
+	return strings.Join(filterStrings, " AND ")
 }
 
 func convertHitToDocument(hit map[string]any, doc *RecipeDocument) error {
