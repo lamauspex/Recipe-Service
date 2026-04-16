@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package search;
 
-option go_package = "github.com/lamauspex/recipes/backend/shared/proto";
+option go_package = "github.com/lamauspex/recipes/backend/service_search/proto";
 
 import "google/protobuf/empty.proto";
 
