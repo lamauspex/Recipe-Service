@@ -12,7 +12,7 @@ import (
 	"github.com/lamauspex/recipes/backend/service_search/internal/api"
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
 	"github.com/lamauspex/recipes/backend/service_search/internal/consumer"
-	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
+	"github.com/lamauspex/recipes/backend/service_search/internal/repository/meilisearch"
 	"github.com/lamauspex/recipes/backend/service_search/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -60,7 +60,7 @@ func TestMain(m *testing.M) {
 	}))
 
 	// Создать репозиторий
-	repo, err := repository.NewMeiliSearchRepository(&cfg.MeiliSearch, logger)
+	repo, err := meilisearch.NewMeiliSearchRepository(&cfg.MeiliSearch, logger)
 	if err != nil {
 		println("Failed to create MeiliSearch repository:", err.Error())
 		os.Exit(1)
@@ -97,7 +97,7 @@ func TestMain(m *testing.M) {
 
 func TestSearchRecipes(t *testing.T) {
 	// Индексировать тестовый рецепт
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           "grpc-test-1",
 		Title:        "Паста Карбонара",
 		Description:  "Итальянская паста с беконом",
@@ -189,7 +189,7 @@ func TestSearchRecipes(t *testing.T) {
 
 func TestGetRecipe(t *testing.T) {
 	// Индексировать рецепт
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           "grpc-get-test",
 		Title:        "Борщ",
 		Description:  "Русский суп",
@@ -251,7 +251,7 @@ func TestGetRecipe(t *testing.T) {
 
 func TestGetSuggestions(t *testing.T) {
 	// Индексировать рецепт
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           "grpc-suggestion-test",
 		Title:        "Паста Карбонара",
 		Description:  "Итальянская паста",

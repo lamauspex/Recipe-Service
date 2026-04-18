@@ -13,7 +13,7 @@ import (
 
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
 	"github.com/lamauspex/recipes/backend/service_search/internal/consumer"
-	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
+	"github.com/lamauspex/recipes/backend/service_search/internal/repository/meilisearch"
 	"github.com/lamauspex/recipes/backend/service_search/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -33,13 +33,13 @@ const (
 type SearchServer struct {
 	proto.UnimplementedSearchServiceServer
 	cfg       *config.Config
-	repo      *repository.MeiliSearchRepository
+	repo      *meilisearch.MeiliSearchRepository
 	consumer  *consumer.RabbitMQConsumer
 	logger    *slog.Logger
 	startTime time.Time
 }
 
-func NewSearchServer(cfg *config.Config, repo *repository.MeiliSearchRepository, consumer *consumer.RabbitMQConsumer, logger *slog.Logger) (*SearchServer, error) {
+func NewSearchServer(cfg *config.Config, repo *meilisearch.MeiliSearchRepository, consumer *consumer.RabbitMQConsumer, logger *slog.Logger) (*SearchServer, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("config cannot be nil")
 	}
@@ -124,11 +124,7 @@ func (s *SearchServer) Start() error {
 		s.logger.Info("gRPC server stopped forcefully")
 	}
 
-	// Graceful shutdown consumer с таймаутом
-	consumerCtx, consumerCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer consumerCancel()
-
-	if err := s.consumer.StopWithContext(consumerCtx); err != nil {
+	if err := s.consumer.Stop(); err != nil {
 		s.logger.Error("Failed to stop consumer", slog.String("error", err.Error()))
 	} else {
 		s.logger.Info("Consumer stopped gracefully")
@@ -140,7 +136,7 @@ func (s *SearchServer) Start() error {
 
 // SearchRecipes - поиск рецептов
 func (s *SearchServer) SearchRecipes(ctx context.Context, req *proto.SearchRequest) (*proto.SearchResponse, error) {
-	filters := &repository.SearchFilters{
+	filters := &meilisearch.SearchFilters{
 		Cuisine:     req.GetCuisine(),
 		Difficulty:  req.GetDifficulty(),
 		MaxPrepTime: req.GetMaxPrepTime(),
@@ -303,7 +299,7 @@ func Run() {
 		log.Fatal("Failed to load configuration")
 	}
 
-	repo, err := repository.NewMeiliSearchRepository(&cfg.MeiliSearch, logger)
+	repo, err := meilisearch.NewMeiliSearchRepository(&cfg.MeiliSearch, logger)
 	if err != nil {
 		log.Fatalf("Failed to create MeiliSearch repository: %v", err)
 	}

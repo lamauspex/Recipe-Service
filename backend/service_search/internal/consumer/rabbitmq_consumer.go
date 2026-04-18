@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
-	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
+	"github.com/lamauspex/recipes/backend/service_search/internal/repository/meilisearch"
 	"github.com/rabbitmq/amqp091-go"
 )
 
@@ -21,10 +21,10 @@ const (
 )
 
 type RecipeEvent struct {
-	Type      EventType `json:"type"`
-	RecipeID  string    `json:"recipe_id"`
+	Type      EventType     `json:"type"`
+	RecipeID  string        `json:"recipe_id"`
 	Payload   RecipePayload `json:"payload,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
 type RecipePayload struct {
@@ -43,16 +43,16 @@ type RecipePayload struct {
 }
 
 type RabbitMQConsumer struct {
-	conn    *amqp091.Connection
-	ch      *amqp091.Channel
-	cfg     *config.RabbitMQConfig
-	repo    *repository.MeiliSearchRepository
-	logger  *slog.Logger
-	ctx     context.Context
-	cancel  context.CancelFunc
+	conn   *amqp091.Connection
+	ch     *amqp091.Channel
+	cfg    *config.RabbitMQConfig
+	repo   *meilisearch.MeiliSearchRepository
+	logger *slog.Logger
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
-func NewRabbitMQConsumer(cfg *config.RabbitMQConfig, repo *repository.MeiliSearchRepository, logger *slog.Logger) (*RabbitMQConsumer, error) {
+func NewRabbitMQConsumer(cfg *config.RabbitMQConfig, repo *meilisearch.MeiliSearchRepository, logger *slog.Logger) (*RabbitMQConsumer, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &RabbitMQConsumer{
@@ -250,7 +250,7 @@ func (c *RabbitMQConsumer) handleRecipeUpsert(event *RecipeEvent) error {
 		return fmt.Errorf("payload is empty for upsert event")
 	}
 
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           event.Payload.ID,
 		Title:        event.Payload.Title,
 		Description:  event.Payload.Description,

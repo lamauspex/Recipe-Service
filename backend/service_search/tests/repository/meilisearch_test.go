@@ -2,17 +2,17 @@ package repository
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
-	"github.com/lamauspex/recipes/backend/service_search/internal/repository"
-	"log/slog"
+	"github.com/lamauspex/recipes/backend/service_search/internal/repository/meilisearch"
 )
 
 var (
-	testRepo *repository.MeiliSearchRepository
+	testRepo *meilisearch.MeiliSearchRepository
 	testCfg  *config.MeiliSearchConfig
 )
 
@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 	}))
 
 	var err error
-	testRepo, err = repository.NewMeiliSearchRepository(testCfg, logger)
+	testRepo, err = meilisearch.NewMeiliSearchRepository(testCfg, logger)
 	if err != nil {
 		println("Failed to create MeiliSearch repository:", err.Error())
 		os.Exit(1)
@@ -52,7 +52,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestIndexRecipe(t *testing.T) {
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           "test-recipe-1",
 		Title:        "Паста Карбонара",
 		Description:  "Классическая итальянская паста с беконом и яйцами",
@@ -91,7 +91,7 @@ func TestIndexRecipe(t *testing.T) {
 
 func TestDeleteRecipe(t *testing.T) {
 	// Сначала создать рецепт
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           "test-recipe-delete",
 		Title:        "Борщ",
 		Description:  "Тестовый рецепт для удаления",
@@ -128,7 +128,7 @@ func TestDeleteRecipe(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	// Индексировать тестовые рецепты
-	recipes := []*repository.RecipeDocument{
+	recipes := []*meilisearch.RecipeDocument{
 		{
 			ID:          "search-test-1",
 			Title:       "Паста Карбонара",
@@ -183,7 +183,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	// Тест 2: Поиск с фильтром по кухне
-	filters := &repository.SearchFilters{
+	filters := &meilisearch.SearchFilters{
 		Cuisine: "итальянская",
 	}
 	result, err = testRepo.Search(context.Background(), "", filters, 1, 10)
@@ -198,7 +198,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	// Тест 3: Поиск с фильтром по времени
-	filters = &repository.SearchFilters{
+	filters = &meilisearch.SearchFilters{
 		MaxPrepTime: 30,
 	}
 	result, err = testRepo.Search(context.Background(), "", filters, 1, 10)
@@ -225,7 +225,7 @@ func TestSearch(t *testing.T) {
 
 func TestSuggestions(t *testing.T) {
 	// Индексировать рецепты для тестов suggestions
-	doc := &repository.RecipeDocument{
+	doc := &meilisearch.RecipeDocument{
 		ID:           "suggestion-test",
 		Title:        "Паста Карбонара",
 		Description:  "Итальянская паста",
