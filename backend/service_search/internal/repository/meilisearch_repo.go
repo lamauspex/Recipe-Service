@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -169,7 +170,8 @@ func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filter
 
 func (r *MeiliSearchRepository) GetRecipeByID(ctx context.Context, id string) (*RecipeDocument, error) {
 	var doc RecipeDocument
-	err := r.client.Index(r.indexName).GetDocument(id, &doc)
+	query := &meilisearch.DocumentQuery{}
+	err := r.client.Index(r.indexName).GetDocument(id, query, &doc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get recipe: %w", err)
 	}
@@ -247,7 +249,7 @@ func (r *MeiliSearchRepository) buildFilters(filters *SearchFilters) string {
 	return strings.Join(filterStrings, " AND ")
 }
 
-func convertHitToDocument(hit map[string]any, doc *RecipeDocument) error {
+func convertHitToDocument(hit meilisearch.Hit, doc *RecipeDocument) error {
 	if id, ok := hit["id"].(string); ok {
 		doc.ID = id
 	}

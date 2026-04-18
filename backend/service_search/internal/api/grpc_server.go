@@ -20,6 +20,16 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
+// Константы для сервера
+const (
+	DefaultPage       = 1
+	DefaultPageSize   = 10
+	MaxPageSize       = 100
+	ShutdownTimeout   = 30 * time.Second
+	ServerVersion     = "1.0.0"
+	ConsumerReconnect = 5 * time.Second
+)
+
 type SearchServer struct {
 	proto.UnimplementedSearchServiceServer
 	cfg       *config.Config
@@ -29,14 +39,27 @@ type SearchServer struct {
 	startTime time.Time
 }
 
-func NewSearchServer(cfg *config.Config, repo *repository.MeiliSearchRepository, consumer *consumer.RabbitMQConsumer, logger *slog.Logger) *SearchServer {
+func NewSearchServer(cfg *config.Config, repo *repository.MeiliSearchRepository, consumer *consumer.RabbitMQConsumer, logger *slog.Logger) (*SearchServer, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("config cannot be nil")
+	}
+	if repo == nil {
+		return nil, fmt.Errorf("repository cannot be nil")
+	}
+	if consumer == nil {
+		return nil, fmt.Errorf("consumer cannot be nil")
+	}
+	if logger == nil {
+		return nil, fmt.Errorf("logger cannot be nil")
+	}
+
 	return &SearchServer{
 		cfg:       cfg,
 		repo:      repo,
 		consumer:  consumer,
 		logger:    logger,
 		startTime: time.Now(),
-	}
+	}, nil
 }
 
 func (s *SearchServer) Start() error {
@@ -52,16 +75,27 @@ func (s *SearchServer) Start() error {
 	s.logger.Info("Starting Search Service gRPC server",
 		slog.String("address", lis.Addr().String()))
 
+	// Запуск RabbitMQ consumer с проверкой ошибки
+	consumerErr := make(chan error, 1)
+	go func() {
+		consumerErr <- s.consumer.Start()
+	}()
+
+	// Ждём успешного старта consumer или ошибку
+	select {
+	case err := <-consumerErr:
+		if err != nil {
+			lis.Close()
+			return fmt.Errorf("consumer failed during startup: %w", err)
+		}
+		s.logger.Info("RabbitMQ consumer started successfully")
+	case <-time.After(10 * time.Second):
+		s.logger.Warn("Consumer startup timeout, continuing anyway")
+	}
+
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
 			s.logger.Error("Failed to serve", slog.String("error", err.Error()))
-		}
-	}()
-
-	// Запуск RabbitMQ consumer
-	go func() {
-		if err := s.consumer.Start(); err != nil {
-			s.logger.Error("Consumer failed", slog.String("error", err.Error()))
 		}
 	}()
 
@@ -72,13 +106,32 @@ func (s *SearchServer) Start() error {
 
 	s.logger.Info("Shutting down Search Service")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), ShutdownTimeout)
 	defer cancel()
 
-	grpcServer.GracefulStop()
+	// Graceful shutdown gRPC
+	done := make(chan struct{})
+	go func() {
+		grpcServer.GracefulStop()
+		close(done)
+	}()
 
-	if err := s.consumer.Stop(); err != nil {
+	select {
+	case <-done:
+		s.logger.Info("gRPC server stopped gracefully")
+	case <-ctx.Done():
+		grpcServer.Stop()
+		s.logger.Info("gRPC server stopped forcefully")
+	}
+
+	// Graceful shutdown consumer с таймаутом
+	consumerCtx, consumerCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer consumerCancel()
+
+	if err := s.consumer.StopWithContext(consumerCtx); err != nil {
 		s.logger.Error("Failed to stop consumer", slog.String("error", err.Error()))
+	} else {
+		s.logger.Info("Consumer stopped gracefully")
 	}
 
 	s.logger.Info("Search Service stopped")
@@ -97,20 +150,20 @@ func (s *SearchServer) SearchRecipes(ctx context.Context, req *proto.SearchReque
 
 	page := int(req.Page)
 	if page < 1 {
-		page = 1
+		page = DefaultPage
 	}
 	pageSize := int(req.PageSize)
 	if pageSize < 1 {
-		pageSize = 10
+		pageSize = DefaultPageSize
 	}
-	if pageSize > 100 {
-		pageSize = 100
+	if pageSize > MaxPageSize {
+		pageSize = MaxPageSize
 	}
 
 	result, err := s.repo.Search(ctx, req.Query, filters, page, pageSize)
 	if err != nil {
 		s.logger.Error("Search failed", slog.String("error", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("search failed: %w", err)
 	}
 
 	return &proto.SearchResponse{
@@ -127,7 +180,7 @@ func (s *SearchServer) GetRecipe(ctx context.Context, req *proto.GetRecipeReques
 	doc, err := s.repo.GetRecipeByID(ctx, req.Id)
 	if err != nil {
 		s.logger.Error("Get recipe failed", slog.String("error", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("get recipe failed: %w", err)
 	}
 
 	return &proto.RecipeResponse{
@@ -155,13 +208,13 @@ func (s *SearchServer) GetSuggestions(ctx context.Context, req *proto.Suggestion
 
 	limit := int(req.Limit)
 	if limit <= 0 {
-		limit = 10
+		limit = DefaultPageSize
 	}
 
 	suggestions, err := s.repo.GetSuggestions(ctx, req.Query, fieldType, limit)
 	if err != nil {
 		s.logger.Error("Suggestions failed", slog.String("error", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("get suggestions failed: %w", err)
 	}
 
 	return &proto.SuggestionsResponse{
@@ -176,7 +229,7 @@ func (s *SearchServer) Health(ctx context.Context, _ *emptypb.Empty) (*proto.Hea
 	if err != nil {
 		return &proto.HealthResponse{
 			Status:            "error",
-			Version:           "1.0.0",
+			Version:           ServerVersion,
 			UptimeSeconds:     int64(time.Since(s.startTime).Seconds()),
 			MeilisearchStatus: fmt.Sprintf("error: %v", err),
 		}, nil
@@ -189,7 +242,7 @@ func (s *SearchServer) Health(ctx context.Context, _ *emptypb.Empty) (*proto.Hea
 
 	return &proto.HealthResponse{
 		Status:            status,
-		Version:           "1.0.0",
+		Version:           ServerVersion,
 		UptimeSeconds:     int64(time.Since(s.startTime).Seconds()),
 		MeilisearchStatus: healthStatus.Message,
 	}, nil
@@ -200,17 +253,44 @@ func (s *SearchServer) Check(ctx context.Context, req *grpc_health_v1.HealthChec
 	healthStatus, err := s.repo.Health(ctx)
 	if err != nil || !healthStatus.Healthy {
 		return &grpc_health_v1.HealthCheckResponse{
-			Status: grpc_health_v1.HealthCheckResponse_SERVING,
+			Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING,
 		}, nil
 	}
 	return &grpc_health_v1.HealthCheckResponse{
-		Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING,
+		Status: grpc_health_v1.HealthCheckResponse_SERVING,
 	}, nil
 }
 
-// Watch - grpc health watch (не реализован)
+// Watch - grpc health watch
 func (s *SearchServer) Watch(req *grpc_health_v1.HealthCheckRequest, server grpc_health_v1.Health_WatchServer) error {
-	return nil
+	// Отправляем начальное состояние
+	resp, err := s.Check(server.Context(), req)
+	if err != nil {
+		return err
+	}
+	if err := server.Send(resp); err != nil {
+		return err
+	}
+
+	// Подписываемся на изменения (если repo поддерживает)
+	// Для простоты отправляем периодические обновления
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-server.Context().Done():
+			return server.Context().Err()
+		case <-ticker.C:
+			resp, err := s.Check(server.Context(), req)
+			if err != nil {
+				return err
+			}
+			if err := server.Send(resp); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func Run() {
@@ -219,6 +299,9 @@ func Run() {
 	}))
 
 	cfg := config.Load()
+	if cfg == nil {
+		log.Fatal("Failed to load configuration")
+	}
 
 	repo, err := repository.NewMeiliSearchRepository(&cfg.MeiliSearch, logger)
 	if err != nil {
@@ -230,7 +313,10 @@ func Run() {
 		log.Fatalf("Failed to create RabbitMQ consumer: %v", err)
 	}
 
-	server := NewSearchServer(cfg, repo, consumer, logger)
+	server, err := NewSearchServer(cfg, repo, consumer, logger)
+	if err != nil {
+		log.Fatalf("Failed to create server: %v", err)
+	}
 
 	if err := server.Start(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
