@@ -84,3 +84,33 @@ func (r *MeiliSearchRepository) GetRecipeByID(ctx context.Context, id string) (*
 	}
 	return &doc, nil
 }
+
+// DeleteIndex удаляет весь индекс (для тестов)
+func (r *MeiliSearchRepository) DeleteIndex(ctx context.Context) error {
+	// Удаляем конкретный документ по ID или весь индекс
+	// Используем DeleteIndex с именем индекса
+	task, err := r.client.DeleteIndex(r.indexName)
+	if err != nil {
+		// Индекс может не существовать - это нормально
+		return nil
+	}
+
+	// Ожидаем выполнения задачи
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+			status, err := r.client.GetTask(task.TaskUID)
+			if err != nil {
+				continue
+			}
+			if status.Status == "succeeded" || status.Status == "failed" {
+				return nil
+			}
+		}
+	}
+}
