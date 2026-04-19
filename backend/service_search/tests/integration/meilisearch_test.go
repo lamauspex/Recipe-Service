@@ -1,5 +1,3 @@
-//go:build integration
-
 package integration
 
 import (
@@ -8,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"log/slog"
+
 	"github.com/lamauspex/recipes/backend/service_search/internal/config"
 	"github.com/lamauspex/recipes/backend/service_search/internal/repository/meilisearch"
-	"log/slog"
 )
 
 var (
