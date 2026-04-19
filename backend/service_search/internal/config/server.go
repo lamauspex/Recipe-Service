@@ -12,7 +12,7 @@ type ServerConfig struct {
 
 func loadServerConfig() ServerConfig {
 	return ServerConfig{
-		Host: viper.GetString("SERVER_HOST"),
-		Port: viper.GetInt("SERVER_PORT"),
+		Host: viper.GetString("HOST"),
+		Port: viper.GetInt("PORT"),
 	}
 }
