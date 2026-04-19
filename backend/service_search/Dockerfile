@@ -6,18 +6,18 @@ WORKDIR /build
 # === Системные зависимости для сборки ===
 RUN apk add --no-cache git ca-certificates
 
-# === Копируем манифесты зависимостей ===
-COPY go.mod go.sum ./
+# === Копируем манифест зависимостей ===
+COPY backend/service_search/go.mod ./
 
-# === Скачиваем зависимости (кэшируемый слой) ===
+# === Копируем код сервиса ===
+COPY backend/service_search/ ./
+
+# === Скачиваем зависимости ===
+RUN go mod tidy
 RUN go mod download
 
-# === Копируем весь код сервиса ===
-COPY . .
 
 # === Сборка ===
-# -ldflags="-w -s" — убираем отладочную информацию (уменьшаем размер)
-# CGO_ENABLED=0 — статическая линковка (меньше зависимостей в runtime)
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags="-w -s" \
     -o main \

@@ -69,8 +69,8 @@ services:
       - "8002:8002"
       - "50052:50052"
     environment:
-      - MEILISEARCH_HOST=http://meilisearch:7700
-      - RABBITMQ_URL=amqp://admin:rabbitmq-password@rabbitmq:5672/
+      - SEARCH_SERVICE_MEILISEARCH_HOST=http://meilisearch:7700
+      - SEARCH_SERVICE_RABBITMQ_URL=amqp://admin:rabbitmq-password@rabbitmq:5672/
     depends_on:
       meilisearch:
         condition: service_healthy
@@ -81,7 +81,7 @@ services:
     volumes:
       - ../logs/service_search:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8002/health"]
       interval: 10s
       timeout: 5s
       retries: 5
