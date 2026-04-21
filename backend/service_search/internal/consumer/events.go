@@ -21,16 +21,17 @@ type RecipeEvent struct {
 
 // RecipePayload — данные рецепта в событии
 type RecipePayload struct {
-	ID           string   `json:"id"`
-	Title        string   `json:"title"`
-	Description  string   `json:"description"`
-	Cuisine      string   `json:"cuisine"`
-	PrepTime     int      `json:"prep_time"`
-	Difficulty   string   `json:"difficulty"`
-	Ingredients  []string `json:"ingredients"`
-	Tags         []string `json:"tags"`
-	Instructions string   `json:"instructions"`
-	AuthorID     string   `json:"author_id"`
-	Rating       float64  `json:"rating"`
-	ReviewsCount int      `json:"reviews_count"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	// TODO: Добавить поля при расширении модели Recipe
+	// Cuisine      string   `json:"cuisine"`
+	// PrepTime     int      `json:"prep_time"`
+	// Difficulty   string   `json:"difficulty"`
+	// Ingredients  []string `json:"ingredients"`
+	// Tags         []string `json:"tags"`
+	// Instructions string   `json:"instructions"`
+	// AuthorID     string   `json:"author_id"`
+	// Rating       float64  `json:"rating"`
+	// ReviewsCount int      `json:"reviews_count"`
 }

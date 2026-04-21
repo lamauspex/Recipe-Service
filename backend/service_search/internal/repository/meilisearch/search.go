@@ -35,15 +35,16 @@ func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filter
 			continue
 		}
 		recipes = append(recipes, &proto.RecipeResult{
-			Id:           doc.ID,
-			Title:        doc.Title,
-			Description:  doc.Description,
-			Cuisine:      doc.Cuisine,
-			PrepTime:     int32(doc.PrepTime),
-			Difficulty:   doc.Difficulty,
-			Tags:         doc.Tags,
-			Rating:       doc.Rating,
-			ReviewsCount: int32(doc.ReviewsCount),
+			Id:          doc.ID,
+			Title:       doc.Title,
+			Description: doc.Description,
+			// TODO: Добавить поля при расширении модели Recipe
+			// Cuisine:      doc.Cuisine,
+			// PrepTime:     int32(doc.PrepTime),
+			// Difficulty:   doc.Difficulty,
+			// Tags:         doc.Tags,
+			// Rating:       doc.Rating,
+			// ReviewsCount: int32(doc.ReviewsCount),
 		})
 	}
 

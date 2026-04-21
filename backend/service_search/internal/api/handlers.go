@@ -12,11 +12,12 @@ import (
 // SearchRecipes — поиск рецептов
 func (s *SearchServer) SearchRecipes(ctx context.Context, req *proto.SearchRequest) (*proto.SearchResponse, error) {
 	filters := &meilisearch.SearchFilters{
-		Cuisine:     req.GetCuisine(),
-		Difficulty:  req.GetDifficulty(),
-		MaxPrepTime: req.GetMaxPrepTime(),
-		Ingredients: req.GetIngredients(),
-		Tags:        req.GetTags(),
+		// TODO: Добавить поля при расширении модели Recipe
+		// Cuisine:     req.GetCuisine(),
+		// Difficulty:  req.GetDifficulty(),
+		// MaxPrepTime: req.GetMaxPrepTime(),
+		// Ingredients: req.GetIngredients(),
+		// Tags:        req.GetTags(),
 	}
 
 	page, pageSize := validatePagination(int(req.Page), int(req.PageSize))
@@ -45,27 +46,30 @@ func (s *SearchServer) GetRecipe(ctx context.Context, req *proto.GetRecipeReques
 	}
 
 	return &proto.RecipeResponse{
-		Id:           doc.ID,
-		Title:        doc.Title,
-		Description:  doc.Description,
-		Cuisine:      doc.Cuisine,
-		PrepTime:     int32(doc.PrepTime),
-		Difficulty:   doc.Difficulty,
-		Ingredients:  doc.Ingredients,
-		Tags:         doc.Tags,
-		Instructions: doc.Instructions,
-		Rating:       doc.Rating,
-		ReviewsCount: int32(doc.ReviewsCount),
-		AuthorId:     doc.AuthorID,
+		Id:          doc.ID,
+		Title:       doc.Title,
+		Description: doc.Description,
+		// TODO: Добавить поля при расширении модели Recipe
+		// Cuisine:      doc.Cuisine,
+		// PrepTime:     int32(doc.PrepTime),
+		// Difficulty:   doc.Difficulty,
+		// Ingredients:  doc.Ingredients,
+		// Tags:         doc.Tags,
+		// Instructions: doc.Instructions,
+		// Rating:       doc.Rating,
+		// ReviewsCount: int32(doc.ReviewsCount),
+		// AuthorId:     doc.AuthorID,
 	}, nil
 }
 
 // GetSuggestions — автодополнение
 func (s *SearchServer) GetSuggestions(ctx context.Context, req *proto.SuggestionsRequest) (*proto.SuggestionsResponse, error) {
+	// TODO: Добавить поддержку типа при расширении модели Recipe
+	// fieldType := "title"
+	// if req.GetType() != "" {
+	// 	fieldType = req.GetType()
+	// }
 	fieldType := "title"
-	if req.GetType() != "" {
-		fieldType = req.GetType()
-	}
 
 	limit := int(req.Limit)
 	if limit <= 0 {
@@ -80,6 +84,6 @@ func (s *SearchServer) GetSuggestions(ctx context.Context, req *proto.Suggestion
 
 	return &proto.SuggestionsResponse{
 		Suggestions: suggestions,
-		Type:        fieldType,
+		// Type:        fieldType,
 	}, nil
 }

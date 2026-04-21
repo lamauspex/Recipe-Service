@@ -1,31 +1,30 @@
 package meilisearch
 
-import "fmt"
-
 func buildFilters(filters *SearchFilters) string {
 	var filterStrings []string
 
-	if filters != nil {
-		if filters.Cuisine != "" {
-			filterStrings = append(filterStrings, fmt.Sprintf("cuisine = \"%s\"", filters.Cuisine))
-		}
-		if filters.Difficulty != "" {
-			filterStrings = append(filterStrings, fmt.Sprintf("difficulty = \"%s\"", filters.Difficulty))
-		}
-		if filters.MaxPrepTime > 0 {
-			filterStrings = append(filterStrings, fmt.Sprintf("prep_time <= %d", filters.MaxPrepTime))
-		}
-		if len(filters.Ingredients) > 0 {
-			for _, ing := range filters.Ingredients {
-				filterStrings = append(filterStrings, fmt.Sprintf("ingredients CONTAINS \"%s\"", ing))
-			}
-		}
-		if len(filters.Tags) > 0 {
-			for _, tag := range filters.Tags {
-				filterStrings = append(filterStrings, fmt.Sprintf("tags CONTAINS \"%s\"", tag))
-			}
-		}
-	}
+	// TODO: Добавить поддержку фильтров при расширении модели Recipe
+	// if filters != nil {
+	// 	if filters.Cuisine != "" {
+	// 		filterStrings = append(filterStrings, fmt.Sprintf("cuisine = \"%s\"", filters.Cuisine))
+	// 	}
+	// 	if filters.Difficulty != "" {
+	// 		filterStrings = append(filterStrings, fmt.Sprintf("difficulty = \"%s\"", filters.Difficulty))
+	// 	}
+	// 	if filters.MaxPrepTime > 0 {
+	// 		filterStrings = append(filterStrings, fmt.Sprintf("prep_time <= %d", filters.MaxPrepTime))
+	// 	}
+	// 	if len(filters.Ingredients) > 0 {
+	// 		for _, ing := range filters.Ingredients {
+	// 			filterStrings = append(filterStrings, fmt.Sprintf("ingredients CONTAINS \"%s\"", ing))
+	// 		}
+	// 	}
+	// 	if len(filters.Tags) > 0 {
+	// 		for _, tag := range filters.Tags {
+	// 			filterStrings = append(filterStrings, fmt.Sprintf("tags CONTAINS \"%s\"", tag))
+	// 		}
+	// 	}
+	// }
 
 	return join(filterStrings, " AND ")
 }

@@ -28,11 +28,12 @@ message SearchRequest {
   int32 page_size = 3;        // Размер страницы (макс. 100)
   
   // Фильтры
-  optional string cuisine = 4;              // Кухня (итальянская, азиатская и т.д.)
-  optional int32 max_prep_time = 5;         // Макс. время приготовления (минуты)
-  optional string difficulty = 6;           // Сложность (easy, medium, hard)
-  repeated string ingredients = 7;          // Ингредиенты (должны присутствовать)
-  repeated string tags = 8;                 // Теги
+  // TODO: Добавить поддержку при расширении модели Recipe
+  // optional string cuisine = 4;              // Кухня (итальянская, азиатская и т.д.)
+  // optional int32 max_prep_time = 5;         // Макс. время приготовления (минуты)
+  // optional string difficulty = 6;           // Сложность (easy, medium, hard)
+  // repeated string ingredients = 7;          // Ингредиенты (должны присутствовать)
+  // repeated string tags = 8;                 // Теги
 }
 
 // Ответ на поиск
@@ -49,12 +50,13 @@ message RecipeResult {
   string id = 1;
   string title = 2;
   string description = 3;
-  string cuisine = 4;
-  int32 prep_time = 5;
-  string difficulty = 6;
-  repeated string tags = 7;
-  double rating = 8;
-  int32 reviews_count = 9;
+  // TODO: Добавить поддержку при расширении модели Recipe
+  // string cuisine = 4;
+  // int32 prep_time = 5;
+  // string difficulty = 6;
+  // repeated string tags = 7;
+  // double rating = 8;
+  // int32 reviews_count = 9;
 }
 
 // Запрос на получение рецепта по ID
@@ -67,28 +69,31 @@ message RecipeResponse {
   string id = 1;
   string title = 2;
   string description = 3;
-  string cuisine = 4;
-  int32 prep_time = 5;
-  string difficulty = 6;
-  repeated string ingredients = 7;
-  repeated string tags = 8;
-  string instructions = 9;
-  double rating = 10;
-  int32 reviews_count = 11;
-  string author_id = 12;
+  // TODO: Добавить поддержку при расширении модели Recipe
+  // string cuisine = 4;
+  // int32 prep_time = 5;
+  // string difficulty = 6;
+  // repeated string ingredients = 7;
+  // repeated string tags = 8;
+  // string instructions = 9;
+  // double rating = 10;
+  // int32 reviews_count = 11;
+  // string author_id = 12;
 }
 
 // Запрос на автодополнение
 message SuggestionsRequest {
   string query = 1;           // Частичный запрос
-  optional string type = 2;   // Тип: "title", "ingredients", "tags", "cuisine"
+  // TODO: Добавить поддержку при расширении модели Recipe
+  // optional string type = 2;   // Тип: "title", "ingredients", "tags", "cuisine"
   int32 limit = 3;            // Макс. количество предложений (по умолчанию 10)
 }
 
 // Ответ с автодополнением
 message SuggestionsResponse {
   repeated string suggestions = 1;
-  string type = 2;            // Тип предложений
+  // TODO: Добавить поддержку при расширении модели Recipe
+  // string type = 2;            // Тип предложений
 }
 
 // Health check ответ

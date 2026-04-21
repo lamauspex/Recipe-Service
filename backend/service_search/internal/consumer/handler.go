@@ -55,20 +55,21 @@ func (c *RabbitMQConsumer) handleRecipeUpsert(event *RecipeEvent) error {
 	}
 
 	doc := &meilisearch.RecipeDocument{
-		ID:           event.Payload.ID,
-		Title:        event.Payload.Title,
-		Description:  event.Payload.Description,
-		Cuisine:      event.Payload.Cuisine,
-		PrepTime:     event.Payload.PrepTime,
-		Difficulty:   event.Payload.Difficulty,
-		Ingredients:  event.Payload.Ingredients,
-		Tags:         event.Payload.Tags,
-		Instructions: event.Payload.Instructions,
-		AuthorID:     event.Payload.AuthorID,
-		Rating:       event.Payload.Rating,
-		ReviewsCount: event.Payload.ReviewsCount,
-		CreatedAt:    event.Timestamp.Format(time.RFC3339),
-		UpdatedAt:    time.Now().Format(time.RFC3339),
+		ID:          event.Payload.ID,
+		Title:       event.Payload.Title,
+		Description: event.Payload.Description,
+		// TODO: Добавить поля при расширении модели Recipe
+		// Cuisine:      event.Payload.Cuisine,
+		// PrepTime:     event.Payload.PrepTime,
+		// Difficulty:   event.Payload.Difficulty,
+		// Ingredients:  event.Payload.Ingredients,
+		// Tags:         event.Payload.Tags,
+		// Instructions: event.Payload.Instructions,
+		// AuthorID:     event.Payload.AuthorID,
+		// Rating:       event.Payload.Rating,
+		// ReviewsCount: event.Payload.ReviewsCount,
+		CreatedAt: event.Timestamp.Format(time.RFC3339),
+		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
 
 	return c.repo.IndexRecipe(context.Background(), doc)
