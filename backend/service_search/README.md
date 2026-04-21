@@ -102,23 +102,18 @@ LOG_FORMAT=json
 
 ## 🟢 Запуск
 
-### Локально (разработка)
-
-```bash
-# Установка зависимостей
-go mod download -C backend/service_search
-
-# Запуск
-go run ./cmd/server/main.go
-```
-
 ### Docker
 
+### Сборка 
 ```bash
-# Сборка и запуск
+docker compose -f docker/compose.yaml build --no-cache service_search
+```
+### Запуск
+```bash
 docker compose -f docker/compose.yaml up -d service_search
-
-# Просмотр логов
+```
+### Просмотр логов
+```bash
 docker logs -f service_search
 ```
 
