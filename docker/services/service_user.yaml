@@ -4,12 +4,12 @@
 services:
   service_user:
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/service_user/Dockerfile
     container_name: service_user
     restart: unless-stopped
     env_file:
-      - ../backend/service_user/.env
+      - ../../backend/service_user/.env
     ports:
       - "8000:8000"
     depends_on:
@@ -27,6 +27,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    logging:
       driver: "json-file"
       options:
         max-size: "10m"
@@ -37,13 +38,13 @@ services:
 # ==========================================
   service_user_grpc:
     build:
-      context: ..
+      context: ../..
       dockerfile: backend/service_user/Dockerfile
     container_name: service_user_grpc
     restart: unless-stopped
     entrypoint: ["python", "-m", "backend.service_user.src.infrastructure.grpc_server"]
     env_file:
-      - ../backend/service_user/.env
+      - ../../backend/service_user/.env
     environment:
       - HOST=0.0.0.0
       - GRPC_PORT=50051

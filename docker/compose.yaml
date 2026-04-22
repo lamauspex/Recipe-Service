@@ -10,7 +10,6 @@ include:
   - database/postgres_recipe.yaml
   - database/rabbitmq.yaml
   - database/meilisearch.yaml
-  - infra/nginx.yaml
 
 networks:
   recipe_network:

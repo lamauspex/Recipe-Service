@@ -12,14 +12,15 @@ services:
       - postgres_recipe_data:/var/lib/postgresql/data
     ports:
       - "5435:5432"
-    labels:
-      - "app.layer=database"
-      - "app.domain=recipe"
-      - "app.component=postgres"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U recipe_service -d recipe_db" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
     networks:
       - recipe_network
+    labels:
+      - "app.layer=database"
+      - "app.domain=recipe"
+      - "app.component=postgres"

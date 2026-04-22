@@ -16,7 +16,8 @@ services:
       test: [ "CMD-SHELL", "pg_isready -U user_service -d users_db" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
     networks:
       - recipe_network
     labels:
