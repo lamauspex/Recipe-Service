@@ -1,0 +1,37 @@
+  # ==========================================
+  # Recipe Service
+  # ==========================================
+services:
+  service_recipe:
+    build:
+      context: ..
+      dockerfile: backend/service_recipe/Dockerfile
+    container_name: service_recipe
+    restart: unless-stopped
+    env_file:
+      - ../backend/service_recipe/.env
+    ports:
+      - "8001:8000"
+    environment:
+      - USER_SERVICE_HOST=service_user_grpc
+      - USER_SERVICE_PORT=50051
+    depends_on:
+      postgres_recipe:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - recipe_network
+    volumes:
+      - ../logs/service_recipe:/app/logs
+    labels:
+      - "app.layer=services"
+      - "app.domain=recipe"
+      - "app.component=api"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging: *app-logging

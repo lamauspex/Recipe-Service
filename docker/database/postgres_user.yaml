@@ -1,0 +1,25 @@
+  # ==========================================
+  # PostgreSQL для User Service
+  # ==========================================
+services:
+  postgres_user:
+    image: postgres:15-alpine
+    container_name: postgres_user
+    restart: unless-stopped
+    env_file:
+      - ../backend/service_user/.env
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user_service -d users_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recipe_network
+    labels:
+      - "app.layer=database"
+      - "app.domain=user"
+      - "app.component=postgres"

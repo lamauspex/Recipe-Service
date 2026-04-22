@@ -1,34 +1,18 @@
+
+name: r_m_project
+
 include:
-  - compose.infra.yml
-  - compose.app.yml
-  - docker/compose.nginx.yml
+  - volumes.yaml
+  - services/service_user.yaml
+  - services/service_recipe.yaml
+  - services/service_search.yaml
+  - database/postgres_user.yaml
+  - database/postgres_recipe.yaml
+  - database/rabbitmq.yaml
+  - database/meilisearch.yaml
+  - infra/nginx.yaml
 
-
-# Общие переменные
-x-logging: &logging
-  driver: "json-file"
-  options:
-    max-size: "10m"
-    max-file: "3"
-
-# Общие сети
 networks:
   recipe_network:
     driver: bridge
 
-# Общие тома
-volumes:
-  rabbitmq_data:
-    driver: local
-  postgres_user_data:
-    driver: local
-  postgres_recipe_data:
-    driver: local
-  meilisearch_data:
-    driver: local
-  logs_user:
-    driver: local
-  logs_recipe:
-    driver: local
-  logs_search:
-    driver: local
