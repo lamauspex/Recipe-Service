@@ -15,6 +15,3 @@ class CORSConfig(BaseConfig):
     CORS_ALLOW_CREDENTIALS: bool = Field(
         description="Разрешить куки и заголовки авторизации"
     )
-    CORS_MAX_AGE: int = Field(
-        description="Время кеширования CORS (сек)"
-    )

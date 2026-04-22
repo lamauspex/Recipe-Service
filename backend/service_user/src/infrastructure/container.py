@@ -16,7 +16,6 @@ from dependency_injector import containers, providers
 from backend.service_user.src.config import (
     ApiConfig,
     AuthConfig,
-    CacheConfig,
     MonitoringConfig,
     CORSConfig,
     GrpcConfig
@@ -56,7 +55,6 @@ class Container(containers.DeclarativeContainer):
     # Factory создает новый экземпляр каждый раз при запросе
     api_config = providers.Factory(ApiConfig)
     auth_config = providers.Factory(AuthConfig)
-    cache_config = providers.Factory(CacheConfig)
     monitoring_config = providers.Factory(MonitoringConfig)
     cors_config = providers.Factory(CORSConfig)
     db_config = providers.Factory(DataBaseConfig)
@@ -90,8 +88,10 @@ class Container(containers.DeclarativeContainer):
     # Сервис для работы с JWT токенами (без состояния)
     jwt_service = providers.Singleton(
         JWTService,
+        # JWT настройки
         secret_key=auth_config.provided.SECRET_KEY,
         algorithm=auth_config.provided.ALGORITHM,
+        # Время жизни токенов
         access_token_expire_minutes=auth_config.provided.ACCESS_TOKEN_EXPIRE_MINUTES,
         refresh_token_expire_days=auth_config.provided.REFRESH_TOKEN_EXPIRE_DAYS,
     )
@@ -108,17 +108,15 @@ class Container(containers.DeclarativeContainer):
 
     # Все конфигурации в одном объекте
     configs = providers.Factory(
-        lambda api, auth, cache, cors, monitoring, grpc: type('Configs', (), {
+        lambda api, auth, cors, monitoring, grpc: type('Configs', (), {
             'api': api,
             'auth': auth,
-            'cache': cache,
             'monitoring': monitoring,
             'cors': cors,
             'grpc': grpc
         })(),
         api=api_config,
         auth=auth_config,
-        cache=cache_config,
         monitoring=monitoring_config,
         cors=cors_config,
         grpc=grpc_config
