@@ -49,7 +49,7 @@ class TestLoginEndpoint:
             base_url="http://test"
         ) as client:
             response = await client.post(
-                "/api/v1/auth/auth_users/login",
+                "/api/v1/auth/login",
                 json={
                     "password": "SecurePass123!"
                 }
@@ -65,7 +65,7 @@ class TestLoginEndpoint:
             base_url="http://test"
         ) as client:
             response = await client.post(
-                "/api/v1/auth/auth_users/login",
+                "/api/v1/auth/login",
                 json={
                     "email": "test@example.com"
                 }
@@ -102,7 +102,7 @@ class TestLogoutEndpoint:
             base_url="http://test"
         ) as client:
             response = await client.post(
-                "/api/v1/auth/auth_users/logout",
+                "/api/v1/auth/logout",
                 json={
                     "refresh_token": "valid_token_to_revoke"
                 }
@@ -120,7 +120,7 @@ class TestLogoutEndpoint:
             base_url="http://test"
         ) as client:
             response = await client.post(
-                "/api/v1/auth/auth_users/logout",
+                "/api/v1/auth/logout",
                 json={}
             )
 
@@ -160,7 +160,7 @@ class TestRefreshEndpoint:
             base_url="http://test"
         ) as client:
             response = await client.post(
-                "/api/v1/auth/auth_users/refresh",
+                "/api/v1/auth/refresh",
                 json={}
             )
 

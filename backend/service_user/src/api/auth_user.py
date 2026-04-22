@@ -21,22 +21,33 @@ from backend.service_user.src.infrastructure.dependencies import (
 
 # Создаем router
 router = APIRouter(
-    prefix="/auth_users",
-    tags=["Auth_Service"]
+    prefix="/auth",
+    tags=["Auth"]
 )
 
 
 @router.post(
     "/login",
     summary="Аутентификация пользователя",
+    description="Вход в систему с помощью email и пароля",
     response_model=TokenResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    responses={
+        401: {"description": "Неверные учетные данные"}
+    }
 )
 async def login_user(
     login_data: LoginRequest,
     auth_service: AuthService = Depends(get_auth_service)
-):
-    """ Аутентификация и создание токенов """
+) -> TokenResponse:
+    """
+    Аутентификация и создание токенов
+
+    - **email**: Email пользователя
+    - **password**: Пароль
+
+    Возвращает access и refresh токены
+    """
 
     # Вызываем метод аутентификации с распакованными данными
     token_pair = auth_service.authenticate_and_create_tokens(
@@ -50,7 +61,9 @@ async def login_user(
 @router.post(
     "/refresh",
     summary="Обновление токенов",
+    description="Обновление access токена с помощью refresh токена.",
     response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
     responses={
         401: {"description": "Неверный или истёкший токен"}
     }
@@ -58,8 +71,14 @@ async def login_user(
 async def refresh_token(
     refresh_data: RefreshTokenRequest,
     auth_service: AuthService = Depends(get_auth_service)
-):
-    """Обновление токенов"""
+) -> TokenResponse:
+    """
+    Обновление токенов
+
+    - **refresh_token**: Текущий refresh токен
+
+    Возвращает новую пару токенов
+    """
 
     token_pair = auth_service.refresh_access_token(
         refresh_token=refresh_data.refresh_token
@@ -74,7 +93,9 @@ async def refresh_token(
 @router.post(
     "/logout",
     summary="Выход из системы",
-    response_model=MessageResponse
+    description="Инвалидация refresh токена. Пользователь выходит из системы.",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK
 )
 async def logout(
     logout_data: LogoutRequest,
