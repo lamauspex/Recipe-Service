@@ -9,8 +9,7 @@ from uuid import UUID
 from grpc_health.v1 import health_pb2
 from google.rpc import status_pb2
 
-from backend.service_user.src.repositories.sql_user_repository import (
-    SQLUserRepository)
+
 from backend.service_user.src.infrastructure.container import container
 from backend.shared.logging.logger import get_logger
 from backend.shared.proto import user_service_pb2, user_service_pb2_grpc

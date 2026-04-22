@@ -15,7 +15,6 @@ from typing import Optional
 import argparse
 import grpc
 from concurrent import futures
-
 from grpc_health.v1 import health_pb2_grpc
 
 from backend.shared.logging.logger import get_logger

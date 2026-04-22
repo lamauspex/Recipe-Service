@@ -2,10 +2,11 @@
 Репозиторий для работы с refresh токенами
 """
 
-from sqlalchemy.orm import Session
-from sqlalchemy import and_
 from typing import Optional
 from datetime import datetime, timezone
+
+from sqlalchemy.orm import Session
+from sqlalchemy import and_
 from uuid import UUID
 
 from backend.service_user.src.models.token import RefreshToken

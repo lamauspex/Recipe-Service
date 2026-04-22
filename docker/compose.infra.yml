@@ -5,6 +5,9 @@ x-logging: &logging
     max-file: "3"
 
 services:
+  # ==========================================
+  # RabbitMQ
+  # ==========================================
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -25,6 +28,9 @@ services:
     networks:
       - recipe_network
 
+  # ==========================================
+  # PostgreSQL для User Service
+  # ==========================================
   postgres_user:
     image: postgres:15-alpine
     container_name: postgres_user
@@ -43,6 +49,9 @@ services:
     networks:
       - recipe_network
 
+  # ==========================================
+  # PostgreSQL для Recipe Service
+  # ==========================================
   postgres_recipe:
     image: postgres:15-alpine
     container_name: postgres_recipe

@@ -1,5 +1,5 @@
 """
-Сервис запуска User Service
+Сервис запуска User Service (Docker-only)
 """
 
 import uvicorn
@@ -17,6 +17,7 @@ class ServiceRunner:
 
     def run(self):
         """Запуск сервиса"""
+
         config = container.api_config()
         grpc_config = container.grpc_config()
 
@@ -31,7 +32,7 @@ class ServiceRunner:
                 app=app,
                 host=config.HOST,
                 port=config.PORT,
-                log_level="info" if config.DEBUG else "warning",
+                log_level="warning",
                 access_log=config.DEBUG
             )
         finally:

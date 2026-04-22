@@ -1,5 +1,6 @@
+""" Сервис регистрации пользователя """
 
-from backend.service_user.src.config.config_auth import AuthConfig
+
 from backend.service_user.src.protocols.user_repository import (
     UserRepositoryProtocol)
 from backend.service_user.src.schemas import (
@@ -20,12 +21,10 @@ class RegisterService:
     def __init__(
         self,
         user_repo: UserRepositoryProtocol,
-        password_service: PasswordService,
-        auth_config: AuthConfig,
+        password_service: PasswordService
     ):
         self.user_repo = user_repo
         self.password_service = password_service
-        self.auth_config = auth_config
 
         # Компоненты сервиса
         self.validator = UserUniquenessValidator(user_repo)

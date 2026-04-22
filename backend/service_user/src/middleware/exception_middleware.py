@@ -5,13 +5,13 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from backend.shared.logging import get_logger
 from backend.service_user.src.exception import (
     AppException,
     InvalidCredentialsException,
     InvalidTokenException,
     TokenExpiredException,
 )
-from backend.shared.logging import get_logger
 
 
 logger = get_logger(__name__).bind(

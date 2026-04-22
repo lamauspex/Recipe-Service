@@ -13,9 +13,9 @@ class MonitoringConfig(BaseConfig):
     LOG_LEVEL: str = Field(
         description="Уровень логирования"
     )
-    LOG_FORMAT: str = Field(
-        description="Формат логов"
-    )
+    # LOG_FORMAT: str = Field(
+    #     description="Формат логов"
+    # )
     STRUCTURED_LOGGING: bool = Field(
         description="Структурированное логирование"
     )

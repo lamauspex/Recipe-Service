@@ -6,6 +6,7 @@
 
 
 import typing as t
+
 from sqlalchemy import (
     String,
     Boolean,

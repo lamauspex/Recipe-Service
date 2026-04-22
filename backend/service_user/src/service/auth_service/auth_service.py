@@ -9,10 +9,7 @@ from typing import Optional
 
 from backend.service_user.src.exception import (
     InvalidCredentialsException)
-from backend.service_user.src.config import (
-    ApiConfig,
-    AuthConfig
-)
+from backend.service_user.src.config import AuthConfig
 from backend.service_user.src.core import (
     PasswordService,
     JWTService,
@@ -36,7 +33,6 @@ class AuthService:
         password_service: PasswordService,
         jwt_service: JWTService,
         auth_config: AuthConfig,
-        api_config: ApiConfig,
         auth_validator: AuthValidator,
         mapper: AuthMapper,
         token_repo: TokenRepositoryProtocol
@@ -45,7 +41,6 @@ class AuthService:
         self.password_service = password_service
         self.jwt_service = jwt_service
         self.auth_config = auth_config
-        self.api_config = api_config
         self.auth_validator = auth_validator
         self.mapper = mapper
         self.token_repo = token_repo
