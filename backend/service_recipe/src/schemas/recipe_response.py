@@ -49,6 +49,11 @@ class RecipeResponse(BaseModel):
         ...,
         description="Уникальный идентификатор"
     )
+    user_id: UUID = Field(
+        ...,
+        description="ID создателя"
+    )
+
     name_recipe: str = Field(
         ...,
         description="Название рецепта"

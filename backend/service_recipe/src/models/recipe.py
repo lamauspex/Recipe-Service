@@ -4,13 +4,15 @@
 
 
 from uuid import UUID as UUIDType
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import String
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship
 )
 
+from backend.shared.models.base.decorator.type_decorator import (
+    UUIDTypeDecorator)
 from backend.shared.models.base_model import BaseModel
 
 
@@ -18,13 +20,10 @@ class Recipe(BaseModel):
     """Модель рецепта"""
 
     user_id: Mapped[UUIDType] = mapped_column(
-        ForeignKey(
-            "users.id",
-            ondelete="CASCADE"
-        ),
-        nullable=True,
+        UUIDTypeDecorator(),
+        nullable=False,
         index=True,
-        comment='ID пользователя (если пользователь существует)'
+        comment='ID пользователя'
     )
 
     name_recipe: Mapped[str] = mapped_column(

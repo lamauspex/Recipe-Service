@@ -3,10 +3,15 @@
 """
 
 
+from uuid import UUID
+
 from pydantic import ConfigDict, Field
 
-from backend.service_recipe.src.schemas.base import TitleValidatedModel, DescriptionValidatedModel
-from backend.service_recipe.src.schemas.ingredient_schema import IngredientSchema
+from backend.service_recipe.src.schemas.base import (
+    TitleValidatedModel,
+    DescriptionValidatedModel)
+from backend.service_recipe.src.schemas.ingredient_schema import (
+    IngredientSchema)
 
 
 class RecipeCreate(
@@ -58,6 +63,10 @@ class RecipeCreate(
         }
     )
 
+    user_id: UUID = Field(
+        ...,
+        description="ID пользователя"
+    )
     ingredients: list[IngredientSchema] = Field(
         ...,
         description="Список ингредиентов рецепта"

@@ -54,7 +54,7 @@ class DescriptionValidator:
         # Используем регулярное выражение
         if not re.match(cls.ALLOWED_CHARS, description):
             errors.append(
-                "Название может содержать только буквы, "
+                "Описание может содержать только буквы, "
                 "цифры, дефис и подчёркивание"
             )
 

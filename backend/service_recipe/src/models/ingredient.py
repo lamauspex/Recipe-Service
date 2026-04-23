@@ -21,7 +21,7 @@ class Ingredient(BaseModel):
             "recipes.id",
             ondelete="CASCADE"
         ),
-        nullable=True,
+        nullable=False,
         index=True,
         comment='ID рецепта'
     )

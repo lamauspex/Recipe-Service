@@ -3,10 +3,10 @@
 
 from pydantic import Field
 
-from .base import BaseConfig
+from backend.service_recipe.src.config.base import BaseRConfig
 
 
-class MonitoringConfig(BaseConfig):
+class MonitoringConfig(BaseRConfig):
     """Конфигурация мониторинга и логирования"""
 
     # ЛОГИРОВАНИЕ

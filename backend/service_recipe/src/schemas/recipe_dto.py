@@ -46,7 +46,6 @@ class RecipeDTO(BaseModel):
         description="Уникальный идентификатор"
     )
     user_id: UUID | None = Field(
-        default=None,
         description="ID создателя рецепта"
     )
     name_recipe: str = Field(
