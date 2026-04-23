@@ -22,8 +22,6 @@ services:
         condition: service_healthy
     networks:
       - recipe_network
-    volumes:
-      - ../logs/service_recipe:/app/logs
     labels:
       - "app.layer=services"
       - "app.domain=recipe"

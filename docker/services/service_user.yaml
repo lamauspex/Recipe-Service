@@ -19,8 +19,6 @@ services:
         condition: service_healthy
     networks:
       - recipe_network
-    volumes:
-      - ../logs/service_user:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -36,13 +34,13 @@ services:
 # ==========================================
 # gRPC сервер User Service
 # ==========================================
-  service_user_grpc:
+  service_grpc_user:
     build:
       context: ../..
       dockerfile: backend/service_user/Dockerfile
     container_name: service_user_grpc
     restart: unless-stopped
-    entrypoint: ["python", "-m", "backend.service_user.src.infrastructure.grpc_server"]
+    entrypoint: ["python", "-m", "backend.service_user.src.infrastructure.grpc.grpc_server"]
     env_file:
       - ../../backend/service_user/.env
     environment:
@@ -54,8 +52,6 @@ services:
       - recipe_network
     ports:
       - "50051:50051"
-    volumes:
-      - ../logs/service_user_grpc:/app/logs
     healthcheck:
       test: ["CMD", "grpc_health_probe", "-addr=:50051"]
       interval: 10s

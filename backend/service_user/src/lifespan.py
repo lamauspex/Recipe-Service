@@ -16,8 +16,6 @@ from alembic import command
 from alembic.config import Config
 
 from backend.shared.database import ConnectionManager, DataBaseConfig
-from backend.service_user.src.infrastructure import container
-from backend.shared.logging.config import setup_logging
 from backend.shared.logging.logger import get_logger
 
 
@@ -33,7 +31,6 @@ async def lifespan(app: FastAPI):
     # Запускаем миграции при старте
     alembic_cfg = Config("backend/service_user/migration/alembic.ini")
     command.upgrade(alembic_cfg, "head")
-    logger.info(">>> Миграции выполнены")
 
     # Инициализация подключения к БД
     config = DataBaseConfig()
@@ -49,16 +46,6 @@ async def lifespan(app: FastAPI):
     if not connection_manager.test_connection():
         logger.error("Failed to connect to database")
         raise Exception("Не удалось подключиться к базе данных")
-
-    logger.info("DB Подключена")
-
-    # Настройка логирования
-    monitoring_config = container.monitoring_config()
-    setup_logging(
-        debug=monitoring_config.DEBUG,
-        json_output=monitoring_config.LOG_FORMAT,
-        log_file="logs/app.log"
-    )
 
     logger.info(
         "User Service started",

@@ -35,7 +35,6 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if api_config.DEBUG else None,
         lifespan=lifespan
     )
-    logger.info(">>> FastAPI создан")
 
     # CORS
     app.add_middleware(
@@ -45,18 +44,15 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    logger.info(">>> CORS настроен")
 
     # Подключаем middleware логирования
     app.add_middleware(
         LoggingMiddleware,
         service_name="User_Service"
     )
-    logger.info(">>> Middleware логирования настроен")
 
     # Exception Handler Middleware
     app.add_middleware(ExceptionHandlerMiddleware)
-    logger.info(">>> Middleware обработки исключений настроен")
 
     # Подключаем API роутеры
     app.include_router(api_router)
