@@ -7,7 +7,7 @@ services:
     container_name: postgres_recipe
     restart: unless-stopped
     env_file:
-      - ../backend/service_recipe/.env
+      - ../../backend/service_recipe/.env
     volumes:
       - postgres_recipe_data:/var/lib/postgresql/data
     ports:

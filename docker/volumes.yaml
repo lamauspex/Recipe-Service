@@ -2,7 +2,8 @@
 # Docker Volumes
 # ==========================================
 # Определение всех томов для проекта
-# Используется для сохранения данных между перезапусками контейнеров
+# Используется для сохранения данных 
+# между перезапусками контейнеров
 
 volumes:
   # ==========================================
@@ -10,75 +11,25 @@ volumes:
   # ==========================================
   postgres_user_data:
     driver: local
-    driver_opts:
-      type: none
-      device: ../volumes/postgres_user
-      o: bind
+
 
   # ==========================================
   # PostgreSQL Recipe Service
   # ==========================================
   postgres_recipe_data:
     driver: local
-    driver_opts:
-      type: none
-      device: ../volumes/postgres_recipe
-      o: bind
+
 
   # ==========================================
   # RabbitMQ
   # ==========================================
   rabbitmq_data:
     driver: local
-    driver_opts:
-      type: none
-      device: ../volumes/rabbitmq
-      o: bind
+
 
   # ==========================================
   # Meilisearch
   # ==========================================
   meilisearch_data:
     driver: local
-    driver_opts:
-      type: none
-      device: ../volumes/meilisearch
-      o: bind
 
-  # ==========================================
-  # Логи сервисов
-  # ==========================================
-  logs_user:
-    driver: local
-    driver_opts:
-      type: none
-      device: ../logs/service_user
-      o: bind
-
-  logs_recipe:
-    driver: local
-    driver_opts:
-      type: none
-      device: ../logs/service_recipe
-      o: bind
-
-  logs_search:
-    driver: local
-    driver_opts:
-      type: none
-      device: ../logs/service_search
-      o: bind
-
-  logs_user_grpc:
-    driver: local
-    driver_opts:
-      type: none
-      device: ../logs/service_user_grpc
-      o: bind
-
-  logs_nginx:
-    driver: local
-    driver_opts:
-      type: none
-      device: ../logs/nginx
-      o: bind
