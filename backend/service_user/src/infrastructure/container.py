@@ -16,7 +16,6 @@ from dependency_injector import containers, providers
 from backend.service_user.src.config import (
     ApiConfig,
     AuthConfig,
-    MonitoringConfig,
     CORSConfig,
     GrpcConfig
 )
@@ -55,7 +54,6 @@ class Container(containers.DeclarativeContainer):
     # Factory создает новый экземпляр каждый раз при запросе
     api_config = providers.Factory(ApiConfig)
     auth_config = providers.Factory(AuthConfig)
-    monitoring_config = providers.Factory(MonitoringConfig)
     cors_config = providers.Factory(CORSConfig)
     db_config = providers.Factory(DataBaseConfig)
     grpc_config = providers.Factory(GrpcConfig)
@@ -108,16 +106,14 @@ class Container(containers.DeclarativeContainer):
 
     # Все конфигурации в одном объекте
     configs = providers.Factory(
-        lambda api, auth, cors, monitoring, grpc: type('Configs', (), {
+        lambda api, auth, cors, grpc: type('Configs', (), {
             'api': api,
             'auth': auth,
-            'monitoring': monitoring,
             'cors': cors,
             'grpc': grpc
         })(),
         api=api_config,
         auth=auth_config,
-        monitoring=monitoring_config,
         cors=cors_config,
         grpc=grpc_config
     )

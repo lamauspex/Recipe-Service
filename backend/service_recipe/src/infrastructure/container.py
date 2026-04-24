@@ -18,8 +18,7 @@ from backend.service_recipe.src.infrastructure.grpc.client import (
 from backend.service_recipe.src.config import (
     ApiRConfig,
     UserServiceConfig,
-    RebbitConfig,
-    MonitoringConfig
+    RebbitConfig
 )
 from backend.shared.database import (
     DataBaseConfig,
@@ -52,7 +51,6 @@ class Container(containers.DeclarativeContainer):
     user_config = providers.Factory(UserServiceConfig)
     db_config = providers.Factory(DataBaseConfig)
     rebbit_config = providers.Factory(RebbitConfig)
-    monitoring_config = providers.Factory(MonitoringConfig)
 
     # ==========================================
     # Сессия
@@ -91,18 +89,16 @@ class Container(containers.DeclarativeContainer):
     # ==========================================
     # Все конфигурации в одном объекте
     configs = providers.Factory(
-        lambda api, user, rebbit, db, config: type('Configs', (), {
+        lambda api, user, rebbit, db: type('Configs', (), {
             'api': api,
             'user': user,
             'db': db,
-            'rebbit': rebbit,
-            'config': config
+            'rebbit': rebbit
         })(),
         api=api_config,
         user=user_config,
         db=db_config,
-        rebbit=rebbit_config,
-        config=monitoring_config
+        rebbit=rebbit_config
     )
 
 
