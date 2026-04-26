@@ -83,5 +83,5 @@ class SQLUserRepository:
     def activate_user(self, user_id: UUID):
         """Активация пользователя"""
         user = self.db.query(User).filter(User.id == user_id).first()
-        user.is_active = True
+        user.is_active is True
         self.db.commit()

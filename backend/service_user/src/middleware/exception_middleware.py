@@ -65,7 +65,10 @@ class ExceptionHandlerMiddleware(BaseHTTPMiddleware):
                 message=exc.message,
                 code=exc.code
             )
-            return JSONResponse(exc.status_code, exc.to_dict())
+            return JSONResponse(
+                status_code=exc.status_code,
+                content=exc.to_dict()
+            )
 
         except Exception as exc:
             logger.exception(

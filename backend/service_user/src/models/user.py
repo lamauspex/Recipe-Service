@@ -109,6 +109,11 @@ class User(BaseModel):
         comment='Роль пользователя'
     )
 
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True
+    )
+
     # Связь с refresh токенами
     refresh_tokens = relationship(
         "RefreshToken",
