@@ -81,15 +81,13 @@ func (r *MeiliSearchRepository) GetSuggestions(ctx context.Context, query string
 
 	suggestions := make([]string, 0, len(result.Hits))
 	for _, hit := range result.Hits {
-		hitMap, ok := hit.(map[string]interface{})
+		rawValue, ok := hit[fieldType]
 		if !ok {
 			continue
 		}
-		if rawValue, ok := hitMap[fieldType]; ok {
-			value, _ := rawValue.(string)
-			if value != "" {
-				suggestions = append(suggestions, value)
-			}
+		var value string
+		if err := json.Unmarshal(rawValue, &value); err == nil && value != "" {
+			suggestions = append(suggestions, value)
 		}
 	}
 
