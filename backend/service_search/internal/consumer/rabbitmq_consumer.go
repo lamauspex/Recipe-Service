@@ -2,7 +2,6 @@ package consumer
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -35,20 +34,18 @@ func NewRabbitMQConsumer(cfg *config.RabbitMQConfig, repo *meilisearch.MeiliSear
 	}, nil
 }
 
-// Start запускает потребителя
+// Start запускает потребителя — блокирует до остановки
 func (c *RabbitMQConsumer) Start() error {
 	c.logger.Info("Starting RabbitMQ consumer")
 
-	var err error
 	for {
 		select {
 		case <-c.ctx.Done():
 			return nil
 		default:
-			err = c.connect()
-			if err == nil {
-				break
-			}
+		}
+
+		if err := c.connect(); err != nil {
 			c.logger.Error("Failed to connect to RabbitMQ", slog.String("error", err.Error()))
 			select {
 			case <-c.ctx.Done():
@@ -57,39 +54,24 @@ func (c *RabbitMQConsumer) Start() error {
 				continue
 			}
 		}
-		break
-	}
 
-	err = c.setupExchangeAndQueue()
-	if err != nil {
-		return fmt.Errorf("failed to setup exchange and queue: %w", err)
+		if err := c.consume(); err != nil {
+			c.logger.Error("Consumer error", slog.String("error", err.Error()))
+			c.close()
+			select {
+			case <-c.ctx.Done():
+				return nil
+			case <-time.After(c.cfg.Reconnect):
+				continue
+			}
+		}
 	}
-
-	err = c.consume()
-	if err != nil {
-		return fmt.Errorf("failed to start consuming: %w", err)
-	}
-
-	c.logger.Info("RabbitMQ consumer started successfully")
-	return nil
 }
 
 // Stop останавливает потребителя
 func (c *RabbitMQConsumer) Stop() error {
 	c.logger.Info("Stopping RabbitMQ consumer")
 	c.cancel()
-
-	if c.ch != nil {
-		if err := c.ch.Close(); err != nil {
-			return fmt.Errorf("failed to close channel: %w", err)
-		}
-	}
-
-	if c.conn != nil {
-		if err := c.conn.Close(); err != nil {
-			return fmt.Errorf("failed to close connection: %w", err)
-		}
-	}
-
+	c.close()
 	return nil
 }

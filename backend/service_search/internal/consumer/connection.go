@@ -3,7 +3,6 @@ package consumer
 import (
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -24,57 +23,28 @@ func (c *RabbitMQConsumer) connect() error {
 	c.conn = conn
 	c.ch = ch
 
-	// Настройка уведомления о закрытии соединения
-	go func() {
-		notify := conn.NotifyClose(make(chan *amqp091.Error, 1))
-		if err := <-notify; err != nil {
-			c.logger.Error("RabbitMQ connection closed", slog.String("error", err.Error()))
-			time.Sleep(c.cfg.Reconnect)
-			c.connect()
-		}
-	}()
-
-	return nil
-}
-
-// setupExchangeAndQueue настраивает exchange и queue
-func (c *RabbitMQConsumer) setupExchangeAndQueue() error {
-	// Обменник типа Topic для маршрутизации событий
-	err := c.ch.ExchangeDeclare(
-		c.cfg.Exchange,
-		"topic",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
+	// Обменник типа Topic
+	if err := c.ch.ExchangeDeclare(
+		c.cfg.Exchange, "topic", true, false, false, false, nil,
+	); err != nil {
+		c.close()
 		return fmt.Errorf("failed to declare exchange: %w", err)
 	}
 
-	// Очередь для сервиса поиска
+	// Очередь
 	queue, err := c.ch.QueueDeclare(
-		c.cfg.QueueName,
-		true,
-		false,
-		false,
-		false,
-		nil,
+		c.cfg.QueueName, true, false, false, false, nil,
 	)
 	if err != nil {
+		c.close()
 		return fmt.Errorf("failed to declare queue: %w", err)
 	}
 
-	// Привязка очереди к обменнику с routing key для всех событий рецептов
-	err = c.ch.QueueBind(
-		queue.Name,
-		"recipe.#",
-		c.cfg.Exchange,
-		false,
-		nil,
-	)
-	if err != nil {
+	// Привязка
+	if err := c.ch.QueueBind(
+		queue.Name, "recipe.#", c.cfg.Exchange, false, nil,
+	); err != nil {
+		c.close()
 		return fmt.Errorf("failed to bind queue: %w", err)
 	}
 
@@ -85,7 +55,7 @@ func (c *RabbitMQConsumer) setupExchangeAndQueue() error {
 	return nil
 }
 
-// consume запускает потребление сообщений
+// consume запускает потребление сообщений — блокирующий вызов
 func (c *RabbitMQConsumer) consume() error {
 	msgs, err := c.ch.Consume(
 		c.cfg.QueueName,
@@ -100,20 +70,30 @@ func (c *RabbitMQConsumer) consume() error {
 		return fmt.Errorf("failed to register consumer: %w", err)
 	}
 
-	go func() {
-		for {
-			select {
-			case <-c.ctx.Done():
-				return
-			case msg, ok := <-msgs:
-				if !ok {
-					c.logger.Warn("Consumer channel closed, reconnecting...")
-					return
-				}
-				c.handleMessage(msg)
-			}
-		}
-	}()
+	c.logger.Info("RabbitMQ consumer started, waiting for messages")
 
-	return nil
+	for {
+		select {
+		case <-c.ctx.Done():
+			return nil
+		case msg, ok := <-msgs:
+			if !ok {
+				c.logger.Warn("Consumer channel closed")
+				return fmt.Errorf("consumer channel closed")
+			}
+			c.handleMessage(msg)
+		}
+	}
+}
+
+// close закрывает текущее соединение и канал
+func (c *RabbitMQConsumer) close() {
+	if c.ch != nil {
+		c.ch.Close()
+		c.ch = nil
+	}
+	if c.conn != nil {
+		c.conn.Close()
+		c.conn = nil
+	}
 }

@@ -8,6 +8,36 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
+const taskWaitTimeout = 30 * time.Second
+
+// waitForTask ожидает завершения задачи с таймаутом
+func (r *MeiliSearchRepository) waitForTask(ctx context.Context, taskUID int64) error {
+	deadline := time.Now().Add(taskWaitTimeout)
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+			if time.Now().After(deadline) {
+				return fmt.Errorf("task %d timed out after %v", taskUID, taskWaitTimeout)
+			}
+			status, err := r.client.GetTask(taskUID)
+			if err != nil {
+				continue
+			}
+			if status.Status == "succeeded" {
+				return nil
+			}
+			if status.Status == "failed" {
+				return fmt.Errorf("task %d failed: %v", taskUID, status.Error)
+			}
+		}
+	}
+}
+
 // IndexRecipe добавляет или обновляет рецепт в индексе
 func (r *MeiliSearchRepository) IndexRecipe(ctx context.Context, doc *RecipeDocument) error {
 	start := time.Now()
@@ -17,28 +47,12 @@ func (r *MeiliSearchRepository) IndexRecipe(ctx context.Context, doc *RecipeDocu
 		return fmt.Errorf("failed to index recipe: %w", err)
 	}
 
-	// Ожидаем выполнения задачи
-	ticker := time.NewTicker(100 * time.Millisecond)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-ticker.C:
-			status, err := r.client.GetTask(task.TaskUID)
-			if err != nil {
-				continue
-			}
-			if status.Status == "succeeded" {
-				r.logger.Debug("recipe indexed", "id", doc.ID, "duration", time.Since(start))
-				return nil
-			}
-			if status.Status == "failed" {
-				return fmt.Errorf("indexing task failed: %v", status.Error)
-			}
-		}
+	if err := r.waitForTask(ctx, task.TaskUID); err != nil {
+		return err
 	}
+
+	r.logger.Debug("recipe indexed", "id", doc.ID, "duration", time.Since(start))
+	return nil
 }
 
 // DeleteRecipe удаляет рецепт из индекса
@@ -50,28 +64,12 @@ func (r *MeiliSearchRepository) DeleteRecipe(ctx context.Context, id string) err
 		return fmt.Errorf("failed to delete recipe: %w", err)
 	}
 
-	// Ожидаем выполнения задачи
-	ticker := time.NewTicker(100 * time.Millisecond)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-ticker.C:
-			status, err := r.client.GetTask(task.TaskUID)
-			if err != nil {
-				continue
-			}
-			if status.Status == "succeeded" {
-				r.logger.Debug("recipe deleted", "id", id, "duration", time.Since(start))
-				return nil
-			}
-			if status.Status == "failed" {
-				return fmt.Errorf("deletion task failed: %v", status.Error)
-			}
-		}
+	if err := r.waitForTask(ctx, task.TaskUID); err != nil {
+		return err
 	}
+
+	r.logger.Debug("recipe deleted", "id", id, "duration", time.Since(start))
+	return nil
 }
 
 // GetRecipeByID получает рецепт по ID
@@ -87,30 +85,9 @@ func (r *MeiliSearchRepository) GetRecipeByID(ctx context.Context, id string) (*
 
 // DeleteIndex удаляет весь индекс (для тестов)
 func (r *MeiliSearchRepository) DeleteIndex(ctx context.Context) error {
-	// Удаляем конкретный документ по ID или весь индекс
-	// Используем DeleteIndex с именем индекса
 	task, err := r.client.DeleteIndex(r.indexName)
 	if err != nil {
-		// Индекс может не существовать - это нормально
-		return nil
+		return nil // индекс может не существовать
 	}
-
-	// Ожидаем выполнения задачи
-	ticker := time.NewTicker(100 * time.Millisecond)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-ticker.C:
-			status, err := r.client.GetTask(task.TaskUID)
-			if err != nil {
-				continue
-			}
-			if status.Status == "succeeded" || status.Status == "failed" {
-				return nil
-			}
-		}
-	}
+	return r.waitForTask(ctx, task.TaskUID)
 }

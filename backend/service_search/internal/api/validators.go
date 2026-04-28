@@ -13,9 +13,3 @@ func validatePagination(page, pageSize int) (int, int) {
 	}
 	return page, pageSize
 }
-
-// validateSearchRequest проверяет валидность запроса на поиск
-func validateSearchRequest(req interface{}) error {
-	// Можно расширить для более сложной валидации
-	return nil
-}

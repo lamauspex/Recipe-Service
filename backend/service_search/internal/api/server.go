@@ -61,7 +61,7 @@ func NewSearchServer(cfg *config.Config, repo *meilisearch.MeiliSearchRepository
 
 // Start запускает gRPC сервер
 func (s *SearchServer) Start() error {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.cfg.Server.Host, s.cfg.Server.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.cfg.Server.Host, s.cfg.GRPC.Port))
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
@@ -71,21 +71,17 @@ func (s *SearchServer) Start() error {
 	s.logger.Info("Starting Search Service gRPC server",
 		slog.String("address", lis.Addr().String()))
 
-	// Запуск RabbitMQ consumer
-	if err := s.startConsumer(); err != nil {
-		lis.Close()
-		return fmt.Errorf("consumer failed during startup: %w", err)
-	}
-
-	// Запуск gRPC сервера
+	// Запуск RabbitMQ consumer в фоне
 	go func() {
-		if err := grpcServer.Serve(lis); err != nil {
-			s.logger.Error("Failed to serve", slog.String("error", err.Error()))
+		if err := s.consumer.Start(); err != nil {
+			s.logger.Error("Consumer error", slog.String("error", err.Error()))
 		}
 	}()
 
-	// Ожидание сигнала остановки
-	s.waitForShutdown(grpcServer)
+	// Запуск gRPC сервера (блокирующий)
+	if err := grpcServer.Serve(lis); err != nil {
+		return fmt.Errorf("failed to serve: %w", err)
+	}
 
 	return nil
 }
@@ -97,23 +93,4 @@ func (s *SearchServer) createGRPCServer() *grpc.Server {
 	proto.RegisterSearchServiceServer(grpcServer, s)
 	grpc_health_v1.RegisterHealthServer(grpcServer, s)
 	return grpcServer
-}
-
-func (s *SearchServer) startConsumer() error {
-	consumerErr := make(chan error, 1)
-	go func() {
-		consumerErr <- s.consumer.Start()
-	}()
-
-	select {
-	case err := <-consumerErr:
-		if err != nil {
-			return fmt.Errorf("consumer failed: %w", err)
-		}
-		s.logger.Info("RabbitMQ consumer started successfully")
-		return nil
-	case <-time.After(ConsumerStartupTimeout):
-		s.logger.Warn("Consumer startup timeout, continuing anyway")
-		return nil
-	}
 }

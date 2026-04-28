@@ -48,9 +48,9 @@ func (r *MeiliSearchRepository) Search(ctx context.Context, query string, filter
 		})
 	}
 
-	totalPages := int(result.EstimatedTotalHits) / pageSize
-	if int(result.EstimatedTotalHits)%pageSize > 0 {
-		totalPages++
+	var totalPages int32
+	if pageSize > 0 {
+		totalPages = int32((int(result.EstimatedTotalHits) + pageSize - 1) / pageSize)
 	}
 
 	return &SearchResult{
@@ -81,9 +81,13 @@ func (r *MeiliSearchRepository) GetSuggestions(ctx context.Context, query string
 
 	suggestions := make([]string, 0, len(result.Hits))
 	for _, hit := range result.Hits {
-		if rawValue, ok := hit[fieldType]; ok {
-			var value string
-			if err := json.Unmarshal(rawValue, &value); err == nil && value != "" {
+		hitMap, ok := hit.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if rawValue, ok := hitMap[fieldType]; ok {
+			value, _ := rawValue.(string)
+			if value != "" {
 				suggestions = append(suggestions, value)
 			}
 		}

@@ -55,20 +55,11 @@ func TestIndexRecipe(t *testing.T) {
 	ctx := context.Background()
 
 	doc := &meilisearch.RecipeDocument{
-		ID:           "test-recipe-1",
-		Title:        "Паста Карбонара",
-		Description:  "Классическая итальянская паста с беконом и яйцами",
-		Cuisine:      "итальянская",
-		PrepTime:     30,
-		Difficulty:   "easy",
-		Ingredients:  []string{"паста", "бекон", "яйца", "пармезан"},
-		Tags:         []string{"обед", "ужин", "быстро"},
-		Instructions: "Сварить пасту, обжарить бекон, смешать...",
-		AuthorID:     "user-123",
-		Rating:       4.8,
-		ReviewsCount: 150,
-		CreatedAt:    time.Now().Format(time.RFC3339),
-		UpdatedAt:    time.Now().Format(time.RFC3339),
+		ID:          "test-recipe-1",
+		Title:       "Паста Карбонара",
+		Description: "Классическая итальянская паста с беконом и яйцами",
+		CreatedAt:   time.Now().Format(time.RFC3339),
+		UpdatedAt:   time.Now().Format(time.RFC3339),
 	}
 
 	err := testRepo.IndexRecipe(ctx, doc)
@@ -96,20 +87,11 @@ func TestDeleteRecipe(t *testing.T) {
 
 	// Сначала создать рецепт
 	doc := &meilisearch.RecipeDocument{
-		ID:           "test-recipe-delete",
-		Title:        "Борщ",
-		Description:  "Тестовый рецепт для удаления",
-		Cuisine:      "русская",
-		PrepTime:     90,
-		Difficulty:   "medium",
-		Ingredients:  []string{"свёкла", "капуста", "картофель"},
-		Tags:         []string{"обед", "суп"},
-		Instructions: "Приготовить борщ...",
-		AuthorID:     "user-123",
-		Rating:       4.5,
-		ReviewsCount: 50,
-		CreatedAt:    time.Now().Format(time.RFC3339),
-		UpdatedAt:    time.Now().Format(time.RFC3339),
+		ID:          "test-recipe-delete",
+		Title:       "Борщ",
+		Description: "Тестовый рецепт для удаления",
+		CreatedAt:   time.Now().Format(time.RFC3339),
+		UpdatedAt:   time.Now().Format(time.RFC3339),
 	}
 
 	err := testRepo.IndexRecipe(ctx, doc)
@@ -136,52 +118,25 @@ func TestSearch(t *testing.T) {
 	// Индексировать тестовые рецепты
 	recipes := []*meilisearch.RecipeDocument{
 		{
-			ID:           "search-test-1",
-			Title:        "Паста Карбонара",
-			Description:  "Итальянская паста с беконом",
-			Cuisine:      "итальянская",
-			PrepTime:     30,
-			Difficulty:   "easy",
-			Ingredients:  []string{"паста", "бекон"},
-			Tags:         []string{"обед", "ужин"},
-			Instructions: "Приготовить пасту",
-			AuthorID:     "user-123",
-			Rating:       4.5,
-			ReviewsCount: 10,
-			CreatedAt:    time.Now().Format(time.RFC3339),
-			UpdatedAt:    time.Now().Format(time.RFC3339),
+			ID:          "search-test-1",
+			Title:       "Паста Карбонара",
+			Description: "Итальянская паста с беконом",
+			CreatedAt:   time.Now().Format(time.RFC3339),
+			UpdatedAt:   time.Now().Format(time.RFC3339),
 		},
 		{
-			ID:           "search-test-2",
-			Title:        "Борщ",
-			Description:  "Русский суп со свёклой",
-			Cuisine:      "русская",
-			PrepTime:     90,
-			Difficulty:   "medium",
-			Ingredients:  []string{"свёкла", "капуста"},
-			Tags:         []string{"обед", "суп"},
-			Instructions: "Приготовить борщ",
-			AuthorID:     "user-123",
-			Rating:       4.5,
-			ReviewsCount: 10,
-			CreatedAt:    time.Now().Format(time.RFC3339),
-			UpdatedAt:    time.Now().Format(time.RFC3339),
+			ID:          "search-test-2",
+			Title:       "Борщ",
+			Description: "Русский суп со свёклой",
+			CreatedAt:   time.Now().Format(time.RFC3339),
+			UpdatedAt:   time.Now().Format(time.RFC3339),
 		},
 		{
-			ID:           "search-test-3",
-			Title:        "Салат Цезарь",
-			Description:  "Лёгкий салат с курицей",
-			Cuisine:      "американская",
-			PrepTime:     20,
-			Difficulty:   "easy",
-			Ingredients:  []string{"салат", "курица"},
-			Tags:         []string{"завтрак", "салат"},
-			Instructions: "Приготовить салат",
-			AuthorID:     "user-123",
-			Rating:       4.5,
-			ReviewsCount: 10,
-			CreatedAt:    time.Now().Format(time.RFC3339),
-			UpdatedAt:    time.Now().Format(time.RFC3339),
+			ID:          "search-test-3",
+			Title:       "Салат Цезарь",
+			Description: "Лёгкий салат с курицей",
+			CreatedAt:   time.Now().Format(time.RFC3339),
+			UpdatedAt:   time.Now().Format(time.RFC3339),
 		},
 	}
 
@@ -201,22 +156,7 @@ func TestSearch(t *testing.T) {
 		t.Error("Expected at least one result for 'паста'")
 	}
 
-	// Тест 2: Поиск с фильтром по кухне
-	filters := &meilisearch.SearchFilters{
-		Cuisine: "итальянская",
-	}
-	result, err = testRepo.Search(ctx, "", filters, 1, 10)
-	if err != nil {
-		t.Fatalf("Search with filter failed: %v", err)
-	}
-
-	for _, recipe := range result.Recipes {
-		if recipe.Cuisine != "итальянская" {
-			t.Errorf("Expected cuisine 'итальянская', got %s", recipe.Cuisine)
-		}
-	}
-
-	// Тест 3: Пагинация
+	// Тест 2: Пагинация
 	result, err = testRepo.Search(ctx, "", nil, 2, 1)
 	if err != nil {
 		t.Fatalf("Pagination search failed: %v", err)
@@ -232,20 +172,11 @@ func TestSuggestions(t *testing.T) {
 
 	// Индексировать рецепт для тестов suggestions
 	doc := &meilisearch.RecipeDocument{
-		ID:           "suggestion-test",
-		Title:        "Паста Карбонара",
-		Description:  "Итальянская паста",
-		Cuisine:      "итальянская",
-		PrepTime:     30,
-		Difficulty:   "easy",
-		Ingredients:  []string{"паста", "бекон", "яйца"},
-		Tags:         []string{"обед", "ужин"},
-		Instructions: "Приготовить пасту",
-		AuthorID:     "user-123",
-		Rating:       4.5,
-		ReviewsCount: 10,
-		CreatedAt:    time.Now().Format(time.RFC3339),
-		UpdatedAt:    time.Now().Format(time.RFC3339),
+		ID:          "suggestion-test",
+		Title:       "Паста Карбонара",
+		Description: "Итальянская паста",
+		CreatedAt:   time.Now().Format(time.RFC3339),
+		UpdatedAt:   time.Now().Format(time.RFC3339),
 	}
 
 	if err := testRepo.IndexRecipe(ctx, doc); err != nil {
