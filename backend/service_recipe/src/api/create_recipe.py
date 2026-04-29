@@ -51,6 +51,7 @@ async def create_recipe(
 
     # Публикуем событие в RabbitMQ
     await publisher.publish_recipe_created({
+        "recipe_id": str(recipe.id),
         "user_id": current_user["user_id"],
         "recipe_name": recipe_data.name_recipe,
         "event": "recipe_created"

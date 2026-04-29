@@ -73,7 +73,6 @@ def get_auth_service(
         password_service=container.password_service(),
         jwt_service=container.jwt_service(),
         auth_config=container.auth_config(),
-        api_config=container.api_config(),
         auth_validator=container.auth_validator(),
         mapper=container.auth_mapper()
     )
@@ -86,8 +85,7 @@ def get_register_service(
 
     return RegisterService(
         user_repo=user_repo,
-        password_service=container.password_service(),
-        auth_config=container.auth_config()
+        password_service=container.password_service()
     )
 
 

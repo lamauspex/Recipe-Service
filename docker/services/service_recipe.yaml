@@ -12,9 +12,6 @@ services:
       - ../../backend/service_recipe/.env
     ports:
       - "8001:8000"
-    environment:
-      - USER_SERVICE_HOST=service_user_grpc
-      - USER_SERVICE_PORT=50051
     depends_on:
       postgres_recipe:
         condition: service_healthy

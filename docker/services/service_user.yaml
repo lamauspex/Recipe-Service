@@ -12,6 +12,7 @@ services:
       - ../../backend/service_user/.env
     ports:
       - "8000:8000"
+      - "50051:50051"
     depends_on:
       postgres_user:
         condition: service_healthy
@@ -31,30 +32,3 @@ services:
         max-size: "10m"
         max-file: "3"
 
-# ==========================================
-# gRPC сервер User Service
-# ==========================================
-  service_grpc_user:
-    build:
-      context: ../..
-      dockerfile: backend/service_user/Dockerfile
-    container_name: service_user_grpc
-    restart: unless-stopped
-    entrypoint: ["python", "-m", "backend.service_user.src.infrastructure.grpc.grpc_server"]
-    env_file:
-      - ../../backend/service_user/.env
-    environment:
-      - HOST=0.0.0.0
-      - GRPC_PORT=50051
-    depends_on:
-      - service_user
-    networks:
-      - recipe_network
-    ports:
-      - "50051:50051"
-    healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=:50051"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s

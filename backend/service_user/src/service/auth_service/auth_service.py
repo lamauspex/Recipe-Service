@@ -87,7 +87,8 @@ class AuthService:
         access_token = self.jwt_service.create_access_token({
             "sub": str(user.id),
             "username": user.user_name,
-            "role": user.role_name
+            "role": user.role_name,
+            "email": user.email
         })
 
         # Refresh токен
