@@ -33,7 +33,7 @@ class IngredientSchema(BaseModel):
     Используется при создании/обновлении рецепта
 
     Attributes:
-        name: Название ингредиента (обязательно)
+        ingredient: Название ингредиента (обязательно)
         quantity: Количество с единицей измерения (обязательно)
         unit: Единица измерения (опционально)
 
@@ -49,7 +49,7 @@ class IngredientSchema(BaseModel):
         from_attributes=True,
         json_schema_extra={
             "example": {
-                "name": "Свекла",
+                "ingredient": "Свекла",
                 "quantity": "300",
                 "unit": "г"
             }
@@ -73,7 +73,7 @@ class IngredientResponse(BaseModel):
 
     Attributes:
         id: Уникальный идентификатор ингредиента
-        name: Название ингредиента
+        ingredient: Название ингредиента
         quantity: Количество с единицей измерения
         unit: Единица измерения
     """
@@ -83,7 +83,7 @@ class IngredientResponse(BaseModel):
         json_schema_extra={
             "example": {
                 "id": "550e8400-e29b-41d4-a716-446655440000",
-                "name": "Свекла",
+                "ingredient": "Свекла",
                 "quantity": "300",
                 "unit": "г"
             }

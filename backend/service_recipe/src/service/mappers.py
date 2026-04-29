@@ -19,6 +19,7 @@ class RecipeMapper:
         """
         return RecipeResponse(
             id=recipe.id,
+            user_id=recipe.user_id,
             name_recipe=recipe.name_recipe,
             description=recipe.description,
             ingredients=[

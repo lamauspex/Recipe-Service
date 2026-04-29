@@ -35,8 +35,8 @@ class RecipeCreate(
         ...     name_recipe="Борщ",
         ...     description="Традиционный украинский борщ со сметаной",
         ...     ingredients=[
-        ...         {"name": "Свекла", "quantity": "300", "unit": "г"},
-        ...         {"name": "Капуста", "quantity": "200", "unit": "г"}
+        ...         {"ingredient": "Свекла", "quantity": "300", "unit": "г"},
+        ...         {"ingredient": "Капуста", "quantity": "200", "unit": "г"}
         ...     ]
         ... )
     """
@@ -49,12 +49,12 @@ class RecipeCreate(
                 "description": "Традиционный украинский борщ со сметаной",
                 "ingredients": [
                     {
-                        "name": "Свекла",
+                        "ingredient": "Свекла",
                         "quantity": "300",
                         "unit": "г"
                     },
                     {
-                        "name": "Капуста",
+                        "ingredient": "Капуста",
                         "quantity": "200",
                         "unit": "г"
                     }
@@ -63,10 +63,6 @@ class RecipeCreate(
         }
     )
 
-    user_id: UUID = Field(
-        ...,
-        description="ID пользователя"
-    )
     ingredients: list[IngredientSchema] = Field(
         ...,
         description="Список ингредиентов рецепта"
