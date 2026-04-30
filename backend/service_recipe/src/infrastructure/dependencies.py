@@ -8,9 +8,8 @@ Dependencies для recipe_service
 """
 
 
-from typing import Optional
-
-from fastapi import Depends, HTTPException, status, Header
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from backend.service_recipe.src.infrastructure import (
@@ -18,6 +17,7 @@ from backend.service_recipe.src.infrastructure import (
 )
 from backend.service_recipe.src.infrastructure.grpc.client import (
     UserServiceClient)
+from backend.service_recipe.src.infrastructure.security import oauth2_scheme
 from backend.service_recipe.src.repositories import SQLRecipeRepository
 from backend.service_recipe.src.service import (
     MessagePublisher,
@@ -52,7 +52,7 @@ def get_user_service_client() -> UserServiceClient:
 
 
 async def get_current_user(
-    authorization: Optional[str] = Header(None),
+    credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
     user_client: UserServiceClient = Depends(get_user_service_client)
 ) -> dict:
     """
@@ -60,26 +60,13 @@ async def get_current_user(
 
     Проверяет JWT токен через gRPC вызов к user_service
     """
-    if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header missing"
-        )
-
-    # Извлекаем токен из заголовка "Bearer <token>"
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header format"
-        )
-
-    token = parts[1]
+    token = credentials.credentials
 
     # Валидируем токен через gRPC
     result = await user_client.validate_token(token)
 
     if not result["valid"]:
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=result.get("error", "Invalid token")

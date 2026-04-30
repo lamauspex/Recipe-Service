@@ -17,6 +17,13 @@ from backend.service_recipe.src.infrastructure import (
     get_current_user,
     get_recipe_service
 )
+from backend.shared.logging.logger import get_logger
+
+
+logger = get_logger(__name__).bind(
+    layer="api",
+    service="recipe"
+)
 
 
 router = APIRouter(
@@ -43,9 +50,21 @@ async def create_recipe(
     Требует JWT токен в заголовке Authorization: Bearer <token>
     Возвращает созданный рецепт
     """
+    logger.info(
+        "→ Recipe creation started",
+        user_id=current_user.get("user_id"),
+        recipe_name=recipe_data.name_recipe
+    )
+
     # Создаём рецепт через сервис
     recipe = recipe_service.create_recipe(
         recipe_data=recipe_data,
+        user_id=current_user["user_id"]
+    )
+
+    logger.info(
+        "✓ Recipe created successfully",
+        recipe_id=str(recipe.id),
         user_id=current_user["user_id"]
     )
 

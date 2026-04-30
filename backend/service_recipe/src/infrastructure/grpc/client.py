@@ -7,6 +7,13 @@ from backend.shared.proto import (
     user_service_pb2
 )
 from backend.shared.proto import user_service_pb2_grpc
+from backend.shared.logging.logger import get_logger
+
+
+logger = get_logger(__name__).bind(
+    layer="grpc",
+    service="recipe"
+)
 
 
 class UserServiceClient:
@@ -17,7 +24,7 @@ class UserServiceClient:
                  port: int = 50051):
         self.host = host
         self.port = port
-        print(f"DEBUG: gRPC host={host}, port={port}")
+        logger.info("gRPC client initialized", host=host, port=port)
         self._channel: Optional[grpc.aio.Channel] = None
         self._stub: Optional[user_service_pb2_grpc.UserServiceStub] = None
 
@@ -47,6 +54,11 @@ class UserServiceClient:
                 "error": response.error
             }
         except grpc.RpcError as e:
+            logger.error(
+                "gRPC ValidateToken failed",
+                error_code=e.code(),
+                error_details=e.details()
+            )
             return {
                 "valid": False,
                 "error": f"gRPC error: {e.code()}"
@@ -56,6 +68,8 @@ class UserServiceClient:
         """Получение пользователя по ID"""
         if not self._stub:
             await self.connect()
+
+        logger.debug("Calling GetUserById gRPC method", user_id=user_id)
 
         try:
             response = await self._stub.GetUserById(
@@ -68,4 +82,6 @@ class UserServiceClient:
                 "exists": response.exists
             }
         except grpc.RpcError as e:
+            logger.error("gRPC GetUserById failed",
+                         user_id=user_id, error_code=e.code())
             return {"exists": False, "error": str(e)}

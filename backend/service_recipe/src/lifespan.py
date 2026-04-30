@@ -40,15 +40,9 @@ async def lifespan(app: FastAPI):
         logger.error("Failed to connect to database")
         raise Exception("Не удалось подключиться к базе данных")
 
-    logger.info("Database connection successful")
-
-    logger.info(
-        "Recipe Service started",
-        docs_url="http://127.0.0.1:8001/docs",
-        redoc_url="http://127.0.0.1:8001/redoc",
-        health_url="http://127.0.0.1:8001/health"
-    )
+    logger.info(">>> Database connection successful")
+    logger.info(">>> Recipe Service started")
 
     yield
 
-    logger.info("Recipe Service shutdown complete")
+    logger.info(">>> Recipe Service shutdown complete")
