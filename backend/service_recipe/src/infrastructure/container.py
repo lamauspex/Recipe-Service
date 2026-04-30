@@ -17,6 +17,7 @@ from backend.service_recipe.src.infrastructure.grpc.client import (
     UserServiceClient)
 from backend.service_recipe.src.config import (
     ApiRConfig,
+    CORSConfig,
     UserServiceConfig,
     RebbitConfig
 )
@@ -48,6 +49,7 @@ class Container(containers.DeclarativeContainer):
     # Создаем экземпляры конфигураций через Factory
     # Factory создает новый экземпляр каждый раз при запросе
     api_config = providers.Factory(ApiRConfig)
+    cors_config = providers.Factory(CORSConfig)
     user_config = providers.Factory(UserServiceConfig)
     db_config = providers.Factory(DataBaseConfig)
     rebbit_config = providers.Factory(RebbitConfig)
