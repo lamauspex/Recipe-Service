@@ -14,3 +14,4 @@ grpc.md
 backend/service_search/vendor/
 *.exe
 *.out
+AUTHENTICATION_SETUP_PLAN.md

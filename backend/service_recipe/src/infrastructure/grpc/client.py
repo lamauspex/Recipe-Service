@@ -17,6 +17,7 @@ class UserServiceClient:
                  port: int = 50051):
         self.host = host
         self.port = port
+        print(f"DEBUG: gRPC host={host}, port={port}")
         self._channel: Optional[grpc.aio.Channel] = None
         self._stub: Optional[user_service_pb2_grpc.UserServiceStub] = None
 
