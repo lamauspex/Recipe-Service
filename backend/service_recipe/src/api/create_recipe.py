@@ -2,6 +2,7 @@
 API роутеры для работы с рецептами
 """
 
+from datetime import datetime, timezone
 from fastapi import status, APIRouter, Depends
 
 from backend.service_recipe.src.infrastructure import get_message_publisher
@@ -70,10 +71,14 @@ async def create_recipe(
 
     # Публикуем событие в RabbitMQ
     await publisher.publish_recipe_created({
+        "type": "recipe.created",
         "recipe_id": str(recipe.id),
-        "user_id": current_user["user_id"],
-        "recipe_name": recipe_data.name_recipe,
-        "event": "recipe_created"
+        "payload": {
+            "id": str(recipe.id),
+            "title": recipe_data.name_recipe,
+            "description": recipe_data.description
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat()
     })
 
     return recipe

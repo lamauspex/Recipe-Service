@@ -68,11 +68,21 @@ func (c *RabbitMQConsumer) handleRecipeUpsert(event *RecipeEvent) error {
 		// AuthorID:     event.Payload.AuthorID,
 		// Rating:       event.Payload.Rating,
 		// ReviewsCount: event.Payload.ReviewsCount,
-		CreatedAt: event.Timestamp.Format(time.RFC3339),
+		CreatedAt: func() string {
+			if event.Timestamp.IsZero() {
+				return time.Now().Format(time.RFC3339)
+			}
+			return event.Timestamp.Format(time.RFC3339)
+		}(),
 		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
 
-	return c.repo.IndexRecipe(context.Background(), doc)
+	err := c.repo.IndexRecipe(context.Background(), doc)
+	if err == nil {
+		c.logger.Info("Recipe indexed successfully",
+			slog.String("recipe_id", event.Payload.ID))
+	}
+	return err
 }
 
 // handleRecipeDelete обрабатывает удаление рецепта
