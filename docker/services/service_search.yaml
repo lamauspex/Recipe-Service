@@ -24,7 +24,7 @@ services:
     networks:
       - recipe_network
     healthcheck:
-      test: ["CMD-SHELL", "exit 0"]  # ⚠️ service_search не имеет HTTP endpoint, healthcheck отключён
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8002/health && exit 0 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

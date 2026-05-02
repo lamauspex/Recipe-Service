@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Savor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ── -->
+  <header>
+    <button class="auth-btn" id="header-btn" onclick="openModal()">Вход / Регистрация</button>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <main>
+    <div class="deco-line"></div>
+
+    <h1>Вкус без <em>границ</em></h1>
+
+    <p class="tagline">Рецепты со всего мира</p>
+
+    <div class="search-wrap">
+      <input
+        class="search-input"
+        id="search-input"
+        type="text"
+        placeholder="Найдите рецепт..."
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') doSearch()"
+      />
+      <button class="search-btn" onclick="doSearch()">Найти</button>
+    </div>
+
+    <div id="results"></div>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="footer-copy">Savor &nbsp;·&nbsp; Кухни мира</span>
+  </footer>
+
+  <!-- ── AUTH MODAL ── -->
+  <div class="overlay" id="overlay" onclick="closeOnBg(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+
+      <div class="modal-brand">Savor<span>.</span></div>
+
+      <label class="field-label">Email</label>
+      <input class="field-input" id="f-email" type="email" placeholder="you@example.com" />
+
+      <label class="field-label">Пароль</label>
+      <input class="field-input" id="f-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+
+      <div class="modal-actions">
+        <button class="btn-gold" id="btn-login" onclick="doLogin()">Войти</button>
+        <button class="btn-outline" onclick="doRegister()">Регистрация</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Auth state ──
+    let currentUser = null;
+
+    function setLoggedIn(name) {
+      currentUser = name;
+      const btn = document.getElementById('header-btn');
+      btn.textContent = name;
+      btn.className = 'user-pill';
+      btn.onclick = null;
+    }
+
+    // ── Modal ──
+    function openModal() {
+      document.getElementById('overlay').classList.add('open');
+      setTimeout(() => document.getElementById('f-email').focus(), 120);
+    }
+    function closeModal() {
+      document.getElementById('overlay').classList.remove('open');
+    }
+    function closeOnBg(e) {
+      if (e.target === document.getElementById('overlay')) closeModal();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // ── Toast ──
+    let _t;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(_t);
+      _t = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ── Login ──
+    async function doLogin() {
+      const email    = document.getElementById('f-email').value.trim();
+      const password = document.getElementById('f-password').value;
+      if (!email || !password) { toast('Заполните оба поля'); return; }
+
+      const btn = document.getElementById('btn-login');
+      btn.disabled = true; btn.textContent = '...';
+
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('access_token',  data.access_token);
+          localStorage.setItem('refresh_token', data.refresh_token);
+          // Показываем имя: берём из ответа или часть email до @
+          const name = data.name || email.split('@')[0];
+          setLoggedIn(name);
+          closeModal();
+          toast('Добро пожаловать');
+        } else {
+          toast(data.detail || 'Неверные данные');
+        }
+      } catch {
+        toast('Нет соединения с сервером');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Войти';
+      }
+    }
+
+    // ── Register (заглушка — логика придёт позже) ──
+    function doRegister() {
+      toast('Регистрация будет добавлена в следующем этапе');
+    }
+
+    // ── Search ──
+    async function doSearch() {
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) return;
+
+      const box = document.getElementById('results');
+      box.innerHTML = '<p class="results-label">Поиск...</p>';
+
+      try {
+        const res  = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.results?.length) {
+          box.innerHTML = `<p class="results-label">По запросу «${esc(q)}» ничего не найдено</p>`;
+          return;
+        }
+
+        box.innerHTML =
+          `<p class="results-label">${data.results.length} результат(а)</p>` +
+          data.results.map(r => `
+            <div class="result-row">
+              <span class="result-name">${esc(r.title)}</span>
+              <span class="result-tag">${esc(r.cuisine || '')}</span>
+            </div>
+          `).join('');
+
+      } catch {
+        box.innerHTML = '<p class="results-label">Ошибка соединения</p>';
+      }
+    }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;');
+    }
+  </script>
+</body>
+</html>

@@ -12,6 +12,8 @@ services:
         condition: service_healthy
       service_recipe:
         condition: service_healthy
+      service_search:
+        condition: service_started
     networks:
       - recipe_network
     # healthcheck отключён - Nginx работает, но healthcheck требует root прав

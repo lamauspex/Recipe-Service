@@ -16,3 +16,6 @@ backend/service_search/vendor/
 *.out
 AUTHENTICATION_SETUP_PLAN.md
 API_GATEWAY_IMPLEMENTATION_PLAN.md
+Plan_1.md
+Prodact.md
+TestPlan.md
