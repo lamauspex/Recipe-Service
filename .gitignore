@@ -15,3 +15,4 @@ backend/service_search/vendor/
 *.exe
 *.out
 AUTHENTICATION_SETUP_PLAN.md
+API_GATEWAY_IMPLEMENTATION_PLAN.md
