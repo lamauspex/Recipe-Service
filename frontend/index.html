@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Savor</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
 
   <!-- ── HEADER ── -->
@@ -17,19 +19,13 @@
   <main>
     <div class="deco-line"></div>
 
-    <h1>Вкус без <em>границ</em></h1>
+    <h1>Вкус <em>без границ</em></h1>
 
     <p class="tagline">Рецепты со всего мира</p>
 
     <div class="search-wrap">
-      <input
-        class="search-input"
-        id="search-input"
-        type="text"
-        placeholder="Найдите рецепт..."
-        autocomplete="off"
-        onkeydown="if(event.key==='Enter') doSearch()"
-      />
+      <input class="search-input" id="search-input" type="text" placeholder="Найдите рецепт..." autocomplete="off"
+        onkeydown="if(event.key==='Enter') doSearch()" />
       <button class="search-btn" onclick="doSearch()">Найти</button>
     </div>
 
@@ -38,7 +34,7 @@
 
   <!-- ── FOOTER ── -->
   <footer>
-    <span class="footer-copy">Savor &nbsp;·&nbsp; Кухни мира</span>
+    <span class="footer-copy">by Lamauspex@yandex.ru</span>
   </footer>
 
   <!-- ── AUTH MODAL ── -->
@@ -52,7 +48,8 @@
       <input class="field-input" id="f-email" type="email" placeholder="you@example.com" />
 
       <label class="field-label">Пароль</label>
-      <input class="field-input" id="f-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+      <input class="field-input" id="f-password" type="password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') doLogin()" />
 
       <div class="modal-actions">
         <button class="btn-gold" id="btn-login" onclick="doLogin()">Войти</button>
@@ -102,7 +99,7 @@
 
     // ── Login ──
     async function doLogin() {
-      const email    = document.getElementById('f-email').value.trim();
+      const email = document.getElementById('f-email').value.trim();
       const password = document.getElementById('f-password').value;
       if (!email || !password) { toast('Заполните оба поля'); return; }
 
@@ -110,7 +107,7 @@
       btn.disabled = true; btn.textContent = '...';
 
       try {
-        const res  = await fetch('/api/auth/login', {
+        const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -118,7 +115,7 @@
         const data = await res.json();
 
         if (res.ok) {
-          localStorage.setItem('access_token',  data.access_token);
+          localStorage.setItem('access_token', data.access_token);
           localStorage.setItem('refresh_token', data.refresh_token);
           // Показываем имя: берём из ответа или часть email до @
           const name = data.name || email.split('@')[0];
@@ -149,7 +146,7 @@
       box.innerHTML = '<p class="results-label">Поиск...</p>';
 
       try {
-        const res  = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
         const data = await res.json();
 
         if (!res.ok || !data.results?.length) {
@@ -173,10 +170,11 @@
 
     function esc(s) {
       return String(s)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;');
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
   </script>
 </body>
+
 </html>
