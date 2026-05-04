@@ -13,5 +13,5 @@ api_router = APIRouter(prefix="/api/v1")
 
 
 # Подключаем роутеры с префиксами
-api_router.include_router(create_recipe_router, prefix="/recipe")
+api_router.include_router(create_recipe_router)
 api_router.include_router(health_router,  prefix="")
