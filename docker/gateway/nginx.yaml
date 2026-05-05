@@ -7,8 +7,9 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../../frontend:/usr/share/nginx/html:ro
     depends_on:
+      frontend:
+        condition: service_started
       service_user:
         condition: service_healthy
       service_recipe:

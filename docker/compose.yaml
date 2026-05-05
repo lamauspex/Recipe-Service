@@ -4,6 +4,7 @@ name: r_m_project
 include:
   - volumes.yaml
   - gateway/nginx.yaml                          # ← ДОБАВЛЕНО: API Gateway
+  - services/frontend.yaml
   - services/service_user.yaml
   - services/service_recipe.yaml
   - services/service_search.yaml

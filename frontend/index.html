@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Savor</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 
 <body>
@@ -203,7 +203,7 @@
       }
 
       try {
-        const res = await fetch(`http://localhost/api/v1/search?q=${encodeURIComponent(q)}`, {
+        const res = await fetch(`/api/v1/search?q=${encodeURIComponent(q)}`, {
           headers: headers
         });
         const data = await res.json();
