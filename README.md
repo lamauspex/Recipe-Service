@@ -66,6 +66,10 @@ docker compose -f docker/compose.yaml build --no-cache
 ```bash
 docker compose -f docker/compose.yaml up -d
 ```
+### Доступ
+```bash
+http://localhost
+```
 
 
 **Автор**: Резник Кирилл  
