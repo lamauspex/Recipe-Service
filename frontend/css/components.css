@@ -1,0 +1,99 @@
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 0;
+  padding: 0.9rem 1.5rem;
+  transition: background var(--duration) var(--ease),
+              color var(--duration) var(--ease),
+              border-color var(--duration) var(--ease);
+  white-space: nowrap;
+}
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn--gold {
+  color: #fff;
+  background: var(--gold);
+}
+.btn--gold:hover:not(:disabled) { background: var(--gold-light); }
+
+.btn--outline {
+  color: var(--text-mid);
+  background: transparent;
+  border: 1px solid var(--stone);
+}
+.btn--outline:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn--ghost {
+  color: var(--text-mid);
+  background: transparent;
+  border: 1px solid var(--stone);
+  font-weight: 400;
+  pointer-events: all;
+}
+.btn--ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── USER PILL (post-login header) ── */
+.user-pill {
+  pointer-events: all;
+  font-family: var(--ff-sans);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid rgba(184,146,74,0.28);
+  padding: 0.6rem 1.4rem;
+}
+
+/* ── INPUTS ── */
+.field {
+  display: block;
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--ivory-3);
+  padding: 0.78rem 1rem;
+  outline: none;
+  transition: border-color var(--duration) var(--ease),
+              box-shadow var(--duration) var(--ease);
+}
+.field:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-ring);
+}
+.field::placeholder { color: var(--text-soft); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  z-index: 200;
+  transform: translateX(-50%) translateY(60px);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--ivory-3);
+  padding: 0.65rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(28,26,23,0.07);
+  transition: transform 0.28s var(--ease);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.toast--visible { transform: translateX(-50%) translateY(0); }

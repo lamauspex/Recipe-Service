@@ -1,248 +1,114 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Savor</title>
-  <link rel="stylesheet" href="styles.css?v=2" />
-</head>
 
+  <!-- Styles: load order matters — base → layout → components → sections -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/hero.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+
+  <!-- Entry point, ES modules — no bundler needed -->
+  <script type="module" src="js/main.js"></script>
+</head>
 <body>
 
-  <!-- ── HEADER ── -->
-  <header>
-    <button class="auth-btn" id="header-btn" onclick="openModal()">Вход / Регистрация</button>
+  <!-- ── HEADER ───────────────────────────────────────────── -->
+  <header class="site-header">
+    <button
+      id="header-auth-btn"
+      class="btn btn--ghost"
+      aria-haspopup="dialog"
+    >
+      Вход / Регистрация
+    </button>
   </header>
 
-  <!-- ── MAIN ── -->
-  <main>
-    <div class="deco-line"></div>
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="site-main">
 
-    <h1>Вкус <em>без границ</em></h1>
+    <div class="hero-line" aria-hidden="true"></div>
 
-    <p class="tagline">Рецепты со всего мира</p>
+    <h1 class="hero-title">Вкус без <em>границ</em></h1>
 
-    <div class="search-wrap">
-      <input class="search-input" id="search-input" type="text" placeholder="Найдите рецепт..." autocomplete="off"
-        onkeydown="if(event.key==='Enter') doSearch()" />
-      <button class="search-btn" onclick="doSearch()">Найти</button>
+    <p class="hero-tagline">Рецепты со всего мира</p>
+
+    <!-- Search -->
+    <div class="search-bar" role="search">
+      <input
+        id="search-input"
+        class="search-bar__input"
+        type="search"
+        placeholder="Найдите рецепт…"
+        autocomplete="off"
+        aria-label="Поиск рецептов"
+      />
+      <button id="search-btn" class="search-bar__btn" aria-label="Искать">
+        Найти
+      </button>
     </div>
 
-    <div id="results"></div>
+    <!-- Results injected by search.js -->
+    <div
+      id="search-results"
+      class="search-results"
+      role="region"
+      aria-live="polite"
+      aria-label="Результаты поиска"
+    ></div>
+
   </main>
 
-  <!-- ── FOOTER ── -->
-  <footer>
-    <span class="footer-copy">by Lamauspex@yandex.ru</span>
+  <!-- ── FOOTER ────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <span class="footer-copy">Savor &nbsp;·&nbsp; Кухни мира</span>
   </footer>
 
-  <!-- ── AUTH MODAL ── -->
-  <div class="overlay" id="overlay" onclick="closeOnBg(event)">
-    <div class="modal">
-      <button class="modal-close" onclick="closeModal()">✕</button>
+  <!-- ── AUTH MODAL ───────────────────────────────────────── -->
+  <div
+    id="auth-overlay"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Авторизация"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <button class="modal-close" aria-label="Закрыть">✕</button>
 
-      <div class="modal-brand">Savor<span>.</span></div>
+      <p class="modal-brand">Savor<span>.</span></p>
 
-      <label class="field-label">Email</label>
-      <input class="field-input" id="f-email" type="email" placeholder="you@example.com" />
+      <label class="modal-field-label" for="auth-email">Email</label>
+      <input
+        id="auth-email"
+        class="field"
+        type="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+      />
 
-      <label class="field-label">Пароль</label>
-      <input class="field-input" id="f-password" type="password" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter') doLogin()" />
+      <label class="modal-field-label" for="auth-password">Пароль</label>
+      <input
+        id="auth-password"
+        class="field"
+        type="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+      />
 
       <div class="modal-actions">
-        <button class="btn-gold" id="btn-login" onclick="doLogin()">Войти</button>
-        <button class="btn-outline" onclick="doRegister()">Регистрация</button>
+        <button id="auth-login-btn"    class="btn btn--gold">Войти</button>
+        <button id="auth-register-btn" class="btn btn--outline">Регистрация</button>
       </div>
     </div>
   </div>
 
-  <!-- ── TOAST ── -->
-  <div class="toast" id="toast"></div>
+  <!-- ── TOAST ─────────────────────────────────────────────── -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script>
-    // ── Auth state ──
-    let currentUser = null;
-
-    function setLoggedIn(name) {
-      currentUser = name;
-      const btn = document.getElementById('header-btn');
-      btn.textContent = name;
-      btn.className = 'user-pill';
-      btn.onclick = null;
-    }
-
-    // ── Modal ──
-    function openModal() {
-      document.getElementById('overlay').classList.add('open');
-      setTimeout(() => document.getElementById('f-email').focus(), 120);
-    }
-    function closeModal() {
-      document.getElementById('overlay').classList.remove('open');
-    }
-    function closeOnBg(e) {
-      if (e.target === document.getElementById('overlay')) closeModal();
-    }
-
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-    // ── Toast ──
-    let _t;
-    function toast(msg) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.add('show');
-      clearTimeout(_t);
-      _t = setTimeout(() => el.classList.remove('show'), 3000);
-    }
-
-    // ── Login ──
-    async function doLogin() {
-      const email = document.getElementById('f-email').value.trim();
-      const password = document.getElementById('f-password').value;
-      if (!email || !password) { toast('Заполните оба поля'); return; }
-
-      const btn = document.getElementById('btn-login');
-      btn.disabled = true; btn.textContent = '...';
-
-      try {
-        const res = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-
-        if (res.ok) {
-          localStorage.setItem('access_token', data.access_token);
-          localStorage.setItem('refresh_token', data.refresh_token);
-          // Показываем имя: берём из email до @
-          const name = email.split('@')[0];
-          setLoggedIn(name);
-          closeModal();
-          toast('Добро пожаловать');
-        } else {
-          toast(data.detail || 'Неверные данные');
-        }
-      } catch {
-        toast('Нет соединения с сервером');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Войти';
-      }
-    }
-
-    // ── Register ──
-    async function doRegister() {
-      const email = document.getElementById('f-email').value.trim();
-      const password = document.getElementById('f-password').value;
-      if (!email || !password) { toast('Заполните оба поля'); return; }
-
-      const userName = prompt('Введите имя пользователя:');
-      if (!userName) { toast('Отменено'); return; }
-
-      const registerBody = {
-        user_name: userName,
-        email: email,
-        password: password,
-        full_name: userName
-      };
-
-      const btn = document.getElementById('btn-login');
-      btn.disabled = true; btn.textContent = '...';
-
-      try {
-        const res = await fetch('/api/v1/register/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(registerBody)
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          toast('Регистрация успешна! Теперь войдите.');
-          closeModal();
-        } else {
-          const error = await res.json();
-          toast(error.detail || error.message || 'Ошибка регистрации');
-        }
-      } catch {
-        toast('Нет соединения с сервером');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Войти';
-      }
-    }
-
-    // ── Logout ──
-    function doLogout() {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      currentUser = null;
-
-      const btn = document.getElementById('header-btn');
-      btn.textContent = 'Вход / Регистрация';
-      btn.className = 'auth-btn';
-      btn.onclick = openModal;
-
-      toast('Вы вышли из системы');
-    }
-
-    // ── Search ──
-    async function doSearch() {
-      const q = document.getElementById('search-input').value.trim();
-      if (!q) return;
-
-      const token = localStorage.getItem('access_token');
-
-      const box = document.getElementById('results');
-      box.innerHTML = '<p class="results-label">Поиск...</p>';
-
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      try {
-        const res = await fetch(`/api/v1/search?q=${encodeURIComponent(q)}`, {
-          headers: headers
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.results?.length) {
-          box.innerHTML = `<p class="results-label">По запросу «${esc(q)}» ничего не найдено</p>`;
-          return;
-        }
-
-        box.innerHTML =
-          `<p class="results-label">${data.results.length} результат(а)</p>` +
-          data.results.map(r => `
-            <div class="result-row">
-              <span class="result-name">${esc(r.title)}</span>
-              <span class="result-tag">${esc(r.cuisine || '')}</span>
-            </div>
-          `).join('');
-
-      } catch {
-        box.innerHTML = '<p class="results-label">Ошибка соединения</p>';
-      }
-    }
-
-    function esc(s) {
-      return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    }
-
-    // ── Set logged in user with logout button ──
-    function setLoggedIn(name) {
-      currentUser = name;
-      const btn = document.getElementById('header-btn');
-      btn.textContent = `👤 ${name} | Выйти`;
-      btn.className = 'user-pill';
-      btn.onclick = doLogout;
-    }
-  </script>
 </body>
-
 </html>
