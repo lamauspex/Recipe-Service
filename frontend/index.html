@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,15 +16,12 @@
   <!-- Entry point, ES modules — no bundler needed -->
   <script type="module" src="js/main.js"></script>
 </head>
+
 <body>
 
   <!-- ── HEADER ───────────────────────────────────────────── -->
   <header class="site-header">
-    <button
-      id="header-auth-btn"
-      class="btn btn--ghost"
-      aria-haspopup="dialog"
-    >
+    <button id="header-auth-btn" class="btn btn--ghost" aria-haspopup="dialog">
       Вход / Регистрация
     </button>
   </header>
@@ -33,33 +31,22 @@
 
     <div class="hero-line" aria-hidden="true"></div>
 
-    <h1 class="hero-title">Вкус без <em>границ</em></h1>
+    <h1 class="hero-title">Вкус <em>без границ</em></h1>
 
     <p class="hero-tagline">Рецепты со всего мира</p>
 
     <!-- Search -->
     <div class="search-bar" role="search">
-      <input
-        id="search-input"
-        class="search-bar__input"
-        type="search"
-        placeholder="Найдите рецепт…"
-        autocomplete="off"
-        aria-label="Поиск рецептов"
-      />
+      <input id="search-input" class="search-bar__input" type="search" placeholder="Найдите рецепт…" autocomplete="off"
+        aria-label="Поиск рецептов" />
       <button id="search-btn" class="search-bar__btn" aria-label="Искать">
         Найти
       </button>
     </div>
 
     <!-- Results injected by search.js -->
-    <div
-      id="search-results"
-      class="search-results"
-      role="region"
-      aria-live="polite"
-      aria-label="Результаты поиска"
-    ></div>
+    <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Результаты поиска">
+    </div>
 
   </main>
 
@@ -69,39 +56,21 @@
   </footer>
 
   <!-- ── AUTH MODAL ───────────────────────────────────────── -->
-  <div
-    id="auth-overlay"
-    class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Авторизация"
-    aria-hidden="true"
-  >
+  <div id="auth-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Авторизация"
+    aria-hidden="true">
     <div class="modal-dialog">
       <button class="modal-close" aria-label="Закрыть">✕</button>
 
       <p class="modal-brand">Savor<span>.</span></p>
 
       <label class="modal-field-label" for="auth-email">Email</label>
-      <input
-        id="auth-email"
-        class="field"
-        type="email"
-        placeholder="you@example.com"
-        autocomplete="email"
-      />
+      <input id="auth-email" class="field" type="email" placeholder="you@example.com" autocomplete="email" />
 
       <label class="modal-field-label" for="auth-password">Пароль</label>
-      <input
-        id="auth-password"
-        class="field"
-        type="password"
-        placeholder="••••••••"
-        autocomplete="current-password"
-      />
+      <input id="auth-password" class="field" type="password" placeholder="••••••••" autocomplete="current-password" />
 
       <div class="modal-actions">
-        <button id="auth-login-btn"    class="btn btn--gold">Войти</button>
+        <button id="auth-login-btn" class="btn btn--gold">Войти</button>
         <button id="auth-register-btn" class="btn btn--outline">Регистрация</button>
       </div>
     </div>
@@ -111,4 +80,5 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 </body>
+
 </html>
