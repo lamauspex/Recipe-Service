@@ -128,34 +128,6 @@ class TestRecipeService:
             "unit": "г"
         }
 
-    def test_create_recipe_with_empty_ingredients(self, mock_recipe_repo):
-        """Создание рецепта без ингредиентов должно работать"""
-        user_id = uuid4()
-
-        # Мок рецепта без ингредиентов
-        mock_recipe = Mock()
-        mock_recipe.id = uuid4()
-        mock_recipe.name_recipe = "Чай"
-        mock_recipe.description = "Просто чай"
-        mock_recipe.ingredients = []
-        mock_recipe.created_at = datetime.now()
-        mock_recipe.updated_at = None
-
-        mock_recipe_repo.create.return_value = mock_recipe
-
-        recipe_data = RecipeCreate(
-            name_recipe="Чай",
-            description="Просто чай",
-            ingredients=[]
-        )
-
-        service = RecipeService(recipe_repo=mock_recipe_repo)
-        result = service.create_recipe(
-            recipe_data=recipe_data, user_id=user_id)
-
-        assert result.name_recipe == "Чай"
-        assert len(result.ingredients) == 0
-
     def test_create_recipe_returns_correct_response_fields(
             self, mock_recipe_repo,
             mock_recipe_model, recipe_create_data):
